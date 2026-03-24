@@ -320,33 +320,4 @@ Snapper manages automatic Btrfs snapshots on `/` and `/home`:
 ## Credits & Acknowledgements
 
 
-## Updating
-
-All updates are protected by automatic Btrfs snapshots. If an update breaks anything, the system rolls back to the last known good state.
-
-```bash
-# Update everything (snapshots automatically taken before and after)
-/srv/ai/scripts/halo-update.sh update
-
-# Just take a manual snapshot
-/srv/ai/scripts/halo-update.sh snapshot
-
-# View snapshots and rollback info
-/srv/ai/scripts/halo-update.sh status
-
-# List available rollback points
-/srv/ai/scripts/halo-update.sh rollback
-```
-
-### Update Flow
-
-1. **Pre-snapshot** — Snapper creates paired pre/post snapshots of `/` and `/home` before any changes
-2. **Stop services** — All halo-ai services are stopped cleanly
-3. **System update** — `pacman -Syu` for kernel, firmware, and base packages
-4. **Service update** — `git pull` on all upstream repos
-5. **Rebuild** — Only recompiles services whose source files changed (CMake targets for C++, pip for Python, yarn/pnpm for Node.js)
-6. **Start and verify** — All services restarted, inference test run
-7. **Post-snapshot** — If everything passes, a post-snapshot is created
-8. **Auto-rollback** — If any step fails, the system automatically rolls back to the pre-snapshot
-
-The watchdog agent also takes a snapshot before attempting any auto-repair, so even automatic recovery is reversible.
+## UpdatingAll updates are protected by automatic Btrfs snapshots with auto-rollback. One command does everything:```bash/srv/ai/scripts/halo-update.sh update```That single command:1. **Snapshots** root + home before anything changes2. **Stops** all services cleanly3. **Updates** system packages + pulls all upstream repos4. **Rebuilds** only what changed (CMake for C++, pip for Python, yarn/pnpm for Node.js)5. **Starts** services and runs inference verification test6. **Rolls back automatically** if anything fails — system returns to pre-update state7. **Snapshots** the good state after success — creating a paired pre/post record### Why This MattersOn a bare-metal server with 10+ services compiled from source, a bad upstream commit in any one of them can take the entire stack down. On a containerized setup you just roll back one image. On bare metal you need filesystem-level protection.halo-ai solves this with Btrfs copy-on-write snapshots at every critical point:- **Before system updates** — `pacman -Syu` can break GPU drivers, kernel modules, or Python/Node.js- **Before service updates** — upstream git pulls can introduce breaking changes- **Before auto-repairs** — the watchdog snapshots before restarting a failed service- **Before rebuilds** — recompiling llama.cpp or Lemonade with new source can produce broken binariesRollback is instant (Btrfs COW — no data copying) and atomic (the entire filesystem reverts, not just individual files).### Manual Controls```bash# Take a manual snapshot right now/srv/ai/scripts/halo-update.sh snapshot# View available rollback points/srv/ai/scripts/halo-update.sh rollback# Check update history/srv/ai/scripts/halo-update.sh status# Snapper direct accesssnapper -c root list                    # List all root snapshotssnapper -c root undochange 10..11       # Undo changes between snapshot 10 and 11snapper -c root diff 10..11             # See what changed between snapshots```### Snapshot RetentionSnapshots are automatically cleaned up so they do not consume unlimited disk space:| Type | Retention ||------|-----------|| Hourly (timeline) | 24 || Daily (timeline) | 14 || Weekly (timeline) | 4 || Monthly (timeline) | 6 || Yearly (timeline) | 10 || Pacman pre/post (snap-pac) | 50 || Update pre/post (halo-update) | 50 || Watchdog repair | 50 |All snapshots use Btrfs COW — they consume zero additional space until the original data is modified. Even then, only the changed blocks are stored. On a 1.9TB drive this is negligible.
