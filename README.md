@@ -319,3 +319,34 @@ Snapper manages automatic Btrfs snapshots on `/` and `/home`:
 
 ## Credits & Acknowledgements
 
+
+## Updating
+
+All updates are protected by automatic Btrfs snapshots. If an update breaks anything, the system rolls back to the last known good state.
+
+```bash
+# Update everything (snapshots automatically taken before and after)
+/srv/ai/scripts/halo-update.sh update
+
+# Just take a manual snapshot
+/srv/ai/scripts/halo-update.sh snapshot
+
+# View snapshots and rollback info
+/srv/ai/scripts/halo-update.sh status
+
+# List available rollback points
+/srv/ai/scripts/halo-update.sh rollback
+```
+
+### Update Flow
+
+1. **Pre-snapshot** — Snapper creates paired pre/post snapshots of `/` and `/home` before any changes
+2. **Stop services** — All halo-ai services are stopped cleanly
+3. **System update** — `pacman -Syu` for kernel, firmware, and base packages
+4. **Service update** — `git pull` on all upstream repos
+5. **Rebuild** — Only recompiles services whose source files changed (CMake targets for C++, pip for Python, yarn/pnpm for Node.js)
+6. **Start and verify** — All services restarted, inference test run
+7. **Post-snapshot** — If everything passes, a post-snapshot is created
+8. **Auto-rollback** — If any step fails, the system automatically rolls back to the pre-snapshot
+
+The watchdog agent also takes a snapshot before attempting any auto-repair, so even automatic recovery is reversible.

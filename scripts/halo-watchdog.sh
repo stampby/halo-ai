@@ -39,7 +39,8 @@ check_services() {
     local failures=0
     for svc in "${SERVICES[@]}"; do
         if ! systemctl is-active --quiet "halo-${svc}.service" 2>/dev/null; then
-            warn "Service halo-${svc} is down, attempting restart..."
+            warn "Service halo-${svc} is down, snapshotting before repair..."
+            snapshot_before_repair
             if systemctl restart "halo-${svc}.service" 2>/dev/null; then
                 sleep 3
                 if systemctl is-active --quiet "halo-${svc}.service"; then
@@ -161,3 +162,8 @@ main() {
 }
 
 main
+
+# ── PRE-REPAIR SNAPSHOT ─────────────────────────────
+snapshot_before_repair() {
+    sudo snapper -c root create --type single --cleanup-algorithm number         --description halo-watchdog pre-repair 20260324-202332 2>/dev/null
+}
