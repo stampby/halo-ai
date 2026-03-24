@@ -1,6 +1,6 @@
 [Unit]
 Description=Vane (Perplexica) Deep Research
-After=network.target searxng.service lemonade.service
+After=network.target halo-searxng.service halo-lemonade.service
 
 [Service]
 Type=simple

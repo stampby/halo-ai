@@ -1,7 +1,7 @@
 [Unit]
 Description=Lemonade AI Server
-After=network.target llama-server.service
-Wants=llama-server.service
+After=network.target halo-llama-server.service
+Wants=halo-llama-server.service
 
 [Service]
 Type=simple

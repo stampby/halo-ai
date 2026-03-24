@@ -187,3 +187,52 @@ Snapper manages automatic Btrfs snapshots on `/` and `/home`:
 ## License
 
 Apache 2.0
+
+## Credits & Acknowledgements
+
+This project stands on the shoulders of incredible open-source work. Special thanks to:
+
+### Core Inspiration
+- **[DreamServer](https://github.com/Light-Heart-Labs/DreamServer)** by Light-Heart-Labs — The original vision of a complete, integrated AI stack for Strix Halo. DreamServer's architecture of orchestrating 13+ services behind a unified interface was the direct inspiration for halo-ai. Their pioneering work proving that Strix Halo could run a full AI platform — not just a single model — showed what was possible. halo-ai takes that vision and rebuilds it bare-metal for maximum performance on unified memory hardware.
+
+- **[Lemonade](https://github.com/lemonade-sdk/lemonade)** by AMD / Lemonade SDK — The unified AI serving layer that makes this entire stack practical. Lemonade's OpenAI + Ollama + Anthropic API compatibility means every frontend in this stack can talk to every backend through one interface. Their dedicated work on gfx1151 ROCm support, NPU+GPU hybrid inference, and the llamacpp-rocm nightly builds has been essential for making Strix Halo a viable AI platform. Without Lemonade, local AI on AMD hardware would still be a series of disconnected experiments.
+
+### Upstream Projects
+Every service in this stack is open source. We compile from source but contribute nothing without these teams:
+
+| Project | Team | License | Contribution |
+|---------|------|---------|-------------|
+| [llama.cpp](https://github.com/ggml-org/llama.cpp) | Georgi Gerganov et al. | MIT | The inference engine that started it all |
+| [Open WebUI](https://github.com/open-webui/open-webui) | Timothy Baek et al. | MIT | The best self-hosted chat interface |
+| [Vane (Perplexica)](https://github.com/ItzCrazyKns/Vane) | ItzCrazyKns | MIT | AI-powered deep research |
+| [whisper.cpp](https://github.com/ggerganov/whisper.cpp) | Georgi Gerganov | MIT | Fast speech-to-text |
+| [Kokoro](https://github.com/remsky/Kokoro-FastAPI) | remsky | Apache 2.0 | High-quality TTS |
+| [ComfyUI](https://github.com/comfyanonymous/ComfyUI) | comfyanonymous | GPL 3.0 | Node-based image generation |
+| [SearXNG](https://github.com/searxng/searxng) | SearXNG team | AGPL 3.0 | Privacy-respecting search |
+| [Qdrant](https://github.com/qdrant/qdrant) | Qdrant team | Apache 2.0 | Vector search for RAG |
+| [n8n](https://github.com/n8n-io/n8n) | n8n GmbH | Sustainable Use | Workflow automation |
+| [ROCm / TheRock](https://github.com/ROCm/TheRock) | AMD | Various | GPU compute stack for gfx1151 |
+
+### Community
+- The **Framework laptop community** for extensive Strix Halo testing and benchmarks
+- **kyuz0** for [amd-strix-halo-toolboxes](https://github.com/kyuz0/amd-strix-halo-toolboxes) Docker images and benchmark data
+- **Gygeek** for [Framework-strix-halo-llm-setup](https://github.com/Gygeek/Framework-strix-halo-llm-setup) guides
+- The **Arch Linux** community for bleeding-edge packages
+- Everyone contributing to ROCm gfx1151 support in kernel, Mesa, and userspace
+
+## Watchdog Agent
+
+halo-ai includes a watchdog agent that runs every 5 minutes via systemd timer. It:
+
+- Monitors all service health and auto-restarts failed services
+- Checks GPU device availability and temperature
+- Monitors disk usage and available memory
+- Checks all upstream repos for updates (git fetch)
+- Checks for kernel and system package updates
+- **Only alerts when auto-repair fails** — silent when everything is healthy
+
+Notifications go to the desktop (via `notify-send`) and systemd journal. Check the log:
+```bash
+journalctl -t halo-watchdog        # Watchdog entries
+cat /var/log/halo-watchdog.log     # Full log
+```

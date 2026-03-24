@@ -1,0 +1,10 @@
+[Unit]
+Description=halo-ai Watchdog Agent
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/srv/ai/scripts/halo-watchdog.sh
+StandardOutput=journal
+StandardError=journal

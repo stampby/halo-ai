@@ -1,6 +1,6 @@
 [Unit]
 Description=Open WebUI
-After=network.target lemonade.service
+After=network.target halo-lemonade.service
 
 [Service]
 Type=simple
