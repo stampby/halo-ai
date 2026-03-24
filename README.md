@@ -317,7 +317,45 @@ Snapper manages automatic Btrfs snapshots on `/` and `/home`:
 | Yearly | 10 |
 | Pacman pre/post | Automatic (snap-pac) |
 
+## UpdatingAll updates are protected by automatic Btrfs snapshots with auto-rollback.That single command:1. **Snapshots** root + home before anything changes2. **Stops** all services cleanly3. **Updates** system packages + pulls all upstream repos4. **Rebuilds** only what changed5. **Starts** services and runs inference verification6. **Rolls back automatically** if anything fails7. **Snapshots** the good state after successIf any step fails, the entire system reverts to the pre-update snapshot instantly (Btrfs COW — no data copying, atomic rollback). The watchdog also snapshots before any auto-repair.
 ## Credits & Acknowledgements
 
+halo-ai is built on the work of incredible open-source teams. This project would not exist without them.
 
-## UpdatingAll updates are protected by automatic Btrfs snapshots with auto-rollback. One command does everything:```bash/srv/ai/scripts/halo-update.sh update```That single command:1. **Snapshots** root + home before anything changes2. **Stops** all services cleanly3. **Updates** system packages + pulls all upstream repos4. **Rebuilds** only what changed (CMake for C++, pip for Python, yarn/pnpm for Node.js)5. **Starts** services and runs inference verification test6. **Rolls back automatically** if anything fails — system returns to pre-update state7. **Snapshots** the good state after success — creating a paired pre/post record### Why This MattersOn a bare-metal server with 10+ services compiled from source, a bad upstream commit in any one of them can take the entire stack down. On a containerized setup you just roll back one image. On bare metal you need filesystem-level protection.halo-ai solves this with Btrfs copy-on-write snapshots at every critical point:- **Before system updates** — `pacman -Syu` can break GPU drivers, kernel modules, or Python/Node.js- **Before service updates** — upstream git pulls can introduce breaking changes- **Before auto-repairs** — the watchdog snapshots before restarting a failed service- **Before rebuilds** — recompiling llama.cpp or Lemonade with new source can produce broken binariesRollback is instant (Btrfs COW — no data copying) and atomic (the entire filesystem reverts, not just individual files).### Manual Controls```bash# Take a manual snapshot right now/srv/ai/scripts/halo-update.sh snapshot# View available rollback points/srv/ai/scripts/halo-update.sh rollback# Check update history/srv/ai/scripts/halo-update.sh status# Snapper direct accesssnapper -c root list                    # List all root snapshotssnapper -c root undochange 10..11       # Undo changes between snapshot 10 and 11snapper -c root diff 10..11             # See what changed between snapshots```### Snapshot RetentionSnapshots are automatically cleaned up so they do not consume unlimited disk space:| Type | Retention ||------|-----------|| Hourly (timeline) | 24 || Daily (timeline) | 14 || Weekly (timeline) | 4 || Monthly (timeline) | 6 || Yearly (timeline) | 10 || Pacman pre/post (snap-pac) | 50 || Update pre/post (halo-update) | 50 || Watchdog repair | 50 |All snapshots use Btrfs COW — they consume zero additional space until the original data is modified. Even then, only the changed blocks are stored. On a 1.9TB drive this is negligible.
+### Special Thanks
+
+**[DreamServer](https://github.com/Light-Heart-Labs/DreamServer)** by Light-Heart-Labs deserves enormous credit. They were the first to prove that a complete AI platform — not just a single inference engine — could run on Strix Halo. Their vision of integrating LLM inference, chat, voice, RAG, agents, image generation, and workflow automation into one cohesive stack was groundbreaking. halo-ai's entire architecture is inspired by what DreamServer built. Their open-source dashboard panel powers the halo-ai control center. We are deeply grateful to the Light-Heart-Labs team for their contribution to the Strix Halo community.
+
+**[Lemonade](https://github.com/lemonade-sdk/lemonade)** by AMD / Lemonade SDK is the backbone of this stack. Their unified API layer provides OpenAI, Ollama, and Anthropic compatibility through a single endpoint. Their dedicated engineering on gfx1151 ROCm support, NPU+GPU hybrid inference, and the llamacpp-rocm nightly builds made Strix Halo a viable AI platform. Lemonade turned scattered hardware support into a production-ready serving layer.
+
+### Upstream Projects
+
+Every service in this stack is open source. We compile from source, but we build nothing — these teams do:
+
+| Project | What It Does | License |
+|---------|-------------|---------|
+| [llama.cpp](https://github.com/ggml-org/llama.cpp) | The LLM inference engine that powers the entire stack | MIT |
+| [Open WebUI](https://github.com/open-webui/open-webui) | Full-featured chat interface with RAG and multi-model support | MIT |
+| [Vane (Perplexica)](https://github.com/ItzCrazyKns/Vane) | AI-powered deep research with cited sources | MIT |
+| [whisper.cpp](https://github.com/ggerganov/whisper.cpp) | Fast, GPU-accelerated speech-to-text | MIT |
+| [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) | High-quality text-to-speech API | Apache 2.0 |
+| [ComfyUI](https://github.com/comfyanonymous/ComfyUI) | Node-based image generation pipeline | GPL 3.0 |
+| [SearXNG](https://github.com/searxng/searxng) | Privacy-respecting meta-search engine | AGPL 3.0 |
+| [Qdrant](https://github.com/qdrant/qdrant) | High-performance vector database for RAG | Apache 2.0 |
+| [n8n](https://github.com/n8n-io/n8n) | Workflow automation with 400+ integrations | Sustainable Use |
+| [Caddy](https://github.com/caddyserver/caddy) | Reverse proxy with automatic TLS | Apache 2.0 |
+| [ROCm / TheRock](https://github.com/ROCm/TheRock) | AMD GPU compute stack for gfx1151 | Various |
+
+### Community
+
+The Strix Halo AI community has been invaluable:
+
+- [kyuz0](https://github.com/kyuz0/amd-strix-halo-toolboxes) — Docker toolboxes and comprehensive backend benchmarks
+- [Gygeek](https://github.com/Gygeek/Framework-strix-halo-llm-setup) — Framework laptop setup guides
+- The **Framework laptop community** for extensive hardware testing
+- The **Arch Linux** community for bleeding-edge packages
+- Everyone contributing to ROCm gfx1151 support in kernel, Mesa, and userspace
+
+## License
+
+Apache 2.0
