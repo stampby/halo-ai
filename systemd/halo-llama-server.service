@@ -8,7 +8,7 @@ User=<YOUR_USER>
 Group=<YOUR_USER>
 EnvironmentFile=/srv/ai/configs/rocm.env
 Environment=ROCBLAS_USE_HIPBLASLT=1
-ExecStart=/srv/ai/llama-cpp/build-hip/bin/llama-server     --host 127.0.0.1 --port 8081     --no-mmap -ngl 99     --model /srv/ai/models/default.gguf
+ExecStart=/srv/ai/llama-cpp/build-hip/bin/llama-server     --host 127.0.0.1 --port 8081     --no-mmap -ngl 99     --model /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf
 Restart=on-failure
 RestartSec=5
 SupplementaryGroups=video render

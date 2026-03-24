@@ -319,12 +319,3 @@ Snapper manages automatic Btrfs snapshots on `/` and `/home`:
 
 ## Credits & Acknowledgements
 
-- **[DreamServer](https://github.com/Light-Heart-Labs/DreamServer)** by Light-Heart-Labs — The original vision of a complete, integrated AI stack for Strix Halo. DreamServer proved that Strix Halo could run a full AI platform and showed what was possible. halo-ai takes that vision and rebuilds it bare-metal for maximum performance on unified memory hardware.
-
-- **[Lemonade](https://github.com/lemonade-sdk/lemonade)** by AMD / Lemonade SDK — The unified AI serving layer that makes this entire stack practical. Their dedicated work on gfx1151 ROCm support, NPU+GPU hybrid inference, and the llamacpp-rocm nightly builds has been essential for making Strix Halo a viable AI platform.
-
-- **[llama.cpp](https://github.com/ggml-org/llama.cpp)**, **[Open WebUI](https://github.com/open-webui/open-webui)**, **[Vane](https://github.com/ItzCrazyKns/Vane)**, **[whisper.cpp](https://github.com/ggerganov/whisper.cpp)**, **[Kokoro](https://github.com/remsky/Kokoro-FastAPI)**, **[ComfyUI](https://github.com/comfyanonymous/ComfyUI)**, **[SearXNG](https://github.com/searxng/searxng)**, **[Qdrant](https://github.com/qdrant/qdrant)**, **[n8n](https://github.com/n8n-io/n8n)**, **[Caddy](https://github.com/caddyserver/caddy)**, **[ROCm/TheRock](https://github.com/ROCm/TheRock)** — The open-source projects that make this stack possible.
-
-## License
-
-Apache 2.0
