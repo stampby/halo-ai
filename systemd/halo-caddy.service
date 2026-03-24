@@ -1,0 +1,16 @@
+[Unit]
+Description=halo-ai Caddy Reverse Proxy
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+ExecStart=/usr/local/bin/caddy run --config /srv/ai/configs/Caddyfile
+ExecReload=/usr/local/bin/caddy reload --config /srv/ai/configs/Caddyfile
+Restart=on-failure
+RestartSec=5
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+{
+    admin off
+}
+
+:8443 {
+    tls internal
+
+    basicauth * {
+        # Generate hash: caddy hash-password --plaintext 'yourpassword'
+        # Replace this placeholder with your actual bcrypt hash
+        admin a
+    }
+
+    handle_path /chat/* {
+        reverse_proxy 127.0.0.1:3000
+    }
+
+    handle_path /research/* {
+        reverse_proxy 127.0.0.1:3001
+    }
+
+    handle_path /workflows/* {
+        reverse_proxy 127.0.0.1:5678
+    }
+
+    handle_path /api/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    handle_path /comfyui/* {
+        reverse_proxy 127.0.0.1:8188
+    }
+
+    # Default to Open WebUI
+    reverse_proxy 127.0.0.1:3000
+}
