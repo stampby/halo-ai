@@ -1,0 +1,17 @@
+[Unit]
+Description=ComfyUI Image Generation
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+EnvironmentFile=/srv/ai/configs/rocm.env
+WorkingDirectory=/srv/ai/comfyui
+ExecStart=/srv/ai/comfyui/.venv/bin/python main.py --listen 0.0.0.0 --port 8188
+Restart=on-failure
+RestartSec=5
+SupplementaryGroups=video render
+
+[Install]
+WantedBy=multi-user.target

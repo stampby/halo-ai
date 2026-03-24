@@ -1,0 +1,17 @@
+[Unit]
+Description=Vane (Perplexica) Deep Research
+After=network.target searxng.service lemonade.service
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+WorkingDirectory=/srv/ai/vane
+Environment=PORT=3001
+Environment=SEARXNG_API_URL=http://localhost:8888
+ExecStart=/usr/local/bin/node /srv/ai/vane/.next/standalone/server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

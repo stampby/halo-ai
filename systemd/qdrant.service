@@ -1,0 +1,15 @@
+[Unit]
+Description=Qdrant Vector Database
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+WorkingDirectory=/srv/ai/qdrant
+ExecStart=/srv/ai/qdrant/target/release/qdrant --config-path /srv/ai/configs/qdrant.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

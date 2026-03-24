@@ -1,0 +1,16 @@
+[Unit]
+Description=SearXNG Private Search Engine
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+WorkingDirectory=/srv/ai/searxng
+Environment=SEARXNG_SETTINGS_PATH=/srv/ai/configs/searxng/settings.yml
+ExecStart=/srv/ai/searxng/.venv/bin/python -m searx.webapp
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=Lemonade AI Server
+After=network.target llama-server.service
+Wants=llama-server.service
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+EnvironmentFile=/srv/ai/configs/rocm.env
+WorkingDirectory=/srv/ai/lemonade
+ExecStart=/srv/ai/lemonade/build/lemonade-server --port 8080
+Restart=on-failure
+RestartSec=5
+SupplementaryGroups=video render
+
+[Install]
+WantedBy=multi-user.target

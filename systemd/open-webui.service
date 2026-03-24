@@ -1,0 +1,17 @@
+[Unit]
+Description=Open WebUI
+After=network.target lemonade.service
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+WorkingDirectory=/srv/ai/open-webui
+Environment=DATA_DIR=/srv/ai/open-webui/data
+Environment=OLLAMA_BASE_URL=http://localhost:8080
+ExecStart=/srv/ai/open-webui/.venv/bin/python -m open_webui serve --host 0.0.0.0 --port 3000
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

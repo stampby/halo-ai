@@ -1,0 +1,17 @@
+[Unit]
+Description=n8n Workflow Automation
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+WorkingDirectory=/srv/ai/n8n
+Environment=N8N_PORT=5678
+Environment=N8N_USER_FOLDER=/srv/ai/n8n/data
+ExecStart=/usr/local/bin/node /srv/ai/n8n/packages/cli/bin/n8n start
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=llama.cpp Server (HIP/ROCm)
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+EnvironmentFile=/srv/ai/configs/rocm.env
+Environment=ROCBLAS_USE_HIPBLASLT=1
+ExecStart=/srv/ai/llama-cpp/build-hip/bin/llama-server     --host 0.0.0.0 --port 8081     --no-mmap -ngl 99     --model /srv/ai/models/default.gguf
+Restart=on-failure
+RestartSec=5
+SupplementaryGroups=video render
+
+[Install]
+WantedBy=multi-user.target

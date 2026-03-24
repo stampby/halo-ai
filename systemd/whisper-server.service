@@ -1,0 +1,16 @@
+[Unit]
+Description=whisper.cpp Server
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+EnvironmentFile=/srv/ai/configs/rocm.env
+ExecStart=/srv/ai/whisper-cpp/build/bin/whisper-server     --host 0.0.0.0 --port 8082     --model /srv/ai/models/whisper-large-v3.bin
+Restart=on-failure
+RestartSec=5
+SupplementaryGroups=video render
+
+[Install]
+WantedBy=multi-user.target
