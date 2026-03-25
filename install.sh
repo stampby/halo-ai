@@ -199,7 +199,7 @@ sudo usermod -aG video,render "$HALO_USER"
 progress "Creating /srv/ai/ with Btrfs subvolumes..."
 sudo mkdir -p /srv/ai
 for svc in rocm llama-cpp lemonade whisper-cpp open-webui vane searxng qdrant n8n kokoro comfyui models configs systemd scripts; do
-    sudo btrfs subvolume create /srv/ai/$svc 2>/dev/null || true
+    sudo btrfs subvolume create /srv/ai/$svc 2>/dev/null || sudo mkdir -p /srv/ai/$svc
 done
 sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai
 
