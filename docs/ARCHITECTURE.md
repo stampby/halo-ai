@@ -265,7 +265,7 @@ All AI services bind exclusively to `127.0.0.1`. The only network-accessible ser
    - Default policy: DROP all inbound
    - Allow established/related connections
    - Allow loopback (localhost)
-   - Allow SSH and HTTPS from LAN subnet only (xxx.xxx.xxx.0/24)
+   - Allow SSH and HTTPS from LAN subnet only (replace with your LAN subnet)
    - Allow WireGuard (UDP 51820) from anywhere
    - Allow ICMP (ping)
    - Drop everything else with counter

@@ -343,12 +343,12 @@ Quick fix using hosts file:
 
 ```bash
 # On the client machine (replace with your server's IP)
-sudo sh -c 'echo "192.168.50.xxx    strixhalo" >> /etc/hosts'
+sudo sh -c 'echo "xxx.xxx.xxx.xxx    strixhalo" >> /etc/hosts'
 ```
 
 **3. Check the firewall:**
 
-The nftables firewall only allows ports 22 (SSH) and 443 (Caddy) from the `xxx.xxx.xxx.0/24` subnet. If your LAN uses a different subnet (e.g., `192.168.1.0/24`), you need to update the firewall rules:
+The nftables firewall only allows ports 22 (SSH) and 443 (Caddy) from your configured LAN subnet. If your LAN uses a different subnet (e.g., `192.168.1.0/24`), you need to update the firewall rules:
 
 ```bash
 # Check current rules
@@ -581,7 +581,7 @@ sudo systemctl edit halo-llama-server
 
 ### Firewall blocking connections
 
-The halo-ai stack uses nftables with a default-deny policy. Only SSH (22), Caddy HTTPS (443, 8443), WireGuard (51820), and ICMP are allowed, and only from the `xxx.xxx.xxx.0/24` subnet (except WireGuard).
+The halo-ai stack uses nftables with a default-deny policy. Only SSH (22), Caddy HTTPS (443, 8443), WireGuard (51820), and ICMP are allowed, and only from your configured LAN subnet (except WireGuard).
 
 **Check current firewall rules:**
 

@@ -30,9 +30,9 @@ table inet filter {
 
         ct state established,related accept    # Return traffic for outbound connections
         iif lo accept                          # All localhost traffic (service-to-service)
-        ip saddr xxx.xxx.xxx.0/24 tcp dport 22 accept    # SSH from LAN
-        ip saddr xxx.xxx.xxx.0/24 tcp dport 443 accept   # Caddy from LAN
-        ip saddr xxx.xxx.xxx.0/24 tcp dport 8443 accept  # Caddy alt port from LAN
+        ip saddr xxx.xxx.xxx.0/24 tcp dport 22 accept    # SSH from LAN (replace with your LAN subnet)
+        ip saddr xxx.xxx.xxx.0/24 tcp dport 443 accept   # Caddy from LAN (replace with your LAN subnet)
+        ip saddr xxx.xxx.xxx.0/24 tcp dport 8443 accept  # Caddy alt port from LAN (replace with your LAN subnet)
         udp dport 51820 accept                 # WireGuard (from anywhere)
         ip protocol icmp accept                # Ping
         ip6 nexthdr icmpv6 accept              # Ping (IPv6)
@@ -51,7 +51,7 @@ table inet filter {
 
 Key design decisions:
 - **Default policy is `drop`** --- anything not explicitly allowed is silently rejected.
-- **SSH and Caddy are LAN-only** (`xxx.xxx.xxx.0/24`). Adjust this to match your subnet.
+- **SSH and Caddy are LAN-only** (`xxx.xxx.xxx.0/24` — replace with your LAN subnet). Adjust this to match your subnet.
 - **WireGuard accepts from anywhere** because VPN clients may connect from external networks.
 - **Loopback is fully open** because all inter-service communication happens on localhost.
 - **Outbound is unrestricted** (`policy accept` on output) so services can fetch models, updates, and search results.
