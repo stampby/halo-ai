@@ -5,7 +5,9 @@
 # Usage:
 #   halo-driver-swap.sh vulkan    # Vulkan (RADV) - fastest generation
 #   halo-driver-swap.sh hip       # HIP (ROCm) - fastest prompt processing, long context
+#   halo-driver-swap.sh opencl    # OpenCL (ROCm) - compute workloads
 #   halo-driver-swap.sh status    # Show current backend
+#   halo-driver-swap.sh list      # Show all available backends
 #   halo-driver-swap.sh bench     # Quick benchmark on current backend
 
 set -euo pipefail
@@ -14,6 +16,7 @@ SERVICE="halo-llama-server.service"
 UNIT="/etc/systemd/system/$SERVICE"
 HIP_BIN="/srv/ai/llama-cpp/build-hip/bin/llama-server"
 VK_BIN="/srv/ai/llama-cpp/build-vulkan/bin/llama-server"
+CL_BIN="/srv/ai/llama-cpp/build-opencl/bin/llama-server"
 
 status() {
     local current
@@ -58,9 +61,20 @@ swap_to() {
             echo "Switching to HIP (ROCm)"
             echo "  Best for: prompt processing, long context, Flash Attention via rocWMMA"
             ;;
+        opencl|cl)
+            bin="$CL_BIN"
+            flags="--no-mmap -ngl 99"
+            echo "Switching to OpenCL (ROCm)"
+            echo "  Best for: general GPU compute, compatibility testing"
+            if [ ! -f "$CL_BIN" ]; then
+                echo "OpenCL backend not built yet. Build with:"
+                echo "  cd /srv/ai/llama-cpp && cmake -B build-opencl -DGGML_OPENCL=ON -DCMAKE_BUILD_TYPE=Release -G Ninja . && cmake --build build-opencl -j\$(nproc)"
+                exit 1
+            fi
+            ;;
         *)
             echo "Unknown backend: $backend"
-            echo "Options: vulkan, hip"
+            echo "Options: vulkan, hip, opencl"
             exit 1
             ;;
     esac
@@ -110,22 +124,35 @@ print(f'{t[\"predicted_n\"]:>4} tokens: {t[\"predicted_per_second\"]:>6.1f} tok/
     done
 }
 
+list() {
+    echo "Available backends:"
+    [ -f "$VK_BIN" ]  && echo "  ✓ vulkan  - Vulkan (RADV)"       || echo "  ✗ vulkan  - not built"
+    [ -f "$HIP_BIN" ] && echo "  ✓ hip     - HIP (ROCm)"          || echo "  ✗ hip     - not built"
+    [ -f "$CL_BIN" ]  && echo "  ✓ opencl  - OpenCL (ROCm)"       || echo "  ✗ opencl  - not built"
+    echo ""
+    status
+}
+
 case "${1:-status}" in
-    vulkan|vk)  swap_to vulkan ;;
-    hip|rocm)   swap_to hip ;;
-    status)     status ;;
-    bench)      bench ;;
+    vulkan|vk)      swap_to vulkan ;;
+    hip|rocm)       swap_to hip ;;
+    opencl|cl)      swap_to opencl ;;
+    status)         status ;;
+    list)           list ;;
+    bench)          bench ;;
     *)
         echo "halo-ai Driver Swap Tool"
         echo ""
-        echo "Usage: $0 {vulkan|hip|status|bench}"
+        echo "Usage: $0 {vulkan|hip|opencl|status|list|bench}"
         echo ""
         echo "  vulkan  - Switch to Vulkan (RADV) — fastest generation (~85 tok/s)"
         echo "  hip     - Switch to HIP (ROCm) — fastest prompt processing, best for long context"
+        echo "  opencl  - Switch to OpenCL (ROCm) — general GPU compute"
         echo "  status  - Show current backend and speed"
+        echo "  list    - Show all available backends"
         echo "  bench   - Quick benchmark on current backend"
         echo ""
-        echo "Both backends are already compiled. Swap takes ~10 seconds."
+        echo "Backends are pre-compiled. Swap takes ~10 seconds."
         echo "A Btrfs snapshot is taken before every swap for safety."
         ;;
 esac

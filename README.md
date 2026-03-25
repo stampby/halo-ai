@@ -93,9 +93,10 @@ The halo-ai agent runs continuously:
 - Tracks inference performance trends
 - **Silent unless it cannot fix something**
 
-## VS Code / GitHub Copilot
+## VS Code / GitHub Copilot (Optional)
 
-Local Copilot via [Lemonade VS Code extension](https://github.com/bong-water-water-bong/lemonade-vscode). Your code AI runs on your Strix Halo — private, offline, zero API costs.
+<!-- Local Copilot is possible via the Lemonade VS Code extension but is not part of the core stack. -->
+Local Copilot can be configured to run on your Strix Halo for private, offline code completion. See the fork for details: https://github.com/bong-water-water-bong/lemonade-vscode
 
 ## Docs
 

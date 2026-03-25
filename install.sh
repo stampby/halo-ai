@@ -18,7 +18,7 @@ grep -q "gfx1151" /opt/rocm/bin/rocminfo 2>/dev/null && ok "ROCm already install
 
 # ── Base packages ──────────────────────────────────
 info "Installing build dependencies..."
-sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv     sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac
+sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv     sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac     opencl-headers ocl-icd opencl-clhpp
 
 # ── User groups ────────────────────────────────────
 info "Setting up GPU access..."
@@ -107,7 +107,9 @@ cmake -B build-hip -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DGGML_HIP_ROCWMMA_FAT
 cmake --build build-hip -j$(nproc)
 cmake -B build-vulkan -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
 cmake --build build-vulkan -j$(nproc)
-ok "llama.cpp built"
+cmake -B build-opencl -DGGML_OPENCL=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
+cmake --build build-opencl -j$(nproc)
+ok "llama.cpp built (HIP + Vulkan + OpenCL)"
 
 info "Building Lemonade..."
 cd /srv/ai/lemonade

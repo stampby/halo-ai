@@ -1,0 +1,16 @@
+[Unit]
+Description=llama.cpp Server (OpenCL)
+After=network.target
+
+[Service]
+Type=simple
+User=<YOUR_USER>
+Group=<YOUR_USER>
+EnvironmentFile=/srv/ai/configs/rocm.env
+ExecStart=/srv/ai/llama-cpp/build-opencl/bin/llama-server     --host 127.0.0.1 --port 8083     --no-mmap -ngl 99     --model /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf
+Restart=on-failure
+RestartSec=5
+SupplementaryGroups=video render
+
+[Install]
+WantedBy=multi-user.target
