@@ -206,10 +206,13 @@ sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai
 # ── Clone halo-ai repo ────────────────────────────
 step "Cloning halo-ai repo"
 cd /srv/ai
-git init 2>/dev/null || true
-git remote add origin https://github.com/bong-water-water-bong/halo-ai.git 2>/dev/null || true
-git fetch origin main
-git checkout -f main -- configs/ systemd/ scripts/ README.md .gitignore install.sh
+if [ -d .git ]; then
+    git fetch origin main
+    git reset --hard origin/main
+else
+    git clone https://github.com/bong-water-water-bong/halo-ai.git .
+fi
+ok "halo-ai repo ready"
 
 # ── ROCm ───────────────────────────────────────────
 step "ROCm GPU runtime"
