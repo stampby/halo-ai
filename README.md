@@ -345,13 +345,23 @@ If any step fails, the entire system reverts to the pre-update snapshot instantl
 
 ## Credits & Acknowledgements
 
-halo-ai is built on the work of incredible open-source teams. This project would not exist without them.
+### DreamServer — The Project That Started It All
 
-### Special Thanks
+Before anything else, massive respect and gratitude to **[DreamServer](https://github.com/Light-Heart-Labs/DreamServer)** and the Light-Heart-Labs team.
 
-**[DreamServer](https://github.com/Light-Heart-Labs/DreamServer)** by Light-Heart-Labs deserves enormous credit. They were the first to prove that a complete AI platform — not just a single inference engine — could run on Strix Halo. Their vision of integrating LLM inference, chat, voice, RAG, agents, image generation, and workflow automation into one cohesive stack was groundbreaking. halo-ai's entire architecture is inspired by what DreamServer built. Their open-source dashboard panel powers the halo-ai control center. We are deeply grateful to the Light-Heart-Labs team for their contribution to the Strix Halo community.
+DreamServer is the reason halo-ai exists. Full stop.
 
-**[Lemonade](https://github.com/lemonade-sdk/lemonade)** by AMD / Lemonade SDK is the backbone of this stack. Their unified API layer provides OpenAI, Ollama, and Anthropic compatibility through a single endpoint. Their dedicated engineering on gfx1151 ROCm support, NPU+GPU hybrid inference, and the llamacpp-rocm nightly builds made Strix Halo a viable AI platform. Lemonade turned scattered hardware support into a production-ready serving layer.
+They were the first to look at the Strix Halo chip and see not just an inference engine, but a complete AI platform. While everyone else was benchmarking single models, Light-Heart-Labs built an entire ecosystem — LLM inference, chat UI, voice I/O, RAG pipelines, autonomous agents, image generation, workflow automation, privacy tools, and a monitoring dashboard — all integrated, all working together, all on one chip.
+
+That vision is what halo-ai is built on. The architecture, the service selection, the idea that a single Strix Halo box can replace a rack of cloud services — that came from DreamServer. Their open-source dashboard panel is what powers the halo-ai control center. We did not just take inspiration — we directly forked their work and built on it.
+
+To the Light-Heart-Labs team: thank you for open-sourcing this. Thank you for pushing the boundaries of what local AI can be. The Strix Halo community is better because of what you built. Huge fist bumps.
+
+**Fork**: [github.com/bong-water-water-bong/DreamServer](https://github.com/bong-water-water-bong/DreamServer)
+
+### Lemonade SDK
+
+**[Lemonade](https://github.com/lemonade-sdk/lemonade)** by AMD is the backbone of this stack. Their unified API layer provides OpenAI, Ollama, and Anthropic compatibility through a single endpoint. Their dedicated engineering on gfx1151 ROCm support, NPU+GPU hybrid inference, and the llamacpp-rocm nightly builds turned scattered hardware support into a production-ready platform. Without Lemonade, Strix Halo AI would still be a series of disconnected experiments.
 
 ### Upstream Projects
 
@@ -372,8 +382,6 @@ Every service in this stack is open source. We compile from source, but we build
 | [ROCm / TheRock](https://github.com/ROCm/TheRock) | AMD GPU compute stack for gfx1151 | Various |
 
 ### Community
-
-The Strix Halo AI community has been invaluable:
 
 - [kyuz0](https://github.com/kyuz0/amd-strix-halo-toolboxes) — Docker toolboxes and comprehensive backend benchmarks
 - [Gygeek](https://github.com/Gygeek/Framework-strix-halo-llm-setup) — Framework laptop setup guides
