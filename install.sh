@@ -224,22 +224,21 @@ ok "halo-ai repo ready"
 # ── ROCm ───────────────────────────────────────────
 step "ROCm GPU runtime (~10 min download, ~2 min extract)"
 if [ "${NEED_ROCM:-}" = "1" ]; then
-    if ! command -v wget >/dev/null; then
-        info "Installing wget..."
-        sudo pacman -S --noconfirm --needed wget
-    fi
+    command -v wget >/dev/null || sudo pacman -S --noconfirm --needed wget
     info "Downloading ROCm 7.13 for gfx1151..."
-    cd /srv/ai/rocm || { warn "ROCm directory missing — skipping"; NEED_ROCM=0; }
-    if [ "${NEED_ROCM:-}" = "1" ]; then
-    wget -q --show-progress 'https://rocm.nightlies.amd.com/tarball/therock-dist-linux-gfx1151-7.13.0a20260323.tar.gz' -O therock.tar.gz || { warn "ROCm download failed — skipping (install manually later)"; NEED_ROCM=0; }
-    mkdir -p install && tar -xf therock.tar.gz -C install
-    sudo ln -sfn /srv/ai/rocm/install /opt/rocm
-    echo 'export ROCM_HOME=/opt/rocm
+    if cd /srv/ai/rocm 2>/dev/null && \
+       wget -q --show-progress 'https://rocm.nightlies.amd.com/tarball/therock-dist-linux-gfx1151-7.13.0a20260323.tar.gz' -O therock.tar.gz 2>/dev/null; then
+        mkdir -p install && tar -xf therock.tar.gz -C install
+        sudo ln -sfn /srv/ai/rocm/install /opt/rocm
+        echo 'export ROCM_HOME=/opt/rocm
 export PATH=/opt/rocm/bin:$PATH
-export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH' | sudo tee /etc/profile.d/rocm.sh
-    source /etc/profile.d/rocm.sh
-    ok "ROCm installed. Verifying GPU..."
-    rocminfo | grep -q gfx1151 && ok "gfx1151 detected" || warn "GPU not detected — may need reboot"
+export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH' | sudo tee /etc/profile.d/rocm.sh >/dev/null
+        source /etc/profile.d/rocm.sh
+        ok "ROCm installed. Verifying GPU..."
+        rocminfo | grep -q gfx1151 && ok "gfx1151 detected" || warn "GPU not detected — may need reboot"
+    else
+        warn "ROCm download failed or directory missing — skipping"
+        warn "Install ROCm manually later. See docs/TROUBLESHOOTING.md"
     fi
 else
     ok "ROCm already installed"
