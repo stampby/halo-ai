@@ -206,12 +206,13 @@ sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai
 # ── Clone halo-ai repo ────────────────────────────
 step "Cloning halo-ai repo"
 cd /srv/ai
-if [ -d .git ]; then
-    git fetch origin main
-    git reset --hard origin/main
-else
-    git clone https://github.com/bong-water-water-bong/halo-ai.git .
+if [ ! -d .git ]; then
+    git init
+    git remote add origin https://github.com/bong-water-water-bong/halo-ai.git
 fi
+git fetch origin main
+git checkout -B main origin/main -- configs/ systemd/ scripts/ assets/ docs/ README.md .gitignore 2>/dev/null || \
+    git checkout FETCH_HEAD -- configs/ systemd/ scripts/ assets/ docs/ README.md .gitignore
 ok "halo-ai repo ready"
 
 # ── ROCm ───────────────────────────────────────────
