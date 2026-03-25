@@ -8,7 +8,7 @@
     basicauth * {
         # Run during install: caddy hash-password --plaintext 'yourpassword'
         # Then set here, or run: ./install.sh which handles this automatically
-        admin $CADDY_HASH
+        admin $2a$14$k1pIUrVgTXyx5JC7ob3AX.bd2Ayi1r4LNInFjExjz8DVNLC26maQa
     }
 
     handle_path /chat/* {

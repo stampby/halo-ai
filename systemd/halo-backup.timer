@@ -1,8 +1,9 @@
 [Unit]
-Description=halo-ai Nightly Backup Timer
+Description=Daily Halo AI backup
 
 [Timer]
-OnCalendar=*-*-* 03:00:00
+OnCalendar=daily
+RandomizedDelaySec=1800
 Persistent=true
 
 [Install]

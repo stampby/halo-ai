@@ -3,24 +3,54 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/install.sh | bash
 set -euo pipefail
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
-info()  { echo -e "${BLUE}[halo-ai]${NC} $1"; }
-ok()    { echo -e "${GREEN}[halo-ai]${NC} $1"; }
-warn()  { echo -e "${YELLOW}[halo-ai]${NC} $1"; }
-fail()  { echo -e "${RED}[halo-ai]${NC} $1"; exit 1; }
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'
+CYAN='\033[0;36m'; MAGENTA='\033[0;35m'; BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
+
+# ── Halo AI branded output ────────────────────────
+STEP_CURRENT=0
+STEP_TOTAL=16
+
+step() {
+    STEP_CURRENT=$((STEP_CURRENT + 1))
+    echo ''
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BOLD}${CYAN}  [$STEP_CURRENT/$STEP_TOTAL]${NC} ${BOLD}$1${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+info()  { echo -e "  ${BLUE}>>>${NC} $1"; }
+ok()    { echo -e "  ${GREEN} +${NC} $1"; }
+warn()  { echo -e "  ${YELLOW} !${NC} $1"; }
+fail()  { echo -e "  ${RED} x${NC} $1"; exit 1; }
+progress() { echo -e "  ${DIM}    ... $1${NC}"; }
+
+# ── Banner ─────────────────────────────────────────
+clear
+echo ''
+echo -e "${CYAN}${BOLD}"
+cat << 'BANNER'
+    __  __      __           ___    ____
+   / / / /___ _/ /___       /   |  /  _/
+  / /_/ / __ `/ / __ \     / /| |  / /
+ / __  / /_/ / / /_/ /    / ___ |_/ /
+/_/ /_/\__,_/_/\____/    /_/  |_/___/
+
+BANNER
+echo -e "${NC}"
+echo -e "${DIM}  Bare-metal AI stack for AMD Strix Halo${NC}"
+echo -e "${DIM}  github.com/bong-water-water-bong/halo-ai${NC}"
+echo ''
 
 # ── Preflight ──────────────────────────────────────
-info "Checking system..."
+step "Preflight checks"
 [ "$(id -u)" -eq 0 ] && fail "Do not run as root. Run as your normal user (with sudo access)."
 command -v pacman >/dev/null || fail "Arch Linux required."
 lscpu | grep -q "Strix" || warn "This installer is designed for AMD Strix Halo. Proceeding anyway..."
 grep -q "gfx1151" /opt/rocm/bin/rocminfo 2>/dev/null && ok "ROCm already installed" || NEED_ROCM=1
 
 # ── Interactive configuration ─────────────────────
-echo ''
-info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-info "  Interactive Setup — press Enter for defaults"
-info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+step "Interactive Setup"
+info "Press Enter to accept defaults"
 echo ''
 
 # Helper: prompt with default
@@ -154,22 +184,17 @@ for i in "${!ALL_SERVICES[@]}"; do
 done
 ok "Services to enable: ${SELECTED_SERVICES[*]}"
 
-echo ''
-info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-info "  Configuration complete — starting install"
-info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ''
-
 # ── Base packages ──────────────────────────────────
-info "Installing build dependencies..."
+step "Installing build dependencies"
 sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv     sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac     opencl-headers ocl-icd opencl-clhpp
 
 # ── User groups ────────────────────────────────────
+step "GPU access & directory structure"
 info "Setting up GPU access..."
 sudo usermod -aG video,render "$HALO_USER"
 
 # ── Directory structure ────────────────────────────
-info "Creating /srv/ai/ with Btrfs subvolumes..."
+progress "Creating /srv/ai/ with Btrfs subvolumes..."
 sudo mkdir -p /srv/ai
 for svc in rocm llama-cpp lemonade whisper-cpp open-webui vane searxng qdrant n8n kokoro comfyui models configs systemd scripts; do
     sudo btrfs subvolume create /srv/ai/$svc 2>/dev/null || true
@@ -177,7 +202,7 @@ done
 sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai
 
 # ── Clone halo-ai repo ────────────────────────────
-info "Cloning halo-ai..."
+step "Cloning halo-ai repo"
 cd /srv/ai
 git init 2>/dev/null || true
 git remote add origin https://github.com/bong-water-water-bong/halo-ai.git 2>/dev/null || true
@@ -185,6 +210,7 @@ git fetch origin main
 git checkout -f main -- configs/ systemd/ scripts/ README.md .gitignore install.sh
 
 # ── ROCm ───────────────────────────────────────────
+step "ROCm GPU runtime"
 if [ "${NEED_ROCM:-}" = "1" ]; then
     info "Downloading ROCm 7.13 for gfx1151..."
     cd /srv/ai/rocm
@@ -200,7 +226,7 @@ export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH' | sudo tee /etc/profile.d
 fi
 
 # ── Python 3.12 + 3.13 ────────────────────────────
-info "Compiling Python 3.12 and 3.13 from source..."
+step "Building Python 3.12 + 3.13"
 for VER in 3.12.13 3.13.3; do
     MAJOR=$(echo $VER | cut -d. -f1-2)
     PREFIX=/opt/python$(echo $MAJOR | tr -d .)
@@ -214,8 +240,9 @@ for VER in 3.12.13 3.13.3; do
 done
 
 # ── Node.js 24 ─────────────────────────────────────
+step "Building Node.js 24"
 if ! node --version 2>/dev/null | grep -q "v24"; then
-    info "Compiling Node.js 24 from source..."
+    progress "Compiling from source — this takes a while..."
     cd /tmp
     git clone --depth 1 --branch v24.5.0 https://github.com/nodejs/node.git nodejs-src
     cd nodejs-src
@@ -226,6 +253,7 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
 fi
 
 # ── Rust ───────────────────────────────────────────
+step "Rust + Go toolchains"
 if ! command -v cargo >/dev/null; then
     info "Installing Rust toolchain..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -234,17 +262,18 @@ fi
 
 # ── Go (for Caddy) ─────────────────────────────────
 if ! command -v go >/dev/null; then
-    info "Installing Go..."
+    progress "Installing Go..."
     cd /tmp && wget -q https://go.dev/dl/go1.24.3.linux-amd64.tar.gz
     sudo tar -C /usr/local -xzf go1.24.3.linux-amd64.tar.gz
 fi
 export PATH=/usr/local/go/bin:~/go/bin:$PATH
 
 # ── Build everything ───────────────────────────────
+step "Building llama.cpp (HIP + Vulkan + OpenCL)"
 source /etc/profile.d/rocm.sh 2>/dev/null || true
 export ROCBLAS_USE_HIPBLASLT=1
 
-info "Building llama.cpp (HIP + Vulkan)..."
+progress "Compiling HIP backend..."
 cd /srv/ai/llama-cpp
 [ -d .git ] || git clone https://github.com/ggml-org/llama.cpp .
 cmake -B build-hip -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DGGML_HIP_ROCWMMA_FATTN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
@@ -255,6 +284,7 @@ cmake -B build-opencl -DGGML_OPENCL=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-
 cmake --build build-opencl -j$(nproc)
 ok "llama.cpp built (HIP + Vulkan + OpenCL)"
 
+step "Building Lemonade + Whisper"
 info "Building Lemonade..."
 cd /srv/ai/lemonade
 [ -d .git ] || git clone https://github.com/lemonade-sdk/lemonade .
@@ -268,6 +298,7 @@ cmake -B build -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j$(nproc)
 ok "whisper.cpp built"
 
+step "Building Qdrant + Caddy"
 info "Building Qdrant..."
 cd /srv/ai/qdrant
 source ~/.cargo/env
@@ -279,6 +310,7 @@ info "Building Caddy..."
 go install github.com/caddyserver/caddy/v2/cmd/caddy@latest
 ok "Caddy built"
 
+step "Installing SearXNG + Open WebUI"
 info "Installing SearXNG..."
 cd /srv/ai/searxng
 [ -d .git ] || git clone https://github.com/searxng/searxng .
@@ -297,6 +329,7 @@ pip install -q setuptools hatchling && pip install -q .
 deactivate
 ok "Open WebUI installed"
 
+step "Installing Vane + n8n + ComfyUI + Kokoro"
 info "Installing Vane (Perplexica)..."
 cd /srv/ai/vane
 [ -d .git ] || git clone https://github.com/ItzCrazyKns/Vane .
@@ -331,7 +364,7 @@ deactivate
 ok "Kokoro installed"
 
 # ── System config ──────────────────────────────────
-info "Configuring system..."
+step "System hardening & configuration"
 
 # GPU device permissions
 echo 'SUBSYSTEM=="kfd", KERNEL=="kfd", TAG+="uaccess", GROUP="render", MODE="0666"
@@ -350,7 +383,7 @@ PermitRootLogin no
 AllowUsers $HALO_USER" | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
 
 # ── Apply interactive configuration ────────────────
-info "Applying configuration from setup..."
+step "Applying configuration & enabling services"
 
 # Write Caddy password hash to Caddyfile
 if command -v caddy >/dev/null; then
@@ -405,15 +438,26 @@ ok "System configured"
 
 # ── Done ───────────────────────────────────────────
 echo ''
-ok "========================================"
-ok "  halo-ai installation complete!"
-ok "========================================"
 echo ''
-info "Reboot to activate GPU memory (115GB GTT):"
-echo "  sudo reboot"
+echo -e "${GREEN}${BOLD}"
+cat << 'DONE'
+    ___           __        ____       __  __
+   /   |   ____  / /_      / __ \___  / /_/ /_  ___  _____
+  / /| |  / __ \/ __/     / / / / _ \/ __/ __ \/ _ \/ ___/
+ / ___ | / / / / /_       / /_/ /  __/ /_/ / / /  __/ /
+/_/  |_|/_/ /_/\__/       \____/\___/\__/_/ /_/\___/_/
+
+DONE
+echo -e "${NC}"
+echo -e "${GREEN}${BOLD}  Installation complete!${NC}"
 echo ''
-info "Enabled services: ${SELECTED_SERVICES[*]}"
-info "Start all enabled services after reboot:"
+echo -e "  ${CYAN}Enabled services:${NC} ${SELECTED_SERVICES[*]}"
+echo ''
+echo -e "  ${BOLD}Next steps:${NC}"
+echo ''
+echo -e "  ${YELLOW}1.${NC} Reboot to activate GPU memory (115GB GTT):"
+echo -e "     ${DIM}sudo reboot${NC}"
+echo ''
 START_UNITS=""
 for svc in "${SELECTED_SERVICES[@]}"; do
     case "$svc" in
@@ -422,10 +466,16 @@ for svc in "${SELECTED_SERVICES[@]}"; do
         *)         START_UNITS+="halo-${svc} " ;;
     esac
 done
-echo "  sudo systemctl start $START_UNITS"
+echo -e "  ${YELLOW}2.${NC} Start all enabled services after reboot:"
+echo -e "     ${DIM}sudo systemctl start $START_UNITS${NC}"
 echo ''
-info "Access via SSH tunnel:"
-echo "  ssh -L 3000:localhost:3000 -L 3001:localhost:3001 $HALO_HOSTNAME"
-echo "  Then open http://localhost:3000 (Open WebUI) or http://localhost:3001 (Perplexica)"
+echo -e "  ${YELLOW}3.${NC} Access your server:"
+echo -e "     ${DIM}https://$HALO_HOSTNAME${NC}"
 echo ''
-info "Dashboard API key saved to: /srv/ai/dashboard-api/data/dashboard-api-key.txt"
+echo -e "  ${YELLOW}4.${NC} Or via SSH tunnel:"
+echo -e "     ${DIM}ssh -L 3000:localhost:3000 -L 3001:localhost:3001 $HALO_HOSTNAME${NC}"
+echo ''
+echo -e "  ${DIM}Dashboard API key: /srv/ai/dashboard-api/data/dashboard-api-key.txt${NC}"
+echo -e "  ${DIM}Caddy login: admin / (the password you set during install)${NC}"
+echo ''
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
