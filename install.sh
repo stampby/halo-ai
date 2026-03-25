@@ -399,35 +399,255 @@ sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.ta
 
 # SSH hardening
 echo "PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
 PermitRootLogin no
 AllowUsers $HALO_USER" | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
+
+# Install nftables firewall
+info "Installing firewall..."
+sudo pacman -S --noconfirm --needed nftables 2>/dev/null
+sudo cp /srv/ai/configs/system/nftables.conf /etc/nftables.conf
+sudo sed -i "s|xxx.xxx.xxx.0/24|$(ip route | grep 'src' | head -1 | awk '{print $1}')|g" /etc/nftables.conf
+sudo systemctl enable --now nftables 2>/dev/null
+ok "Firewall active (LAN-only SSH + HTTP)"
+
+# Install fail2ban
+info "Installing fail2ban..."
+sudo pacman -S --noconfirm --needed fail2ban 2>/dev/null
+cat << 'F2BCONF' | sudo tee /etc/fail2ban/jail.local
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+backend = systemd
+maxretry = 5
+bantime = 3600
+findtime = 600
+F2BCONF
+sudo systemctl enable --now fail2ban 2>/dev/null
+ok "fail2ban active (5 attempts = 1hr ban)"
 
 # ── Apply interactive configuration ────────────────
 step "Applying configuration & enabling services"
 
-# Write Caddy password hash to Caddyfile
-if command -v caddy >/dev/null; then
-    CADDY_HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD")
-    sed -i "s|        admin a|        admin $CADDY_HASH|" /srv/ai/configs/Caddyfile
-    ok "Caddy password hash written to Caddyfile"
-else
-    warn "Caddy not yet available — password will be configured on first run"
-fi
+# Generate Caddy password hash and write Caddyfile with subdomain routing
+CADDY_HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD")
+cat > /srv/ai/configs/Caddyfile << CADDYEOF
+{
+    admin off
+    auto_https off
+}
 
-# Write SearXNG secret key to settings.yml
+http://$HALO_HOSTNAME {
+    basic_auth * {
+        caddy $CADDY_HASH
+    }
+    root * /srv/ai/configs
+    file_server
+    rewrite * /index.html
+}
+
+http://chat.$HALO_HOSTNAME {
+    basic_auth * {
+        caddy $CADDY_HASH
+    }
+    reverse_proxy 127.0.0.1:3000
+}
+
+http://research.$HALO_HOSTNAME {
+    basic_auth * {
+        caddy $CADDY_HASH
+    }
+    reverse_proxy 127.0.0.1:3001
+}
+
+http://search.$HALO_HOSTNAME {
+    basic_auth * {
+        caddy $CADDY_HASH
+    }
+    reverse_proxy 127.0.0.1:8888
+}
+
+http://n8n.$HALO_HOSTNAME {
+    basic_auth * {
+        caddy $CADDY_HASH
+    }
+    reverse_proxy 127.0.0.1:5678
+}
+
+http://comfyui.$HALO_HOSTNAME {
+    basic_auth * {
+        caddy $CADDY_HASH
+    }
+    reverse_proxy 127.0.0.1:8188
+}
+CADDYEOF
+chmod 640 /srv/ai/configs/Caddyfile
+ok "Caddy configured with subdomain routing"
+
+# Add Caddy XDG_DATA_HOME to systemd unit
+grep -q 'XDG_DATA_HOME' /srv/ai/systemd/halo-caddy.service || \
+    sed -i '/\[Service\]/a Environment=XDG_DATA_HOME=/srv/ai/.caddy' /srv/ai/systemd/halo-caddy.service
+mkdir -p /srv/ai/.caddy
+
+# Write SearXNG secret key
 sed -i "s|secret_key: \"CHANGEME-generate-a-new-secret-key\"|secret_key: \"$SEARXNG_KEY\"|" /srv/ai/configs/searxng/settings.yml
-ok "SearXNG secret key written to settings.yml"
+chmod 640 /srv/ai/configs/searxng/settings.yml
+ok "SearXNG secret key configured"
 
 # Write Dashboard API key
 mkdir -p /srv/ai/dashboard-api/data
 echo -n "$DASHBOARD_API_KEY" > /srv/ai/dashboard-api/data/dashboard-api-key.txt
 chmod 600 /srv/ai/dashboard-api/data/dashboard-api-key.txt
-ok "Dashboard API key written to /srv/ai/dashboard-api/data/dashboard-api-key.txt"
+ok "Dashboard API key configured"
+
+# Configure Open WebUI → llama-server connection
+info "Wiring services together..."
+grep -q 'OPENAI_API_BASE_URL' /srv/ai/systemd/halo-open-webui.service || \
+    sed -i '/\[Service\]/a Environment=OPENAI_API_BASE_URL=http://127.0.0.1:8081/v1\nEnvironment=OPENAI_API_KEY=not-needed\nEnvironment=ENABLE_OLLAMA_API=false' /srv/ai/systemd/halo-open-webui.service
+ok "Open WebUI → llama-server connected"
+
+# Configure llama-server with jinja + disable thinking mode
+sed -i 's|--model |--jinja --reasoning-budget 0 --model |' /srv/ai/systemd/halo-llama-server.service 2>/dev/null
+ok "llama-server configured (jinja + reasoning off)"
+
+# Configure n8n for HTTP (no secure cookie)
+grep -q 'N8N_SECURE_COOKIE' /srv/ai/systemd/halo-n8n.service || \
+    sed -i '/\[Service\]/a Environment=N8N_SECURE_COOKIE=false' /srv/ai/systemd/halo-n8n.service
+ok "n8n configured for HTTP"
+
+# Configure Vane (Perplexica)
+info "Configuring Vane deep research..."
+mkdir -p /srv/ai/vane/.next/standalone/data
+ln -sfn /srv/ai/vane/.next/static /srv/ai/vane/.next/standalone/.next/static 2>/dev/null
+ln -sfn /srv/ai/vane/public /srv/ai/vane/.next/standalone/public 2>/dev/null
+ln -sfn /srv/ai/vane/drizzle /srv/ai/vane/.next/standalone/drizzle 2>/dev/null
+# Get model name from llama-server config
+MODEL_NAME=$(grep -oP '(?<=--model /srv/ai/models/)\S+' /srv/ai/systemd/halo-llama-server.service | head -1)
+cat > /srv/ai/vane/.next/standalone/data/config.json << VANEEOF
+{
+  "modelProviders": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "type": "openai",
+      "chatModels": [{"key": "$MODEL_NAME", "name": "$MODEL_NAME"}],
+      "embeddingModels": [],
+      "config": {
+        "baseURL": "http://127.0.0.1:8081/v1",
+        "apiKey": "not-needed"
+      },
+      "hash": ""
+    },
+    {
+      "id": "transformers",
+      "name": "Transformers",
+      "type": "transformers",
+      "chatModels": [],
+      "embeddingModels": [{"key": "Xenova/all-MiniLM-L6-v2", "name": "all-MiniLM-L6-v2"}],
+      "config": {},
+      "hash": ""
+    }
+  ],
+  "selectedChatModel": {"providerKey": "openai", "fieldKey": "$MODEL_NAME"},
+  "selectedEmbeddingModel": {"providerKey": "transformers", "fieldKey": "Xenova/all-MiniLM-L6-v2"},
+  "search": {
+    "searxngURL": "http://127.0.0.1:8888"
+  }
+}
+VANEEOF
+# Mark setup as complete so Vane shows the search UI immediately
+curl -s http://127.0.0.1:3001/api/config/setup-complete -X POST -H 'Content-Type: application/json' -d '{}' 2>/dev/null || true
+ok "Vane configured with local LLM + SearXNG"
+
+# Create landing page
+cat > /srv/ai/configs/index.html << 'LANDINGEOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halo AI</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
+.header { text-align: center; padding: 3rem 1rem 1rem; }
+.logo { color: #00d4ff; font-size: 3rem; font-weight: 800; letter-spacing: 0.15em; }
+.logo span { color: #fff; }
+.tagline { color: #555; font-size: 1rem; margin-top: 0.3rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
+.card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 1.2rem; text-decoration: none; display: block; transition: border-color 0.2s, transform 0.15s; }
+.card:hover { border-color: #00d4ff; transform: translateY(-2px); }
+.card h3 { color: #fff; font-size: 1.05rem; margin-bottom: 0.2rem; }
+.card p { color: #666; font-size: 0.8rem; line-height: 1.4; }
+.card .port { color: #444; font-size: 0.7rem; margin-top: 0.5rem; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; position: relative; top: -1px; }
+.dot.on { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+.dot.off { background: #444; }
+.section { max-width: 1000px; margin: 2rem auto 0; padding: 0 1.5rem; }
+.section h2 { color: #30363d; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.8rem; border-bottom: 1px solid #21262d; padding-bottom: 0.5rem; }
+.footer { text-align: center; padding: 2rem; color: #333; font-size: 0.75rem; }
+.footer a { color: #444; text-decoration: none; }
+.creds { text-align: center; margin: 1.5rem auto; padding: 0.8rem; background: #1c1f26; border: 1px solid #ff980055; border-radius: 8px; max-width: 500px; }
+.creds p { color: #ff9800; font-size: 0.85rem; }
+.creds strong { color: #fff; }
+</style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">>> <span>HALO</span> AI</div>
+    <p class="tagline">bare-metal ai stack for AMD Strix Halo</p>
+</div>
+<div class="creds">
+    <p>Default login &mdash; <strong>caddy</strong> / <strong>caddy</strong> &mdash; change after first login</p>
+</div>
+<div class="section"><h2>AI Services</h2></div>
+<div class="grid">
+    <a class="card" target="_blank" href="CHAT_URL"><h3><span class="dot on"></span>Chat</h3><p>Open WebUI — multi-model chat with RAG</p><div class="port">:3000</div></a>
+    <a class="card" target="_blank" href="RESEARCH_URL"><h3><span class="dot on"></span>Deep Research</h3><p>Vane — AI search with cited sources</p><div class="port">:3001</div></a>
+    <a class="card" target="_blank" href="COMFYUI_URL"><h3><span class="dot on"></span>ComfyUI</h3><p>Node-based image generation</p><div class="port">:8188</div></a>
+    <a class="card" target="_blank" href="N8N_URL"><h3><span class="dot on"></span>Workflows</h3><p>n8n — automation with 400+ integrations</p><div class="port">:5678</div></a>
+</div>
+<div class="section"><h2>Infrastructure</h2></div>
+<div class="grid">
+    <a class="card" target="_blank" href="SEARCH_URL"><h3><span class="dot on"></span>SearXNG</h3><p>Private meta-search engine</p><div class="port">:8888</div></a>
+    <a class="card" target="_blank" href="https://github.com/lemonade-sdk/lemonade"><h3><span class="dot on"></span>Lemonade API</h3><p>OpenAI/Ollama compatible gateway</p><div class="port">:8080</div></a>
+    <a class="card" target="_blank" href="https://github.com/qdrant/qdrant"><h3><span class="dot on"></span>Qdrant</h3><p>Vector database for RAG</p><div class="port">:6333</div></a>
+</div>
+<div class="section"><h2>Agents</h2></div>
+<div class="grid">
+    <a class="card" target="_blank" href="https://github.com/bong-water-water-bong/meek"><h3><span class="dot on"></span>Meek</h3><p>Security — 9 Reflex agents guard 24/7</p></a>
+    <a class="card" target="_blank" href="https://github.com/bong-water-water-bong/echo"><h3><span class="dot on"></span>Echo</h3><p>Social media — she speaks for the family</p></a>
+</div>
+<div class="footer">
+    <p>90 tok/s &middot; 115GB GPU &middot; zero containers &middot; <a href="https://github.com/bong-water-water-bong/halo-ai">GitHub</a></p>
+</div>
+</body>
+</html>
+LANDINGEOF
+
+# Replace landing page URLs with actual hostname
+sed -i "s|CHAT_URL|http://chat.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
+sed -i "s|RESEARCH_URL|http://research.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
+sed -i "s|COMFYUI_URL|http://comfyui.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
+sed -i "s|N8N_URL|http://n8n.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
+sed -i "s|SEARCH_URL|http://search.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
+ok "Landing page created"
+
+# Add hostname + subdomains to /etc/hosts
+if ! grep -q "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
+    echo "127.0.0.1    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME" | sudo tee -a /etc/hosts
+    ok "Hostname and subdomains added to /etc/hosts"
+fi
+
+# Replace <YOUR_USER> in all systemd units
+sudo sed -i "s/<YOUR_USER>/$HALO_USER/g" /etc/systemd/system/halo-*.service /etc/systemd/system/halo-*.timer 2>/dev/null
 
 # Install systemd units
-sudo cp /srv/ai/systemd/halo-*.service /srv/ai/systemd/halo-*.timer /etc/systemd/system/
+sudo cp /srv/ai/systemd/halo-*.service /srv/ai/systemd/halo-*.timer /etc/systemd/system/ 2>/dev/null
 sudo systemctl daemon-reload
-sudo systemctl enable halo-watchdog.timer
+sudo systemctl enable halo-watchdog.timer halo-backup.timer
 
 # Enable selected services
 for svc in "${SELECTED_SERVICES[@]}"; do
@@ -531,12 +751,18 @@ echo -e "  ${YELLOW}2.${NC} Start all enabled services after reboot:"
 echo -e "     ${DIM}sudo systemctl start $START_UNITS${NC}"
 echo ''
 echo -e "  ${YELLOW}3.${NC} Access your server:"
-echo -e "     ${DIM}https://$HALO_HOSTNAME${NC}"
+echo -e "     ${BOLD}http://$HALO_HOSTNAME${NC}  (landing page)"
+echo -e "     ${DIM}http://chat.$HALO_HOSTNAME${NC}  (Open WebUI)"
+echo -e "     ${DIM}http://research.$HALO_HOSTNAME${NC}  (Deep Research)"
+echo -e "     ${DIM}http://comfyui.$HALO_HOSTNAME${NC}  (Image Gen)"
+echo -e "     ${DIM}http://n8n.$HALO_HOSTNAME${NC}  (Workflows)"
+echo -e "     ${DIM}http://search.$HALO_HOSTNAME${NC}  (Search)"
 echo ''
-echo -e "  ${YELLOW}4.${NC} Or via SSH tunnel:"
-echo -e "     ${DIM}ssh -L 3000:localhost:3000 -L 3001:localhost:3001 $HALO_HOSTNAME${NC}"
+echo -e "  ${DIM}Login: caddy / (the password you set during install)${NC}"
+echo -e "  ${DIM}API key: /srv/ai/dashboard-api/data/dashboard-api-key.txt${NC}"
 echo ''
-echo -e "  ${DIM}Dashboard API key: /srv/ai/dashboard-api/data/dashboard-api-key.txt${NC}"
-echo -e "  ${DIM}Caddy login: admin / (the password you set during install)${NC}"
+echo -e "  ${DIM}Add this to /etc/hosts on other devices to access from the LAN:${NC}"
+LAN_IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+')
+echo -e "  ${DIM}$LAN_IP    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME${NC}"
 echo ''
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
