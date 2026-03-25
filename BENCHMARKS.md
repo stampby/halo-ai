@@ -11,7 +11,7 @@
 
 | Backend | Gen Speed (200 tok) | Gen Speed (500 tok) | Prompt Speed |
 |---------|:---:|:---:|:---:|
-| **Vulkan (RADV) + Flash Attention** | **85.1 tok/s** | **84.5 tok/s** | 58-172 tok/s |
+| **Vulkan (RADV) + Flash Attention** | **88.9 tok/s** | **88.9 tok/s** | 58-172 tok/s |
 | HIP (ROCm) + rocWMMA FA | 70.2 tok/s | 68.4 tok/s | 217-302 tok/s |
 
 **Vulkan wins for generation** (~20% faster). HIP wins for prompt processing. Default backend is now Vulkan + Flash Attention.
@@ -20,13 +20,13 @@
 
 | Test | Prompt Tokens | Gen Tokens | Gen Speed | TTFT | Total |
 |------|:---:|:---:|:---:|:---:|:---:|
-| Short Q&A | 12 | 20 | 85+ tok/s | <60ms | 0.3s |
-| Technical explanation | 18 | 200 | 85.1 tok/s | 109ms | 2.5s |
-| Long generation | 20 | 500 | 84.5 tok/s | 99ms | 6.0s |
+| Short Q&A | 12 | 20 | 89 tok/s | <60ms | 0.3s |
+| Technical explanation | 18 | 200 | 88.9 tok/s | 109ms | 2.5s |
+| Long generation | 20 | 500 | 88.9 tok/s | 99ms | 6.0s |
 
 ### Key Metrics
 
-- **Generation**: ~85 tok/s sustained (Vulkan + Flash Attention)
+- **Generation**: ~89 tok/s sustained (Vulkan + Flash Attention)
 - **Time to first token**: <110ms
 - **GPU utilization**: 97% during inference
 - **GPU temperature**: 55°C under sustained load (well within limits)
