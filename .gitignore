@@ -34,6 +34,10 @@ vane/data/
 searxng/data/
 
 # Secrets
+.env
+*.key
+*.pem
+*.p12
 dashboard-api/data/dashboard-api-key.txt
 
 # Agent runtime data

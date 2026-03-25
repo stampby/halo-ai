@@ -968,13 +968,13 @@ sudo fail2ban-client status
 sudo fail2ban-client status sshd
 
 # Unban an IP address
-sudo fail2ban-client set sshd unbanip xxx.xxx.xxx.100
+sudo fail2ban-client set sshd unbanip xxx.xxx.xxx.xxx
 
 # Check fail2ban logs
 journalctl -u fail2ban -n 50 --no-pager
 
 # Manually ban an IP
-sudo fail2ban-client set sshd banip 10.0.0.50
+sudo fail2ban-client set sshd banip xxx.xxx.xxx.xxx
 ```
 
 ### Switch LLM backend

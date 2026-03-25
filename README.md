@@ -79,10 +79,25 @@ Full benchmarks: [BENCHMARKS.md](BENCHMARKS.md)
   ComfyUI  Qdrant  SearXNG    ← Tools
 ```
 
+## Agents
+
+Optional autonomous agents that extend your halo-ai stack. Enable, disable, or configure through the web GUI.
+
+| Agent | Role | Status |
+|---|---|---|
+| **[Meek](https://github.com/bong-water-water-bong/meek)** | Security monitoring — 9 Reflex agents guard your system 24/7 | Public |
+| **Echo** | Social media manager — monitors and posts across 5 platforms | Private |
+| *More coming soon* | | |
+
+All agents integrate with the halo-ai dashboard and can be toggled on/off at any time.
+
+See [Agent Marketplace](docs/AGENTS.md) for full documentation.
+
 ## Docs
 
 | Guide | What it covers |
 |-------|----------------|
+| [Agent Marketplace](docs/AGENTS.md) | Available agents, planned agents, custom agent guide |
 | [Architecture](docs/ARCHITECTURE.md) | System design, data flow, GPU backends |
 | [Services](docs/SERVICES.md) | All services — ports, configs, health checks |
 | [Security](docs/SECURITY.md) | Firewall, SSH, TLS certs, password rotation |
