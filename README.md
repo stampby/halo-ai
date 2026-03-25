@@ -261,6 +261,113 @@ Add your public key to the server's `~/.ssh/authorized_keys`, then connect:
 ssh <YOUR_USER>@strixhalo
 ```
 
+### HTTPS Certificate Setup
+
+Caddy automatically generates a self-signed TLS certificate so your connection is encrypted. To avoid browser warnings, install the certificate on your devices.
+
+#### Step 1: Export the Certificate
+
+On the Halo AI server, run:
+
+```bash
+# Find Caddy's root CA certificate
+sudo cp $(find /var/lib/caddy/.local/share/caddy/pki/authorities/local -name "root.crt" 2>/dev/null || echo "/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt") ~/halo-ai-ca.crt
+
+# Make it readable
+chmod 644 ~/halo-ai-ca.crt
+```
+
+Then copy it to your device:
+
+```bash
+# From your client machine
+scp <YOUR_USER>@strixhalo:~/halo-ai-ca.crt .
+```
+
+#### Step 2: Install the Certificate
+
+<details>
+<summary><strong>Linux</strong></summary>
+
+```bash
+# Arch / Manjaro
+sudo trust anchor --store halo-ai-ca.crt
+
+# Ubuntu / Debian
+sudo cp halo-ai-ca.crt /usr/local/share/ca-certificates/halo-ai-ca.crt
+sudo update-ca-certificates
+
+# Fedora / RHEL
+sudo cp halo-ai-ca.crt /etc/pki/ca-trust/source/anchors/halo-ai-ca.crt
+sudo update-ca-trust
+```
+
+For **Firefox** (uses its own certificate store):
+1. Open **Settings** → **Privacy & Security** → **Certificates** → **View Certificates**
+2. Go to the **Authorities** tab → **Import**
+3. Select `halo-ai-ca.crt` and check **Trust this CA to identify websites**
+
+For **Chrome/Chromium**:
+1. Open `chrome://settings/certificates`
+2. Go to **Authorities** → **Import**
+3. Select `halo-ai-ca.crt` and check **Trust this certificate for identifying websites**
+
+</details>
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+```bash
+# Add to system keychain
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain halo-ai-ca.crt
+```
+
+Or manually:
+1. Double-click `halo-ai-ca.crt` to open in **Keychain Access**
+2. Find the certificate, double-click it
+3. Expand **Trust** → set **When using this certificate** to **Always Trust**
+
+</details>
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+1. Double-click `halo-ai-ca.crt`
+2. Click **Install Certificate**
+3. Select **Local Machine** → **Next**
+4. Choose **Place all certificates in the following store** → **Browse**
+5. Select **Trusted Root Certification Authorities** → **OK** → **Next** → **Finish**
+
+Or via PowerShell (as Administrator):
+
+```powershell
+Import-Certificate -FilePath .\halo-ai-ca.crt -CertStoreLocation Cert:\LocalMachine\Root
+```
+
+</details>
+
+<details>
+<summary><strong>Android</strong></summary>
+
+1. Transfer `halo-ai-ca.crt` to your phone
+2. Go to **Settings** → **Security** → **Encryption & credentials** → **Install a certificate**
+3. Select **CA certificate** → **Install anyway**
+4. Select the file
+
+</details>
+
+<details>
+<summary><strong>iOS / iPadOS</strong></summary>
+
+1. AirDrop or email `halo-ai-ca.crt` to your device
+2. Tap the file → **Install Profile** → enter your passcode → **Install**
+3. Go to **Settings** → **General** → **About** → **Certificate Trust Settings**
+4. Enable full trust for the Halo AI certificate
+
+</details>
+
+After installing, `https://strixhalo` will work without any browser warnings.
+
 ---
 
 ## Credits & Acknowledgements
