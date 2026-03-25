@@ -32,3 +32,6 @@ open-webui/data/
 n8n/data/
 vane/data/
 searxng/data/
+
+# Secrets
+dashboard-api/data/dashboard-api-key.txt

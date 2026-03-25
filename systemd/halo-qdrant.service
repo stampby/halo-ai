@@ -10,6 +10,11 @@ WorkingDirectory=/srv/ai/qdrant
 ExecStart=/srv/ai/qdrant/target/release/qdrant --config-path /srv/ai/configs/qdrant.yaml
 Restart=on-failure
 RestartSec=5
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=read-only
+ReadWritePaths=/srv/ai
 
 [Install]
 WantedBy=multi-user.target

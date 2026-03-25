@@ -6,9 +6,9 @@
     tls internal
 
     basicauth * {
-        # Generate hash: caddy hash-password --plaintext 'yourpassword'
-        # Replace this placeholder with your actual bcrypt hash
-        admin a
+        # Run during install: caddy hash-password --plaintext 'yourpassword'
+        # Then set here, or run: ./install.sh which handles this automatically
+        admin $CADDY_HASH
     }
 
     handle_path /chat/* {

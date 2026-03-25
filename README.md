@@ -20,6 +20,19 @@
 curl -fsSL https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/install.sh | bash
 ```
 
+The installer runs an interactive configuration wizard before building. You will be prompted for:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| System username | Current user (`whoami`) | Used for file ownership, GPU group, and SSH access |
+| Caddy password | *(must set)* | Hashed with bcrypt and written to the Caddyfile |
+| SearXNG secret key | Auto-generated (`openssl rand -hex 32`) | Written to `configs/searxng/settings.yml` |
+| Dashboard API key | Auto-generated (`openssl rand -base64 32`) | Written to `dashboard-api/data/dashboard-api-key.txt` |
+| Server hostname | `strixhalo` | Optionally added to `/etc/hosts` |
+| Enabled services | All enabled | Pick which services to enable via systemd |
+
+Every setting has a sensible default (except the Caddy password) -- press Enter to accept.
+
 ## What is this?
 
 A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. All bare metal, all compiled from source, all on one chip with 128GB unified memory.

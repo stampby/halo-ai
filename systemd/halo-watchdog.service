@@ -8,3 +8,6 @@ User=root
 ExecStart=/srv/ai/scripts/halo-watchdog.sh
 StandardOutput=journal
 StandardError=journal
+ProtectSystem=full
+PrivateTmp=yes
+NoNewPrivileges=yes

@@ -24,11 +24,9 @@ fi
 # We need to substitute it with the actual value
 if [ -n "$API_KEY" ]; then
     echo "[dashboard] Configuring nginx with API key auth injection"
-    # Escape sed special characters in the API key to prevent injection
-    ESCAPED_KEY=$(printf '%s\n' "$API_KEY" | sed 's/[&/\]/\\&/g')
-    # Replace the placeholder (envsubst already ran, but may have left empty value)
-    sed -i "s|Bearer \${DASHBOARD_API_KEY}|Bearer ${ESCAPED_KEY}|g" "$NGINX_CONF"
-    sed -i "s|Bearer \"\"|Bearer \"${ESCAPED_KEY}\"|g" "$NGINX_CONF"
+    export DASHBOARD_API_KEY="$API_KEY"
+    envsubst '${DASHBOARD_API_KEY}' < "$NGINX_CONF" > "${NGINX_CONF}.tmp"
+    mv "${NGINX_CONF}.tmp" "$NGINX_CONF"
 else
     echo "[dashboard] WARNING: No DASHBOARD_API_KEY found in env or $KEY_FILE"
     echo "[dashboard] API calls will fail with 401 until key is configured"

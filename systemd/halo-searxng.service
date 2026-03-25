@@ -11,6 +11,11 @@ Environment=SEARXNG_SETTINGS_PATH=/srv/ai/configs/searxng/settings.yml
 ExecStart=/srv/ai/searxng/.venv/bin/python -m searx.webapp
 Restart=on-failure
 RestartSec=5
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=read-only
+ReadWritePaths=/srv/ai
 
 [Install]
 WantedBy=multi-user.target

@@ -12,6 +12,11 @@ ExecStart=/srv/ai/llama-cpp/build-vulkan/bin/llama-server     --host 127.0.0.1 -
 Restart=on-failure
 RestartSec=5
 SupplementaryGroups=video render
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=read-only
+ReadWritePaths=/srv/ai
 
 [Install]
 WantedBy=multi-user.target

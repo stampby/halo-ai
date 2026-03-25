@@ -13,6 +13,11 @@ Environment=SEARXNG_API_URL=http://localhost:8888
 ExecStart=/usr/local/bin/node /srv/ai/vane/.next/standalone/server.js
 Restart=on-failure
 RestartSec=5
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=read-only
+ReadWritePaths=/srv/ai
 
 [Install]
 WantedBy=multi-user.target

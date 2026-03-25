@@ -16,13 +16,157 @@ command -v pacman >/dev/null || fail "Arch Linux required."
 lscpu | grep -q "Strix" || warn "This installer is designed for AMD Strix Halo. Proceeding anyway..."
 grep -q "gfx1151" /opt/rocm/bin/rocminfo 2>/dev/null && ok "ROCm already installed" || NEED_ROCM=1
 
+# ── Interactive configuration ─────────────────────
+echo ''
+info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+info "  Interactive Setup — press Enter for defaults"
+info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ''
+
+# Helper: prompt with default
+prompt() {
+    local var_name="$1" prompt_text="$2" default="$3"
+    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text [${default}]: " input
+    eval "$var_name=\"${input:-$default}\""
+}
+
+# Helper: prompt for password (no echo)
+prompt_secret() {
+    local var_name="$1" prompt_text="$2"
+    while true; do
+        read -srp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text: " input
+        echo ''
+        if [ -n "$input" ]; then
+            eval "$var_name=\"$input\""
+            return
+        fi
+        warn "Password cannot be empty. Please try again."
+    done
+}
+
+# 1. System username
+DETECTED_USER=$(whoami)
+prompt HALO_USER "System username" "$DETECTED_USER"
+ok "Username: $HALO_USER"
+
+# 2. Caddy password
+echo ''
+info "Caddy reverse proxy password (protects web access)"
+prompt_secret CADDY_PASSWORD "Choose a Caddy password"
+ok "Caddy password set (will be hashed during install)"
+
+# 3. SearXNG secret key
+SEARXNG_SECRET=$(openssl rand -hex 32)
+echo ''
+info "SearXNG secret key: auto-generated"
+prompt SEARXNG_KEY "SearXNG secret key" "$SEARXNG_SECRET"
+ok "SearXNG key: ${SEARXNG_KEY:0:16}..."
+
+# 4. Dashboard API key
+DASHBOARD_KEY=$(openssl rand -base64 32)
+echo ''
+info "Dashboard API key: auto-generated"
+prompt DASHBOARD_API_KEY "Dashboard API key" "$DASHBOARD_KEY"
+ok "Dashboard key: ${DASHBOARD_API_KEY:0:16}..."
+
+# 5. Server hostname
+echo ''
+prompt HALO_HOSTNAME "Server hostname" "strixhalo"
+ok "Hostname: $HALO_HOSTNAME"
+
+# Add to /etc/hosts if not already present
+if ! grep -q "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
+    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Add '127.0.0.1 $HALO_HOSTNAME' to /etc/hosts? [Y/n]: " add_hosts
+    add_hosts="${add_hosts:-Y}"
+    if [[ "$add_hosts" =~ ^[Yy]$ ]]; then
+        echo "127.0.0.1    $HALO_HOSTNAME" | sudo tee -a /etc/hosts >/dev/null
+        ok "Added $HALO_HOSTNAME to /etc/hosts"
+    fi
+fi
+
+# 6. Service selection
+echo ''
+info "Select which services to enable via systemd."
+info "Toggle with the number key, press Enter when done."
+echo ''
+
+ALL_SERVICES=(llama-server whisper lemonade open-webui n8n comfyui searxng qdrant dashboard caddy)
+SERVICE_LABELS=(
+    "llama-server  — LLM inference (HIP + Vulkan)"
+    "whisper       — Speech-to-text"
+    "lemonade      — Unified AI API gateway"
+    "open-webui    — Chat UI with RAG"
+    "n8n           — Workflow automation"
+    "comfyui       — Image generation"
+    "searxng       — Private search engine"
+    "qdrant        — Vector database for RAG"
+    "dashboard     — GPU metrics + service health"
+    "caddy         — Reverse proxy with TLS"
+)
+# All enabled by default
+ENABLED=()
+for i in "${!ALL_SERVICES[@]}"; do
+    ENABLED[$i]=1
+done
+
+render_menu() {
+    for i in "${!ALL_SERVICES[@]}"; do
+        local mark="x"
+        [ "${ENABLED[$i]}" -eq 0 ] && mark=" "
+        printf "  %s) [%s] %s\n" "$((i+1))" "$mark" "${SERVICE_LABELS[$i]}"
+    done
+    echo ''
+    echo "  a) Select all    n) Select none    Enter) Confirm"
+}
+
+while true; do
+    render_menu
+    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Toggle service (1-${#ALL_SERVICES[@]}, a, n, or Enter to confirm): " choice
+    case "$choice" in
+        "")
+            break
+            ;;
+        a|A)
+            for i in "${!ALL_SERVICES[@]}"; do ENABLED[$i]=1; done
+            echo ''
+            ;;
+        n|N)
+            for i in "${!ALL_SERVICES[@]}"; do ENABLED[$i]=0; done
+            echo ''
+            ;;
+        [1-9]|10)
+            idx=$((choice - 1))
+            if [ "$idx" -ge 0 ] && [ "$idx" -lt "${#ALL_SERVICES[@]}" ]; then
+                ENABLED[$idx]=$(( 1 - ENABLED[$idx] ))
+            fi
+            echo ''
+            ;;
+        *)
+            warn "Invalid choice: $choice"
+            echo ''
+            ;;
+    esac
+done
+
+SELECTED_SERVICES=()
+for i in "${!ALL_SERVICES[@]}"; do
+    [ "${ENABLED[$i]}" -eq 1 ] && SELECTED_SERVICES+=("${ALL_SERVICES[$i]}")
+done
+ok "Services to enable: ${SELECTED_SERVICES[*]}"
+
+echo ''
+info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+info "  Configuration complete — starting install"
+info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ''
+
 # ── Base packages ──────────────────────────────────
 info "Installing build dependencies..."
 sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv     sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac     opencl-headers ocl-icd opencl-clhpp
 
 # ── User groups ────────────────────────────────────
 info "Setting up GPU access..."
-sudo usermod -aG video,render $(whoami)
+sudo usermod -aG video,render "$HALO_USER"
 
 # ── Directory structure ────────────────────────────
 info "Creating /srv/ai/ with Btrfs subvolumes..."
@@ -30,7 +174,7 @@ sudo mkdir -p /srv/ai
 for svc in rocm llama-cpp lemonade whisper-cpp open-webui vane searxng qdrant n8n kokoro comfyui models configs systemd scripts; do
     sudo btrfs subvolume create /srv/ai/$svc 2>/dev/null || true
 done
-sudo chown -R $(whoami):$(whoami) /srv/ai
+sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai
 
 # ── Clone halo-ai repo ────────────────────────────
 info "Cloning halo-ai..."
@@ -201,14 +345,56 @@ grep -q ttm.pages_limit "$ENTRY" || sudo sed -i 's/^options /options ttm.pages_l
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
 # SSH hardening
-echo 'PasswordAuthentication no
+echo "PasswordAuthentication no
 PermitRootLogin no
-AllowUsers <YOUR_USER>' | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
+AllowUsers $HALO_USER" | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
+
+# ── Apply interactive configuration ────────────────
+info "Applying configuration from setup..."
+
+# Write Caddy password hash to Caddyfile
+if command -v caddy >/dev/null; then
+    CADDY_HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD")
+    sed -i "s|        admin a|        admin $CADDY_HASH|" /srv/ai/configs/Caddyfile
+    ok "Caddy password hash written to Caddyfile"
+else
+    warn "Caddy not yet available — password will be configured on first run"
+fi
+
+# Write SearXNG secret key to settings.yml
+sed -i "s|secret_key: \"CHANGEME-generate-a-new-secret-key\"|secret_key: \"$SEARXNG_KEY\"|" /srv/ai/configs/searxng/settings.yml
+ok "SearXNG secret key written to settings.yml"
+
+# Write Dashboard API key
+mkdir -p /srv/ai/dashboard-api/data
+echo -n "$DASHBOARD_API_KEY" > /srv/ai/dashboard-api/data/dashboard-api-key.txt
+chmod 600 /srv/ai/dashboard-api/data/dashboard-api-key.txt
+ok "Dashboard API key written to /srv/ai/dashboard-api/data/dashboard-api-key.txt"
 
 # Install systemd units
 sudo cp /srv/ai/systemd/halo-*.service /srv/ai/systemd/halo-*.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable halo-watchdog.timer
+
+# Enable selected services
+for svc in "${SELECTED_SERVICES[@]}"; do
+    unit="halo-${svc}.service"
+    # Map service names to actual systemd unit names
+    case "$svc" in
+        dashboard) unit="halo-dashboard-api.service"; unit2="halo-dashboard-ui.service" ;;
+        whisper)   unit="halo-whisper-server.service" ;;
+        *)         unit="halo-${svc}.service" ;;
+    esac
+    if [ -f "/etc/systemd/system/$unit" ]; then
+        sudo systemctl enable "$unit"
+        ok "Enabled $unit"
+    fi
+    if [ -n "${unit2:-}" ] && [ -f "/etc/systemd/system/$unit2" ]; then
+        sudo systemctl enable "$unit2"
+        ok "Enabled $unit2"
+    fi
+    unset unit2
+done
 
 # Snapper snapshots
 sudo snapper create-config / 2>/dev/null || true
@@ -226,9 +412,20 @@ echo ''
 info "Reboot to activate GPU memory (115GB GTT):"
 echo "  sudo reboot"
 echo ''
-info "Then start all services:"
-echo "  sudo systemctl start halo-lemonade halo-searxng halo-qdrant halo-vane halo-n8n halo-open-webui"
+info "Enabled services: ${SELECTED_SERVICES[*]}"
+info "Start all enabled services after reboot:"
+START_UNITS=""
+for svc in "${SELECTED_SERVICES[@]}"; do
+    case "$svc" in
+        dashboard) START_UNITS+="halo-dashboard-api halo-dashboard-ui " ;;
+        whisper)   START_UNITS+="halo-whisper-server " ;;
+        *)         START_UNITS+="halo-${svc} " ;;
+    esac
+done
+echo "  sudo systemctl start $START_UNITS"
 echo ''
 info "Access via SSH tunnel:"
-echo "  ssh -L 3000:localhost:3000 -L 3001:localhost:3001 strix-halo"
+echo "  ssh -L 3000:localhost:3000 -L 3001:localhost:3001 $HALO_HOSTNAME"
 echo "  Then open http://localhost:3000 (Open WebUI) or http://localhost:3001 (Perplexica)"
+echo ''
+info "Dashboard API key saved to: /srv/ai/dashboard-api/data/dashboard-api-key.txt"

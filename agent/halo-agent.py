@@ -15,6 +15,7 @@ import json
 import time
 import logging
 import os
+import shlex
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -118,9 +119,9 @@ def notify(title, message, level="critical"):
     """Send notification — only called when agent CANNOT fix something."""
     log.error(f"ALERT: {title} — {message}")
     # Desktop notification
-    run(f'notify-send -u {level} "halo-ai agent" "{title}: {message}"')
+    run(f'notify-send -u {shlex.quote(level)} "halo-ai agent" {shlex.quote(title + ": " + message)}')
     # systemd journal
-    run(f'logger -t halo-agent -p user.err "{title}: {message}"')
+    run(f'logger -t halo-agent -p user.err {shlex.quote(title + ": " + message)}')
 
 # ── Service Monitoring ─────────────────────────────────
 def check_service(name, config):

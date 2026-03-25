@@ -13,6 +13,11 @@ Environment=N8N_USER_FOLDER=/srv/ai/n8n/data
 ExecStart=/usr/local/bin/node /srv/ai/n8n/packages/cli/bin/n8n start
 Restart=on-failure
 RestartSec=5
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=read-only
+ReadWritePaths=/srv/ai
 
 [Install]
 WantedBy=multi-user.target

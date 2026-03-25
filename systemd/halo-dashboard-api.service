@@ -14,6 +14,11 @@ ExecStart=/srv/ai/dashboard-api/.venv/bin/uvicorn main:app --host 127.0.0.1 --po
 Restart=on-failure
 RestartSec=5
 SupplementaryGroups=video render
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectHome=read-only
+ReadWritePaths=/srv/ai
 
 [Install]
 WantedBy=multi-user.target

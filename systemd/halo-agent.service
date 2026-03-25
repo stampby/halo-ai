@@ -15,6 +15,9 @@ WatchdogSec=120
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=halo-agent
+ProtectSystem=full
+PrivateTmp=yes
+NoNewPrivileges=yes
 
 [Install]
 WantedBy=multi-user.target
