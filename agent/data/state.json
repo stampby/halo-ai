@@ -1,9 +1,15 @@
 {
   "services": {},
-  "last_update_check": "2026-03-25T00:36:24.298172",
+  "last_update_check": "2026-03-25T00:56:33.342187",
   "last_health_report": null,
   "updates_available": {},
   "total_repairs": 0,
   "total_failures": 0,
-  "started_at": "2026-03-25T00:36:23.880806"
+  "started_at": "2026-03-25T00:36:23.880806",
+  "perf_history": [
+    {
+      "time": "2026-03-25T00:56:33.191713",
+      "tok_s": 110.39720915855249
+    }
+  ]
 }

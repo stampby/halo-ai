@@ -1,0 +1,7 @@
+[Unit]
+Description=halo-ai Nightly Backup
+
+[Service]
+Type=oneshot
+User=<YOUR_USER>
+ExecStart=/srv/ai/scripts/halo-backup.sh /srv/ai/backups

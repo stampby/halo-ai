@@ -305,6 +305,60 @@ def verify_inference():
     except (json.JSONDecodeError, KeyError):
         return False, 0
 
+
+# ── Auto-Update (patch versions only) ─────────────
+def auto_update_safe(state: AgentState):
+    """Auto-apply non-breaking updates (patch versions) after snapshot."""
+    updates = state.updates_available
+    if not updates:
+        return
+    
+    # Only auto-update system packages (security patches)
+    sys_pkgs = updates.get("system-packages", {})
+    if sys_pkgs.get("count", 0) > 0:
+        log.info(f"Auto-applying {sys_pkgs['count']} system package updates")
+        snapshot_before_repair("auto-update system packages")
+        code, out, err = run("pacman -Syu --noconfirm", timeout=300)
+        if code != 0:
+            log.error(f"System update failed: {err}")
+            notify("Auto-update failed", "pacman -Syu failed — manual intervention needed")
+
+# ── Performance Monitoring ─────────────────────────
+def check_performance(state: AgentState):
+    """Track inference performance over time, detect degradation."""
+    ok, tok_s = verify_inference()
+    if not ok:
+        return
+    
+    # Store in state for trend tracking
+    perf_history = state.__dict__.setdefault("perf_history", [])
+    perf_history.append({"time": datetime.now().isoformat(), "tok_s": tok_s})
+    # Keep last 100 measurements
+    if len(perf_history) > 100:
+        perf_history[:] = perf_history[-100:]
+    
+    # Check for degradation (>20% below recent average)
+    if len(perf_history) >= 5:
+        recent_avg = sum(p["tok_s"] for p in perf_history[-5:]) / 5
+        if tok_s < recent_avg * 0.8 and tok_s > 0:
+            log.warning(f"Performance degraded: {tok_s:.1f} tok/s vs avg {recent_avg:.1f}")
+
+# ── Log Rotation ───────────────────────────────────
+def rotate_logs():
+    """Keep agent log under 10MB."""
+    if LOG_FILE.exists() and LOG_FILE.stat().st_size > 10 * 1024 * 1024:
+        rotated = LOG_FILE.with_suffix(".log.old")
+        if rotated.exists():
+            rotated.unlink()
+        LOG_FILE.rename(rotated)
+        log.info("Log rotated")
+
+# ── Snapshot Cleanup ───────────────────────────────
+def cleanup_old_snapshots():
+    """Trigger snapper cleanup if too many snapshots."""
+    run("snapper -c root cleanup number")
+    run("snapper -c home cleanup number")
+
 # ── Main Loop ──────────────────────────────────────────
 def main():
     state = load_state()
@@ -343,19 +397,21 @@ def main():
             
             last_health_check = now
         
-        # ── Inference verification (every 5 min) ──────
+        # (inference check moved to check_performance)
+        
+        # ── Performance tracking (every 5 min) ────
         if now - last_inference_check >= 300:
-            ok, tok_s = verify_inference()
-            if not ok:
-                log.warning("Inference verification failed")
-                # Don't alert — service check will handle restart
-            elif tok_s < 50:
-                log.warning(f"Inference degraded: {tok_s:.1f} tok/s (expected >80)")
+            check_performance(state)
             last_inference_check = now
+        
+        # ── Log rotation ──────────────────────────
+        rotate_logs()
         
         # ── Update checks (every hour) ────────────────
         if now - last_update_check >= UPDATE_CHECK_INTERVAL:
             check_updates(state)
+            auto_update_safe(state)
+            cleanup_old_snapshots()
             last_update_check = now
         
         # ── Save state ────────────────────────────────
