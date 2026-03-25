@@ -8,7 +8,7 @@ CYAN='\033[0;36m'; MAGENTA='\033[0;35m'; BOLD='\033[1m'; DIM='\033[2m'; NC='\033
 
 # ── Halo AI branded output ────────────────────────
 STEP_CURRENT=0
-STEP_TOTAL=17
+STEP_TOTAL=18
 
 step() {
     STEP_CURRENT=$((STEP_CURRENT + 1))
@@ -371,6 +371,20 @@ pip install -q -r requirements.txt
 deactivate
 ok "ComfyUI installed"
 
+# Download image generation models
+progress "Downloading SDXL base model (~6.5GB)..."
+wget -q --show-progress 'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors' \
+    -O /srv/ai/comfyui/models/checkpoints/sd_xl_base_1.0.safetensors 2>/dev/null || \
+    warn "SDXL download failed — download manually later"
+[ -f /srv/ai/comfyui/models/checkpoints/sd_xl_base_1.0.safetensors ] && ok "SDXL base model ready"
+
+# Download Whisper model for speech-to-text
+progress "Downloading Whisper large-v3 model (~3GB)..."
+wget -q --show-progress 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin' \
+    -O /srv/ai/models/whisper-large-v3.bin 2>/dev/null || \
+    warn "Whisper model download failed — download manually later"
+[ -f /srv/ai/models/whisper-large-v3.bin ] && ok "Whisper large-v3 model ready"
+
 info "Installing Kokoro TTS..."
 cd /srv/ai/kokoro
 [ -d .git ] || git clone https://github.com/remsky/Kokoro-FastAPI .
@@ -382,6 +396,26 @@ pip install -q --no-deps 'misaki>=0.7.4' 'kokoro>=0.7.16'
 python -m spacy download en_core_web_sm
 deactivate
 ok "Kokoro installed"
+
+# ── Download LLM model ────────────────────────────
+step "Downloading AI models"
+
+# LLM — Qwen3-30B-A3B (best speed/quality for Strix Halo)
+if [ ! -f /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf ]; then
+    info "Downloading Qwen3-30B-A3B (~18GB)..."
+    progress "This is the main LLM — 90 tok/s on Strix Halo"
+    wget -q --show-progress 'https://huggingface.co/bartowski/Qwen3-30B-A3B-GGUF/resolve/main/Qwen3-30B-A3B-Q4_K_M.gguf' \
+        -O /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf 2>/dev/null || \
+        warn "LLM download failed — download manually: halo-models.sh download qwen3-30b"
+    [ -f /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf ] && ok "Qwen3-30B-A3B ready (18GB, 90 tok/s)"
+else
+    ok "LLM model already present"
+fi
+
+# SDXL was downloaded above with ComfyUI
+# Whisper was downloaded above with ComfyUI
+
+ok "All models ready"
 
 # ── System config ──────────────────────────────────
 step "System hardening & configuration"
