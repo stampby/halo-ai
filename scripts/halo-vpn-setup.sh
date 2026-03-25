@@ -29,7 +29,7 @@ progress() { echo -e "  ${DIM}    ... $1${NC}"; }
 prompt() {
     local var_name="$1" prompt_text="$2" default="$3"
     read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text [${default}]: " input
-    eval "$var_name=\"${input:-$default}\""
+    printf -v "$var_name" '%s' "${input:-$default}"
 }
 
 WG_DIR="/etc/wireguard"
