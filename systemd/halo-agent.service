@@ -1,0 +1,20 @@
+[Unit]
+Description=halo-ai Agent — Autonomous Service Guardian
+After=network.target
+Wants=halo-llama-server.service halo-lemonade.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /srv/ai/agent/halo-agent.py
+Restart=always
+RestartSec=10
+WatchdogSec=120
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=halo-agent
+
+[Install]
+WantedBy=multi-user.target
