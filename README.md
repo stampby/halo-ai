@@ -108,7 +108,7 @@ Local Copilot can be configured to run on your Strix Halo for private, offline c
 
 Instead of remembering your server's IP address, set up a local hostname so that typing `https://strixhalo` in your browser takes you directly to the Halo AI web GUI.
 
-> **Note:** Replace `<YOUR_SERVER_IP>` with the actual local IP of your Halo AI server (e.g., `xxx.xxx.xxx.100`).
+> **Note:** Replace `xxx.xxx.xxx.xxx` with the actual local IP of your Halo AI server.
 
 ### Method 1: Router DNS (Recommended)
 
@@ -117,17 +117,17 @@ Configure your router to resolve `strixhalo` — works for every device on your 
 <details>
 <summary><strong>ASUS (ASUSWRT / Merlin)</strong></summary>
 
-1. Log in to your router at `http://router.asus.com` or `http://xxx.xxx.xxx.1`
+1. Log in to your router at `http://router.asus.com` or `http://xxx.xxx.xxx.xxx`
 2. Navigate to **LAN** → **DHCP Server**
 3. Enable **Manual Assignment** and assign your server a static IP
 4. For hostname resolution, add a custom DNS entry:
    - Hostname: `strixhalo`
-   - IP: `<YOUR_SERVER_IP>`
+   - IP: `xxx.xxx.xxx.xxx`
 5. Click **Apply**
 
 On **Merlin** firmware, you can also SSH in and run:
 ```bash
-echo "address=/strixhalo/<YOUR_SERVER_IP>" >> /jffs/configs/dnsmasq.conf.add
+echo "address=/strixhalo/xxx.xxx.xxx.xxx" >> /jffs/configs/dnsmasq.conf.add
 service restart_dnsmasq
 ```
 
@@ -136,7 +136,7 @@ service restart_dnsmasq
 <details>
 <summary><strong>TP-Link</strong></summary>
 
-1. Log in at `http://192.168.0.1` or `http://tplinkwifi.net`
+1. Log in at `http://xxx.xxx.xxx.xxx` or `http://tplinkwifi.net`
 2. Go to **DHCP** → **Address Reservation** and lock in your server's IP
 3. TP-Link consumer routers don't support custom local DNS — use the hosts file method below
 
@@ -155,7 +155,7 @@ service restart_dnsmasq
 <details>
 <summary><strong>Linksys</strong></summary>
 
-1. Log in at `http://192.168.1.1` or via the Linksys app
+1. Log in at `http://xxx.xxx.xxx.xxx` or via the Linksys app
 2. **Connectivity** → **Local Network** → **DHCP Reservations**
 3. Assign your server a static IP
 4. For hostname resolution, use the hosts file method below
@@ -167,12 +167,12 @@ service restart_dnsmasq
 
 **pfSense:**
 1. **Services** → **DNS Resolver** → **Host Overrides** → **Add**
-2. Host: `strixhalo`, IP: `<YOUR_SERVER_IP>`
+2. Host: `strixhalo`, IP: `xxx.xxx.xxx.xxx`
 3. **Save** and **Apply Changes**
 
 **OPNsense:**
 1. **Services** → **Unbound DNS** → **Overrides** → **Host Overrides** → **Add**
-2. Hostname: `strixhalo`, IP: `<YOUR_SERVER_IP>`
+2. Hostname: `strixhalo`, IP: `xxx.xxx.xxx.xxx`
 3. **Save** and **Apply**
 
 </details>
@@ -182,14 +182,14 @@ service restart_dnsmasq
 
 Via LuCI:
 1. **Network** → **DHCP and DNS** → **Hostnames** → **Add**
-2. Hostname: `strixhalo`, IP: `<YOUR_SERVER_IP>`
+2. Hostname: `strixhalo`, IP: `xxx.xxx.xxx.xxx`
 3. **Save & Apply**
 
 Via SSH:
 ```bash
 uci add dhcp domain
 uci set dhcp.@domain[-1].name='strixhalo'
-uci set dhcp.@domain[-1].ip='<YOUR_SERVER_IP>'
+uci set dhcp.@domain[-1].ip='xxx.xxx.xxx.xxx'
 uci commit dhcp
 /etc/init.d/dnsmasq restart
 ```
@@ -202,13 +202,13 @@ Add the entry directly on each machine that needs access.
 
 | OS | File | Entry |
 |---|---|---|
-| **Linux** | `/etc/hosts` | `<YOUR_SERVER_IP>    strixhalo` |
-| **macOS** | `/etc/hosts` | `<YOUR_SERVER_IP>    strixhalo` |
-| **Windows** | `C:\Windows\System32\drivers\etc\hosts` | `<YOUR_SERVER_IP>    strixhalo` |
+| **Linux** | `/etc/hosts` | `xxx.xxx.xxx.xxx    strixhalo` |
+| **macOS** | `/etc/hosts` | `xxx.xxx.xxx.xxx    strixhalo` |
+| **Windows** | `C:\Windows\System32\drivers\etc\hosts` | `xxx.xxx.xxx.xxx    strixhalo` |
 
 ```bash
 # Linux / macOS
-sudo sh -c 'echo "<YOUR_SERVER_IP>    strixhalo" >> /etc/hosts'
+sudo sh -c 'echo "xxx.xxx.xxx.xxx    strixhalo" >> /etc/hosts'
 
 # macOS — also flush DNS cache
 sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
@@ -218,13 +218,13 @@ sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
 
 **Pi-hole:**
 ```bash
-echo "<YOUR_SERVER_IP> strixhalo" | sudo tee -a /etc/pihole/custom.list
+echo "xxx.xxx.xxx.xxx strixhalo" | sudo tee -a /etc/pihole/custom.list
 pihole restartdns
 ```
 
 **AdGuard Home:**
 1. **Filters** → **DNS rewrites** → **Add DNS rewrite**
-2. Domain: `strixhalo`, Answer: `<YOUR_SERVER_IP>`
+2. Domain: `strixhalo`, Answer: `xxx.xxx.xxx.xxx`
 
 ### API Access from the Command Line
 
