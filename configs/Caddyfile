@@ -2,7 +2,7 @@
     admin off
 }
 
-:8443 {
+:443 {
     tls internal
 
     basicauth * {

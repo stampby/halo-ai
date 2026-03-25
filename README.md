@@ -104,6 +104,165 @@ Local Copilot can be configured to run on your Strix Halo for private, offline c
 - [BENCHMARKS.md](BENCHMARKS.md) — Full performance data
 - [Credits](#credits--acknowledgements)
 
+## Accessing Your Halo AI Server
+
+Instead of remembering your server's IP address, set up a local hostname so that typing `https://strixhalo` in your browser takes you directly to the Halo AI web GUI.
+
+> **Note:** Replace `<YOUR_SERVER_IP>` with the actual local IP of your Halo AI server (e.g., `xxx.xxx.xxx.100`).
+
+### Method 1: Router DNS (Recommended)
+
+Configure your router to resolve `strixhalo` — works for every device on your network automatically.
+
+<details>
+<summary><strong>ASUS (ASUSWRT / Merlin)</strong></summary>
+
+1. Log in to your router at `http://router.asus.com` or `http://xxx.xxx.xxx.1`
+2. Navigate to **LAN** → **DHCP Server**
+3. Enable **Manual Assignment** and assign your server a static IP
+4. For hostname resolution, add a custom DNS entry:
+   - Hostname: `strixhalo`
+   - IP: `<YOUR_SERVER_IP>`
+5. Click **Apply**
+
+On **Merlin** firmware, you can also SSH in and run:
+```bash
+echo "address=/strixhalo/<YOUR_SERVER_IP>" >> /jffs/configs/dnsmasq.conf.add
+service restart_dnsmasq
+```
+
+</details>
+
+<details>
+<summary><strong>TP-Link</strong></summary>
+
+1. Log in at `http://192.168.0.1` or `http://tplinkwifi.net`
+2. Go to **DHCP** → **Address Reservation** and lock in your server's IP
+3. TP-Link consumer routers don't support custom local DNS — use the hosts file method below
+
+</details>
+
+<details>
+<summary><strong>Netgear</strong></summary>
+
+1. Log in at `http://routerlogin.net`
+2. **Advanced** → **Setup** → **LAN Setup** → **Address Reservation**
+3. Assign a fixed IP to your server's MAC address
+4. For hostname resolution, use the hosts file method below
+
+</details>
+
+<details>
+<summary><strong>Linksys</strong></summary>
+
+1. Log in at `http://192.168.1.1` or via the Linksys app
+2. **Connectivity** → **Local Network** → **DHCP Reservations**
+3. Assign your server a static IP
+4. For hostname resolution, use the hosts file method below
+
+</details>
+
+<details>
+<summary><strong>pfSense / OPNsense</strong></summary>
+
+**pfSense:**
+1. **Services** → **DNS Resolver** → **Host Overrides** → **Add**
+2. Host: `strixhalo`, IP: `<YOUR_SERVER_IP>`
+3. **Save** and **Apply Changes**
+
+**OPNsense:**
+1. **Services** → **Unbound DNS** → **Overrides** → **Host Overrides** → **Add**
+2. Hostname: `strixhalo`, IP: `<YOUR_SERVER_IP>`
+3. **Save** and **Apply**
+
+</details>
+
+<details>
+<summary><strong>OpenWrt</strong></summary>
+
+Via LuCI:
+1. **Network** → **DHCP and DNS** → **Hostnames** → **Add**
+2. Hostname: `strixhalo`, IP: `<YOUR_SERVER_IP>`
+3. **Save & Apply**
+
+Via SSH:
+```bash
+uci add dhcp domain
+uci set dhcp.@domain[-1].name='strixhalo'
+uci set dhcp.@domain[-1].ip='<YOUR_SERVER_IP>'
+uci commit dhcp
+/etc/init.d/dnsmasq restart
+```
+
+</details>
+
+### Method 2: Hosts File (Per Device)
+
+Add the entry directly on each machine that needs access.
+
+| OS | File | Entry |
+|---|---|---|
+| **Linux** | `/etc/hosts` | `<YOUR_SERVER_IP>    strixhalo` |
+| **macOS** | `/etc/hosts` | `<YOUR_SERVER_IP>    strixhalo` |
+| **Windows** | `C:\Windows\System32\drivers\etc\hosts` | `<YOUR_SERVER_IP>    strixhalo` |
+
+```bash
+# Linux / macOS
+sudo sh -c 'echo "<YOUR_SERVER_IP>    strixhalo" >> /etc/hosts'
+
+# macOS — also flush DNS cache
+sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+```
+
+### Method 3: Local DNS Server (Pi-hole / AdGuard Home)
+
+**Pi-hole:**
+```bash
+echo "<YOUR_SERVER_IP> strixhalo" | sudo tee -a /etc/pihole/custom.list
+pihole restartdns
+```
+
+**AdGuard Home:**
+1. **Filters** → **DNS rewrites** → **Add DNS rewrite**
+2. Domain: `strixhalo`, Answer: `<YOUR_SERVER_IP>`
+
+### API Access from the Command Line
+
+```bash
+# Chat with the LLM
+curl https://strixhalo/api/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"default","messages":[{"role":"user","content":"Hello"}]}'
+
+# Check Web UI status
+curl -s -o /dev/null -w "%{http_code}" https://strixhalo/chat/
+
+# Search via SearXNG
+curl "https://strixhalo/search?q=local+AI&format=json"
+```
+
+### SSH Access
+
+Generate an SSH key pair if you don't have one:
+
+```bash
+ssh-keygen -t ed25519
+```
+
+A public key looks like this:
+
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleKeyDoNotUseThis1234567890abcdef user@hostname
+```
+
+Add your public key to the server's `~/.ssh/authorized_keys`, then connect:
+
+```bash
+ssh <YOUR_USER>@strixhalo
+```
+
+---
+
 ## Credits & Acknowledgements
 
 ### DreamServer — The Project That Started It All
