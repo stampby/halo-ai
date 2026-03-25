@@ -335,7 +335,7 @@ info "Installing SearXNG..."
 cd /srv/ai/searxng
 [ -d .git ] || git clone https://github.com/searxng/searxng .
 python3 -m venv .venv && source .venv/bin/activate
-pip install -q setuptools msgspec pyyaml && pip install -q --no-build-isolation -e .
+pip install -q setuptools msgspec pyyaml typing_extensions Brotli lxml && pip install -q --no-build-isolation -e .
 deactivate
 ok "SearXNG installed"
 
