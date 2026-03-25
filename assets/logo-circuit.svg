@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <rect width="400" height="120" fill="#0d1117"/>
+  <!-- Circuit traces extending outward -->
+  <g stroke="#00ff88" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <!-- Left traces -->
+    <path d="M30,40 L50,40 L60,50"/>
+    <path d="M20,60 L50,60"/>
+    <path d="M30,80 L50,80 L60,70"/>
+    <!-- Right traces -->
+    <path d="M340,40 L360,40 L370,30 L390,30"/>
+    <path d="M340,60 L370,60 L390,60"/>
+    <path d="M340,80 L360,80 L370,90 L380,90"/>
+    <!-- Top traces -->
+    <path d="M120,25 L120,10 L140,10"/>
+    <path d="M200,25 L200,5"/>
+    <path d="M280,25 L280,15 L300,15"/>
+    <!-- Bottom traces -->
+    <path d="M140,95 L140,110 L160,110"/>
+    <path d="M220,95 L220,108"/>
+    <path d="M300,95 L300,105 L320,105"/>
+  </g>
+  <!-- Circuit nodes -->
+  <g fill="#00ff88">
+    <circle cx="30" cy="40" r="2.5"/>
+    <circle cx="20" cy="60" r="2.5"/>
+    <circle cx="30" cy="80" r="2.5"/>
+    <circle cx="390" cy="30" r="2.5"/>
+    <circle cx="390" cy="60" r="2.5"/>
+    <circle cx="380" cy="90" r="2.5"/>
+    <circle cx="140" cy="10" r="2.5"/>
+    <circle cx="200" cy="5" r="2.5"/>
+    <circle cx="300" cy="15" r="2.5"/>
+    <circle cx="160" cy="110" r="2.5"/>
+    <circle cx="220" cy="108" r="2.5"/>
+    <circle cx="320" cy="105" r="2.5"/>
+    <!-- Junction nodes -->
+    <circle cx="60" cy="50" r="2"/>
+    <circle cx="60" cy="70" r="2"/>
+    <circle cx="370" cy="30" r="2"/>
+    <circle cx="370" cy="90" r="2"/>
+  </g>
+  <!-- HALO·AI text - monospace style -->
+  <text x="200" y="68" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="40" fill="#ffffff" text-anchor="middle" letter-spacing="6">HALO</text>
+  <circle cx="262" cy="55" r="2.5" fill="#00ff88"/>
+  <text x="295" y="68" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="40" fill="#00ff88" text-anchor="middle" letter-spacing="6">AI</text>
+</svg>

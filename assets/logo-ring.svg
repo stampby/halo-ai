@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0066ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="#0d1117"/>
+  <!-- Halo ring - geometric and precise -->
+  <circle cx="100" cy="88" r="52" fill="none" stroke="url(#ringGrad)" stroke-width="2.5"/>
+  <!-- Small gap at bottom of ring for style -->
+  <rect x="85" y="137" width="30" height="6" fill="#0d1117"/>
+  <!-- AI centered in ring -->
+  <text x="100" y="100" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="38" fill="#ffffff" text-anchor="middle" dominant-baseline="central">AI</text>
+  <!-- HALO below ring - lighter weight, spaced -->
+  <text x="100" y="170" font-family="Arial, Helvetica, sans-serif" font-weight="300" font-size="22" fill="#ffffff" text-anchor="middle" letter-spacing="10">HALO</text>
+</svg>

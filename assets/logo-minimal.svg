@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Thin halo arc above the H -->
+  <path d="M16,16 A16,8 0 0,1 48,16" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+  <!-- Bold geometric H -->
+  <g fill="#00d4ff">
+    <!-- Left vertical -->
+    <rect x="16" y="22" width="8" height="32" rx="1"/>
+    <!-- Right vertical -->
+    <rect x="40" y="22" width="8" height="32" rx="1"/>
+    <!-- Crossbar -->
+    <rect x="16" y="34" width="32" height="8" rx="1"/>
+  </g>
+</svg>
