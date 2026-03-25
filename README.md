@@ -355,7 +355,11 @@ They were the first to look at the Strix Halo chip and see not just an inference
 
 That vision is what halo-ai is built on. The architecture, the service selection, the idea that a single Strix Halo box can replace a rack of cloud services — that came from DreamServer. Their open-source dashboard panel is what powers the halo-ai control center. We did not just take inspiration — we directly forked their work and built on it.
 
-To the Light-Heart-Labs team: thank you for open-sourcing this. Thank you for pushing the boundaries of what local AI can be. The Strix Halo community is better because of what you built. Huge fist bumps.
+To the Light-Heart-Labs team: you didn't just build software — you helped me personally get this project off the ground. When I was figuring out how to make Strix Halo work as a full AI server, DreamServer was the roadmap. Your system tuning, your service architecture, your GPU optimizations — I learned from all of it. The performance tuning that got halo-ai from 70 tok/s to 89 tok/s came directly from studying your work. Your dashboard panel is the control center for this entire stack.
+
+Thank you for open-sourcing everything. Thank you for being generous with your knowledge. Thank you for pushing the boundaries of what local AI can be. The Strix Halo community is better because of what you built.
+
+Massive fist bumps to the entire Light-Heart-Labs team. You are legends.
 
 **Fork**: [github.com/bong-water-water-bong/DreamServer](https://github.com/bong-water-water-bong/DreamServer)
 
