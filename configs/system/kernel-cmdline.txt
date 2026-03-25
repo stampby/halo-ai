@@ -1,0 +1,1 @@
+options amd_iommu=off ttm.pages_limit=30146560 root=/dev/ArchinstallVg/root zswap.enabled=0 rootflags=subvol=@ rw rootfstype=btrfs
