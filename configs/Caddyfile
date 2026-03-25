@@ -6,9 +6,9 @@
     tls internal
 
     basicauth * {
-        # Run during install: caddy hash-password --plaintext 'yourpassword'
-        # Then set here, or run: ./install.sh which handles this automatically
-        admin $2a$14$k1pIUrVgTXyx5JC7ob3AX.bd2Ayi1r4LNInFjExjz8DVNLC26maQa
+        # Default password: Caddy (change immediately after install!)
+        # Generate new hash: caddy hash-password --plaintext 'newpassword'
+        admin $2a$14$hyBjre0RT3lbdTzAtACFRuhlYeFAx4xsxVsk0IR2RkDy3KVJIi2Nq
     }
 
     handle_path /chat/* {

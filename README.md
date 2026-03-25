@@ -25,13 +25,13 @@ The installer runs an interactive configuration wizard before building. You will
 | Setting | Default | Description |
 |---------|---------|-------------|
 | System username | Current user (`whoami`) | Used for file ownership, GPU group, and SSH access |
-| Caddy password | *(must set)* | Hashed with bcrypt and written to the Caddyfile |
+| Caddy password | `Caddy` | Hashed with bcrypt and written to the Caddyfile. **Change immediately after install!** |
 | SearXNG secret key | Auto-generated (`openssl rand -hex 32`) | Written to `configs/searxng/settings.yml` |
 | Dashboard API key | Auto-generated (`openssl rand -base64 32`) | Written to `dashboard-api/data/dashboard-api-key.txt` |
 | Server hostname | `strixhalo` | Optionally added to `/etc/hosts` |
 | Enabled services | All enabled | Pick which services to enable via systemd |
 
-Every setting has a sensible default (except the Caddy password) -- press Enter to accept.
+Every setting has a sensible default — press Enter to accept. **Change the default Caddy password immediately after install.**
 
 ## What is this?
 

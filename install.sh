@@ -82,7 +82,8 @@ ok "Username: $HALO_USER"
 # 2. Caddy password
 echo ''
 info "Caddy reverse proxy password (protects web access)"
-prompt_secret CADDY_PASSWORD "Choose a Caddy password"
+info "Default: Caddy — change this immediately after install!"
+prompt CADDY_PASSWORD "Caddy password" "Caddy"
 ok "Caddy password set (will be hashed during install)"
 
 # 3. SearXNG secret key
