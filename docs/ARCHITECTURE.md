@@ -2,7 +2,7 @@
 
 ## Overview
 
-Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 89 tok/s on Qwen3-30B-A3B.
+Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 90 tok/s on Qwen3-30B-A3B.
 
 The stack provides LLM inference, chat UI, deep research, speech-to-text, text-to-speech, image generation, RAG pipelines, workflow automation, private search, and autonomous monitoring -- all integrated, all on localhost.
 
@@ -390,7 +390,7 @@ llama.cpp is compiled three times, producing three separate binaries in `/srv/ai
 
 - **Binary**: `/srv/ai/llama-cpp/build-vulkan/bin/llama-server`
 - **Build flags**: `-DGGML_VULKAN=ON`
-- **Best for**: Token generation speed (fastest tok/s, ~89 tok/s on Qwen3-30B-A3B)
+- **Best for**: Token generation speed (fastest tok/s, ~90 tok/s on Qwen3-30B-A3B)
 - **Why**: Mesa RADV driver is highly optimized on Arch Linux. Lower overhead for small batch inference.
 - **Notes**: Does not require ROCm. Works with standard Mesa Vulkan drivers. The default ExecStart in the shipped systemd unit actually points to the Vulkan binary despite the unit being named "HIP/ROCm" in its description.
 

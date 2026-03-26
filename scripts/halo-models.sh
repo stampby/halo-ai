@@ -8,7 +8,7 @@ UNIT="/etc/systemd/system/$SERVICE"
 
 # Models curated for 115GB GTT Strix Halo
 declare -A CATALOG
-CATALOG["qwen3-30b-a3b"]="unsloth/Qwen3-30B-A3B-GGUF|Qwen3-30B-A3B-Q4_K_M.gguf|18G|~89 tok/s|Best balance of speed and quality (MoE)"
+CATALOG["qwen3-30b-a3b"]="unsloth/Qwen3-30B-A3B-GGUF|Qwen3-30B-A3B-Q4_K_M.gguf|18G|~90 tok/s|Best balance of speed and quality (MoE)"
 CATALOG["qwen3-coder-30b"]="unsloth/Qwen3-Coder-30B-A3B-GGUF|Qwen3-Coder-30B-A3B-Q4_K_M.gguf|18G|~85 tok/s|Code-focused MoE — ideal for Copilot"
 CATALOG["llama3-8b"]="bartowski/Meta-Llama-3.1-8B-Instruct-GGUF|Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf|5G|~120 tok/s|Fast small model"
 CATALOG["llama3-70b"]="bartowski/Meta-Llama-3.1-70B-Instruct-GGUF|Meta-Llama-3.1-70B-Instruct-Q4_K_M.gguf|40G|~18 tok/s|Large dense model"
