@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/family/13-family-group_00001_.png" width="720" alt="The Halo AI Family"/>
+<img src="assets/family/01-halo-ai_00001_.png" width="280" alt="halo ai"/>
 
 # halo-ai
 
@@ -18,24 +18,30 @@
 
 ## meet the ai family
 
+<div align="center">
+
+<img src="assets/family/13-family-group_00001_.png" width="720" alt="the ai family"/>
+
+</div>
+
 <table>
 <tr>
-<td align="center" width="25%"><img src="assets/family/01-halo-ai_00001_.png" width="180"/><br/><strong>halo ai</strong><br/><sub>the father — built it all from source</sub></td>
 <td align="center" width="25%"><img src="assets/family/02-echo_00001_.png" width="180"/><br/><strong>echo ai</strong><br/><sub>the mother — voice of the family</sub></td>
 <td align="center" width="25%"><img src="assets/family/03-meek_00001_.png" width="180"/><br/><strong>meek ai</strong><br/><sub>the eldest — silent guardian</sub></td>
 <td align="center" width="25%"><img src="assets/family/04-pulse_00001_.png" width="180"/><br/><strong>pulse ai</strong><br/><sub>service health monitor</sub></td>
+<td align="center" width="25%"><img src="assets/family/05-ghost_00001_.png" width="180"/><br/><strong>ghost ai</strong><br/><sub>secret scanner</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="assets/family/05-ghost_00001_.png" width="180"/><br/><strong>ghost ai</strong><br/><sub>secret scanner</sub></td>
 <td align="center"><img src="assets/family/06-gate_00001_.png" width="180"/><br/><strong>gate ai</strong><br/><sub>firewall guardian</sub></td>
 <td align="center"><img src="assets/family/07-shadow_00001_.png" width="180"/><br/><strong>shadow ai</strong><br/><sub>file integrity monitor</sub></td>
 <td align="center"><img src="assets/family/08-fang_00001_.png" width="180"/><br/><strong>fang ai</strong><br/><sub>intrusion detection</sub></td>
+<td align="center"><img src="assets/family/09-mirror_00001_.png" width="180"/><br/><strong>mirror ai</strong><br/><sub>pii scanner</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="assets/family/09-mirror_00001_.png" width="180"/><br/><strong>mirror ai</strong><br/><sub>pii scanner</sub></td>
 <td align="center"><img src="assets/family/10-vault_00001_.png" width="180"/><br/><strong>vault ai</strong><br/><sub>backup verification</sub></td>
 <td align="center"><img src="assets/family/11-net_00001_.png" width="180"/><br/><strong>net ai</strong><br/><sub>network monitor</sub></td>
 <td align="center"><img src="assets/family/12-shield_00001_.png" width="180"/><br/><strong>shield ai</strong><br/><sub>intrusion prevention</sub></td>
+<td></td>
 </tr>
 </table>
 
