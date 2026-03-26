@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Fingerprint (file integrity) -->
+  <path d="M64,30 Q90,30 90,58 Q90,86 64,86" fill="none" stroke="#ff9800" stroke-width="2" opacity="0.8"/>
+  <path d="M64,38 Q82,38 82,58 Q82,78 64,78" fill="none" stroke="#ff9800" stroke-width="2" opacity="0.6"/>
+  <path d="M64,46 Q74,46 74,58 Q74,70 64,70" fill="none" stroke="#ff9800" stroke-width="2" opacity="0.8"/>
+  <path d="M64,54 Q68,54 68,58 Q68,62 64,62" fill="none" stroke="#ff9800" stroke-width="2"/>
+  <!-- Hash checkmark -->
+  <text x="38" y="62" font-family="monospace" font-size="14" fill="#ff9800" opacity="0.3">#</text>
+  <!-- Comparison arrows -->
+  <line x1="30" y1="90" x2="52" y2="90" stroke="#ff9800" stroke-width="1.5" opacity="0.5"/>
+  <line x1="76" y1="90" x2="98" y2="90" stroke="#ff9800" stroke-width="1.5" opacity="0.5"/>
+  <text x="64" y="94" text-anchor="middle" font-family="monospace" font-size="12" fill="#ff9800" opacity="0.6">≡</text>
+  <!-- Label -->
+  <text x="64" y="112" text-anchor="middle" font-family="monospace" font-size="10" fill="#ff9800" font-weight="bold">shadow</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Sound wave ripples (echo) -->
+  <path d="M40,64 Q50,44 64,44 Q78,44 88,64" fill="none" stroke="#ce93d8" stroke-width="2" opacity="0.3"/>
+  <path d="M34,64 Q48,36 64,36 Q80,36 94,64" fill="none" stroke="#ce93d8" stroke-width="2" opacity="0.5"/>
+  <path d="M28,64 Q44,28 64,28 Q84,28 100,64" fill="none" stroke="#ce93d8" stroke-width="2" opacity="0.7"/>
+  <!-- Megaphone / speaker -->
+  <polygon points="50,56 50,72 60,76 60,52" fill="#ce93d8"/>
+  <path d="M60,50 L80,38 L80,90 L60,78" fill="none" stroke="#ce93d8" stroke-width="2.5"/>
+  <!-- Speech bubbles -->
+  <circle cx="90" cy="42" r="6" fill="none" stroke="#ce93d8" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="98" cy="34" r="4" fill="none" stroke="#ce93d8" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="104" cy="28" r="2.5" fill="none" stroke="#ce93d8" stroke-width="1.5" opacity="0.3"/>
+  <!-- Label -->
+  <text x="64" y="108" text-anchor="middle" font-family="monospace" font-size="10" fill="#ce93d8" font-weight="bold">echo</text>
+</svg>

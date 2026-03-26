@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Firewall barrier (hexagonal shields) -->
+  <polygon points="64,24 84,36 84,56 64,68 44,56 44,36" fill="none" stroke="#00d4ff" stroke-width="2.5"/>
+  <polygon points="40,46 56,36 56,56 40,68 24,56 24,36" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.4"/>
+  <polygon points="88,46 104,36 104,56 88,68 72,56 72,36" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.4"/>
+  <!-- Lock in center -->
+  <rect x="57" y="46" width="14" height="12" rx="2" fill="#00d4ff"/>
+  <circle cx="64" cy="40" r="6" fill="none" stroke="#00d4ff" stroke-width="2.5"/>
+  <!-- Stop hand -->
+  <line x1="44" y1="80" x2="84" y2="80" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="64" y1="74" x2="64" y2="86" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+  <!-- Label -->
+  <text x="64" y="108" text-anchor="middle" font-family="monospace" font-size="10" fill="#00d4ff" font-weight="bold">gate</text>
+</svg>

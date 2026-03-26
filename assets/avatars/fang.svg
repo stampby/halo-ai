@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Fangs / teeth -->
+  <polygon points="44,32 52,56 36,56" fill="#ff4444"/>
+  <polygon points="84,32 92,56 76,56" fill="#ff4444"/>
+  <!-- Jaw line -->
+  <path d="M28,56 Q64,56 64,56 Q64,56 100,56" stroke="#ff4444" stroke-width="2.5"/>
+  <path d="M32,56 Q64,80 96,56" fill="none" stroke="#ff4444" stroke-width="2" opacity="0.5"/>
+  <!-- Claw marks -->
+  <line x1="30" y1="68" x2="50" y2="88" stroke="#ff4444" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="40" y1="68" x2="60" y2="88" stroke="#ff4444" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <line x1="50" y1="68" x2="70" y2="88" stroke="#ff4444" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <!-- Ban count -->
+  <circle cx="96" cy="84" r="10" fill="none" stroke="#ff4444" stroke-width="1.5" opacity="0.5"/>
+  <line x1="89" y1="91" x2="103" y2="77" stroke="#ff4444" stroke-width="1.5" opacity="0.5"/>
+  <!-- Label -->
+  <text x="64" y="112" text-anchor="middle" font-family="monospace" font-size="10" fill="#ff4444" font-weight="bold">fang</text>
+</svg>

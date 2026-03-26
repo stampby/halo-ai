@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Heart with pulse -->
+  <path d="M64,85 L44,65 Q30,50 44,38 Q58,26 64,42 Q70,26 84,38 Q98,50 84,65 Z" fill="none" stroke="#00ff88" stroke-width="2.5"/>
+  <!-- EKG line through heart -->
+  <polyline points="16,58 30,58 38,58 44,42 50,74 56,34 62,70 68,50 74,58 90,58 112,58"
+    fill="none" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Status dots (all healthy) -->
+  <circle cx="32" cy="92" r="3" fill="#00ff88"/>
+  <circle cx="48" cy="92" r="3" fill="#00ff88"/>
+  <circle cx="64" cy="92" r="3" fill="#00ff88"/>
+  <circle cx="80" cy="92" r="3" fill="#00ff88"/>
+  <circle cx="96" cy="92" r="3" fill="#00ff88"/>
+  <!-- Label -->
+  <text x="64" y="112" text-anchor="middle" font-family="monospace" font-size="10" fill="#00ff88" font-weight="bold">pulse</text>
+</svg>

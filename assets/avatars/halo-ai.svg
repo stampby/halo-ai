@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Circuit halo ring -->
+  <circle cx="64" cy="52" r="28" fill="none" stroke="#00d4ff" stroke-width="2.5" stroke-dasharray="6 3"/>
+  <!-- Server rack silhouette -->
+  <rect x="48" y="48" width="32" height="40" rx="3" fill="none" stroke="#00d4ff" stroke-width="2"/>
+  <line x1="48" y1="58" x2="80" y2="58" stroke="#00d4ff" stroke-width="1.5"/>
+  <line x1="48" y1="68" x2="80" y2="68" stroke="#00d4ff" stroke-width="1.5"/>
+  <line x1="48" y1="78" x2="80" y2="78" stroke="#00d4ff" stroke-width="1.5"/>
+  <!-- Blinking LEDs -->
+  <circle cx="53" cy="53" r="1.5" fill="#00d4ff"/>
+  <circle cx="53" cy="63" r="1.5" fill="#00d4ff"/>
+  <circle cx="53" cy="73" r="1.5" fill="#00ff88"/>
+  <circle cx="53" cy="83" r="1.5" fill="#00d4ff"/>
+  <!-- Wrench (builder) -->
+  <g transform="translate(88,85) rotate(-45)">
+    <rect x="-2" y="-12" width="4" height="16" rx="1" fill="#00d4ff" opacity="0.6"/>
+    <circle cx="0" cy="-14" r="4" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+  </g>
+  <!-- Label -->
+  <text x="64" y="108" text-anchor="middle" font-family="monospace" font-size="10" fill="#00d4ff" font-weight="bold">halo</text>
+</svg>
