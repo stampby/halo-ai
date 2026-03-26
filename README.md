@@ -1,13 +1,6 @@
 <div align="center">
 
-```
-  ╔═══════════════════════════════════╗
-  ║>>  H  A  L  O  ═══════  A  I  >>║
-  ╠═══════════════════════════════════╣
-  ║>>  bare-metal ai stack         >>║
-  ║>>  gfx1151 │ 89t/s │ 115GB    >>║
-  ╚═══════════════════════════════════╝
-```
+<img src="assets/family/13-family-group_00001_.png" width="720" alt="The Halo AI Family"/>
 
 # halo-ai
 
@@ -23,34 +16,26 @@
 
 ---
 
-## Meet the Family
-
-<div align="center">
-
-<img src="assets/family/13-family-group_00001_.png" width="720" alt="The Halo AI Family"/>
-
-*The Halo AI stack isn't just software — it's a family.*
-
-</div>
+## meet the ai family
 
 <table>
 <tr>
-<td align="center" width="25%"><img src="assets/family/01-halo-ai_00001_.png" width="180"/><br/><strong>Halo AI</strong><br/><sub>The Father — bare-metal engine</sub></td>
-<td align="center" width="25%"><img src="assets/family/02-echo_00001_.png" width="180"/><br/><strong>Echo</strong><br/><sub>The Mother — voice of the family</sub></td>
-<td align="center" width="25%"><img src="assets/family/03-meek_00001_.png" width="180"/><br/><strong>Meek</strong><br/><sub>The Eldest — silent guardian</sub></td>
-<td align="center" width="25%"><img src="assets/family/04-pulse_00001_.png" width="180"/><br/><strong>Pulse</strong><br/><sub>Service health monitor</sub></td>
+<td align="center" width="25%"><img src="assets/family/01-halo-ai_00001_.png" width="180"/><br/><strong>halo ai</strong><br/><sub>the father — built it all from source</sub></td>
+<td align="center" width="25%"><img src="assets/family/02-echo_00001_.png" width="180"/><br/><strong>echo ai</strong><br/><sub>the mother — voice of the family</sub></td>
+<td align="center" width="25%"><img src="assets/family/03-meek_00001_.png" width="180"/><br/><strong>meek ai</strong><br/><sub>the eldest — silent guardian</sub></td>
+<td align="center" width="25%"><img src="assets/family/04-pulse_00001_.png" width="180"/><br/><strong>pulse ai</strong><br/><sub>service health monitor</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="assets/family/05-ghost_00001_.png" width="180"/><br/><strong>Ghost</strong><br/><sub>Secret scanner</sub></td>
-<td align="center"><img src="assets/family/06-gate_00001_.png" width="180"/><br/><strong>Gate</strong><br/><sub>Firewall guardian</sub></td>
-<td align="center"><img src="assets/family/07-shadow_00001_.png" width="180"/><br/><strong>Shadow</strong><br/><sub>File integrity monitor</sub></td>
-<td align="center"><img src="assets/family/08-fang_00001_.png" width="180"/><br/><strong>Fang</strong><br/><sub>Intrusion detection</sub></td>
+<td align="center"><img src="assets/family/05-ghost_00001_.png" width="180"/><br/><strong>ghost ai</strong><br/><sub>secret scanner</sub></td>
+<td align="center"><img src="assets/family/06-gate_00001_.png" width="180"/><br/><strong>gate ai</strong><br/><sub>firewall guardian</sub></td>
+<td align="center"><img src="assets/family/07-shadow_00001_.png" width="180"/><br/><strong>shadow ai</strong><br/><sub>file integrity monitor</sub></td>
+<td align="center"><img src="assets/family/08-fang_00001_.png" width="180"/><br/><strong>fang ai</strong><br/><sub>intrusion detection</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="assets/family/09-mirror_00001_.png" width="180"/><br/><strong>Mirror</strong><br/><sub>PII scanner</sub></td>
-<td align="center"><img src="assets/family/10-vault_00001_.png" width="180"/><br/><strong>Vault</strong><br/><sub>Backup verification</sub></td>
-<td align="center"><img src="assets/family/11-net_00001_.png" width="180"/><br/><strong>Net</strong><br/><sub>Network monitor</sub></td>
-<td align="center"><img src="assets/family/12-shield_00001_.png" width="180"/><br/><strong>Shield</strong><br/><sub>Intrusion prevention</sub></td>
+<td align="center"><img src="assets/family/09-mirror_00001_.png" width="180"/><br/><strong>mirror ai</strong><br/><sub>pii scanner</sub></td>
+<td align="center"><img src="assets/family/10-vault_00001_.png" width="180"/><br/><strong>vault ai</strong><br/><sub>backup verification</sub></td>
+<td align="center"><img src="assets/family/11-net_00001_.png" width="180"/><br/><strong>net ai</strong><br/><sub>network monitor</sub></td>
+<td align="center"><img src="assets/family/12-shield_00001_.png" width="180"/><br/><strong>shield ai</strong><br/><sub>intrusion prevention</sub></td>
 </tr>
 </table>
 
