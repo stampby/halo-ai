@@ -31,6 +31,10 @@
         reverse_proxy 127.0.0.1:8188
     }
 
+    handle_path /cave/* {
+        reverse_proxy 127.0.0.1:3005
+    }
+
     # Default to Open WebUI
     reverse_proxy 127.0.0.1:3000
 }
