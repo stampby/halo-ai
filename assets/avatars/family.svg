@@ -1,86 +1,132 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="800" height="280">
-  <rect width="800" height="280" rx="16" fill="#0d1117"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" width="900" height="480">
+  <rect width="900" height="480" rx="16" fill="#0d1117"/>
 
-  <!-- Row 1: Parents + Meek (center, 3 icons) -->
+  <!-- ═══ ROW 1: Parents ═══ -->
   <!-- Halo AI (father) -->
-  <g transform="translate(260,20) scale(0.85)">
+  <g transform="translate(340,16) scale(0.85)">
     <circle cx="40" cy="30" r="18" fill="none" stroke="#00d4ff" stroke-width="2" stroke-dasharray="4 2"/>
     <rect x="28" y="30" width="24" height="30" rx="3" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
     <circle cx="33" cy="38" r="1.2" fill="#00d4ff"/>
     <circle cx="33" cy="45" r="1.2" fill="#00ff88"/>
-    <text x="40" y="76" text-anchor="middle" font-family="monospace" font-size="8" fill="#00d4ff">halo</text>
+    <text x="40" y="78" text-anchor="middle" font-family="monospace" font-size="9" fill="#00d4ff">halo</text>
   </g>
 
-  <!-- Meek (eldest son, center) -->
-  <g transform="translate(360,20) scale(0.85)">
-    <path d="M16,30 Q30,14 40,14 Q50,14 64,30 Q50,46 40,46 Q30,46 16,30 Z" fill="none" stroke="#ffffff" stroke-width="2"/>
-    <circle cx="40" cy="30" r="8" fill="none" stroke="#ffffff" stroke-width="1.5"/>
-    <circle cx="40" cy="30" r="3.5" fill="#ffffff"/>
-    <text x="40" y="60" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffffff">meek</text>
-  </g>
+  <!-- Connector: halo --- echo -->
+  <line x1="410" y1="50" x2="470" y2="50" stroke="#444" stroke-width="1.5" stroke-dasharray="6 3"/>
 
   <!-- Echo (mother) -->
-  <g transform="translate(460,20) scale(0.85)">
+  <g transform="translate(470,16) scale(0.85)">
     <path d="M20,40 Q30,20 40,20 Q50,20 60,40" fill="none" stroke="#ce93d8" stroke-width="1.5" opacity="0.5"/>
     <path d="M14,40 Q28,12 40,12 Q52,12 66,40" fill="none" stroke="#ce93d8" stroke-width="1.5" opacity="0.3"/>
     <polygon points="30,36 30,48 40,52 40,32" fill="#ce93d8" opacity="0.8"/>
     <path d="M40,30 L54,22 L54,58 L40,50" fill="none" stroke="#ce93d8" stroke-width="1.5"/>
-    <text x="40" y="76" text-anchor="middle" font-family="monospace" font-size="8" fill="#ce93d8">echo</text>
+    <text x="40" y="78" text-anchor="middle" font-family="monospace" font-size="9" fill="#ce93d8">echo</text>
   </g>
 
-  <!-- Row 2: Reflex agents (9 icons, evenly spaced) -->
+  <!-- Connector: parents down to amp -->
+  <line x1="440" y1="88" x2="440" y2="120" stroke="#444" stroke-width="1.5" stroke-dasharray="6 3"/>
+
+  <!-- ═══ ROW 2: Amp ═══ -->
+  <g transform="translate(410,120) scale(0.75)">
+    <rect x="12" y="14" width="40" height="44" rx="6" fill="none" stroke="#ff6f00" stroke-width="2"/>
+    <circle cx="32" cy="36" r="10" fill="none" stroke="#ff6f00" stroke-width="1.5"/>
+    <circle cx="32" cy="36" r="4" fill="#ff6f00" opacity="0.6"/>
+    <text x="32" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff6f00">amp</text>
+  </g>
+
+  <!-- Connector: amp down to meek -->
+  <line x1="440" y1="185" x2="440" y2="220" stroke="#444" stroke-width="1.5" stroke-dasharray="6 3"/>
+
+  <!-- ═══ BOUNTY: Adjutant off to the right ═══ -->
+  <!-- Connector: branch right from the main trunk -->
+  <line x1="440" y1="155" x2="720" y2="155" stroke="#444" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="720" y1="155" x2="720" y2="175" stroke="#444" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+
+  <g transform="translate(690,175) scale(0.7)">
+    <circle cx="32" cy="20" r="14" fill="none" stroke="#e040fb" stroke-width="2"/>
+    <path d="M20,20 L32,10 L44,20 L32,30 Z" fill="none" stroke="#e040fb" stroke-width="1.5"/>
+    <line x1="32" y1="36" x2="32" y2="52" stroke="#e040fb" stroke-width="1.5"/>
+    <line x1="20" y1="44" x2="44" y2="44" stroke="#e040fb" stroke-width="1.5"/>
+    <text x="32" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#e040fb">bounty</text>
+  </g>
+
+  <!-- ═══ ROW 3: Meek ═══ -->
+  <g transform="translate(406,220) scale(0.85)">
+    <path d="M16,30 Q30,14 40,14 Q50,14 64,30 Q50,46 40,46 Q30,46 16,30 Z" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <circle cx="40" cy="30" r="8" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+    <circle cx="40" cy="30" r="3.5" fill="#ffffff"/>
+    <text x="40" y="62" text-anchor="middle" font-family="monospace" font-size="9" fill="#ffffff">meek</text>
+  </g>
+
+  <!-- Connector: meek down to reflex row -->
+  <line x1="440" y1="295" x2="440" y2="320" stroke="#444" stroke-width="1.5" stroke-dasharray="6 3"/>
+
+  <!-- Horizontal bar for reflex agents -->
+  <line x1="60" y1="320" x2="820" y2="320" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+
+  <!-- ═══ ROW 4: The Reflex Agents (9 kids) ═══ -->
+
+  <!-- Vertical taps from bar to each agent -->
   <!-- Pulse -->
-  <g transform="translate(30,120) scale(0.75)">
+  <line x1="60" y1="320" x2="60" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(24,340) scale(0.7)">
     <polyline points="8,32 18,32 22,32 25,20 28,44 31,16 34,42 37,28 40,32 56,32"
       fill="none" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="32" y="54" text-anchor="middle" font-family="monospace" font-size="8" fill="#00ff88">pulse</text>
+    <text x="32" y="54" text-anchor="middle" font-family="monospace" font-size="9" fill="#00ff88">pulse</text>
   </g>
 
   <!-- Ghost -->
-  <g transform="translate(112,120) scale(0.75)">
+  <line x1="145" y1="320" x2="145" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(109,340) scale(0.7)">
     <circle cx="32" cy="26" r="12" fill="none" stroke="#b388ff" stroke-width="2"/>
     <rect x="28" y="36" width="8" height="14" rx="1.5" fill="none" stroke="#b388ff" stroke-width="2"/>
-    <text x="32" y="62" text-anchor="middle" font-family="monospace" font-size="8" fill="#b388ff">ghost</text>
+    <text x="32" y="62" text-anchor="middle" font-family="monospace" font-size="9" fill="#b388ff">ghost</text>
   </g>
 
   <!-- Gate -->
-  <g transform="translate(194,120) scale(0.75)">
+  <line x1="230" y1="320" x2="230" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(194,340) scale(0.7)">
     <polygon points="32,10 52,22 52,42 32,54 12,42 12,22" fill="none" stroke="#00d4ff" stroke-width="2"/>
     <rect x="26" y="28" width="12" height="10" rx="2" fill="#00d4ff"/>
-    <text x="32" y="70" text-anchor="middle" font-family="monospace" font-size="8" fill="#00d4ff">gate</text>
+    <text x="32" y="70" text-anchor="middle" font-family="monospace" font-size="9" fill="#00d4ff">gate</text>
   </g>
 
   <!-- Shadow -->
-  <g transform="translate(276,120) scale(0.75)">
+  <line x1="315" y1="320" x2="315" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(279,340) scale(0.7)">
     <path d="M32,18 Q48,18 48,32 Q48,46 32,46" fill="none" stroke="#ff9800" stroke-width="2"/>
     <path d="M32,24 Q42,24 42,32 Q42,40 32,40" fill="none" stroke="#ff9800" stroke-width="2" opacity="0.6"/>
-    <text x="32" y="60" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff9800">shadow</text>
+    <text x="32" y="60" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff9800">shadow</text>
   </g>
 
   <!-- Fang -->
-  <g transform="translate(358,120) scale(0.75)">
+  <line x1="400" y1="320" x2="400" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(364,340) scale(0.7)">
     <polygon points="24,12 32,36 16,36" fill="#ff4444"/>
     <polygon points="40,12 48,36 32,36" fill="#ff4444"/>
     <line x1="12" y1="36" x2="52" y2="36" stroke="#ff4444" stroke-width="2"/>
-    <text x="32" y="56" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff4444">fang</text>
+    <text x="32" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff4444">fang</text>
   </g>
 
   <!-- Mirror -->
-  <g transform="translate(440,120) scale(0.75)">
+  <line x1="485" y1="320" x2="485" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(449,340) scale(0.7)">
     <circle cx="28" cy="28" r="14" fill="none" stroke="#448aff" stroke-width="2"/>
     <line x1="38" y1="38" x2="52" y2="52" stroke="#448aff" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="32" y="66" text-anchor="middle" font-family="monospace" font-size="8" fill="#448aff">mirror</text>
+    <text x="32" y="66" text-anchor="middle" font-family="monospace" font-size="9" fill="#448aff">mirror</text>
   </g>
 
   <!-- Vault -->
-  <g transform="translate(522,120) scale(0.75)">
+  <line x1="570" y1="320" x2="570" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(534,340) scale(0.7)">
     <circle cx="32" cy="26" r="16" fill="none" stroke="#ffd740" stroke-width="2"/>
     <circle cx="32" cy="26" r="6" fill="none" stroke="#ffd740" stroke-width="1.5"/>
-    <text x="32" y="62" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffd740">vault</text>
+    <text x="32" y="62" text-anchor="middle" font-family="monospace" font-size="9" fill="#ffd740">vault</text>
   </g>
 
   <!-- Net -->
-  <g transform="translate(604,120) scale(0.75)">
+  <line x1="655" y1="320" x2="655" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(619,340) scale(0.7)">
     <circle cx="32" cy="16" r="4" fill="#00bfa5"/>
     <circle cx="18" cy="34" r="3.5" fill="#00bfa5" opacity="0.7"/>
     <circle cx="46" cy="34" r="3.5" fill="#00bfa5" opacity="0.7"/>
@@ -90,16 +136,17 @@
     <line x1="32" y1="20" x2="46" y2="31" stroke="#00bfa5" stroke-width="1.2" opacity="0.5"/>
     <line x1="18" y1="37" x2="12" y2="47" stroke="#00bfa5" stroke-width="1" opacity="0.3"/>
     <line x1="46" y1="37" x2="52" y2="47" stroke="#00bfa5" stroke-width="1" opacity="0.3"/>
-    <text x="32" y="68" text-anchor="middle" font-family="monospace" font-size="8" fill="#00bfa5">net</text>
+    <text x="32" y="68" text-anchor="middle" font-family="monospace" font-size="9" fill="#00bfa5">net</text>
   </g>
 
   <!-- Shield -->
-  <g transform="translate(686,120) scale(0.75)">
+  <line x1="740" y1="320" x2="740" y2="340" stroke="#444" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
+  <g transform="translate(704,340) scale(0.7)">
     <path d="M32,8 L52,18 L52,34 Q52,50 32,58 Q12,50 12,34 L12,18 Z" fill="none" stroke="#78909c" stroke-width="2"/>
     <polyline points="24,34 30,42 44,24" fill="none" stroke="#78909c" stroke-width="2.5" stroke-linecap="round"/>
-    <text x="32" y="72" text-anchor="middle" font-family="monospace" font-size="8" fill="#78909c">shield</text>
+    <text x="32" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#78909c">shield</text>
   </g>
 
   <!-- Family title -->
-  <text x="400" y="260" text-anchor="middle" font-family="monospace" font-size="11" fill="#555" letter-spacing="4">the ai family</text>
+  <text x="450" y="465" text-anchor="middle" font-family="monospace" font-size="11" fill="#555" letter-spacing="4">the halo-ai family</text>
 </svg>
