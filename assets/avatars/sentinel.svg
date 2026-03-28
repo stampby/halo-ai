@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- Eye — always watching -->
+  <ellipse cx="64" cy="52" rx="30" ry="18" fill="none" stroke="#40c4ff" stroke-width="2"/>
+  <circle cx="64" cy="52" r="10" fill="#40c4ff" opacity="0.3"/>
+  <circle cx="64" cy="52" r="5" fill="#40c4ff"/>
+  <circle cx="66" cy="50" r="1.5" fill="#fff" opacity="0.8"/>
+  <!-- Scan lines radiating from eye -->
+  <line x1="64" y1="34" x2="64" y2="24" stroke="#40c4ff" stroke-width="1" opacity="0.4"/>
+  <line x1="84" y1="38" x2="92" y2="30" stroke="#40c4ff" stroke-width="1" opacity="0.3"/>
+  <line x1="44" y1="38" x2="36" y2="30" stroke="#40c4ff" stroke-width="1" opacity="0.3"/>
+  <line x1="94" y1="52" x2="102" y2="52" stroke="#40c4ff" stroke-width="1" opacity="0.3"/>
+  <line x1="34" y1="52" x2="26" y2="52" stroke="#40c4ff" stroke-width="1" opacity="0.3"/>
+  <!-- Code brackets below -->
+  <text x="42" y="82" font-family="monospace" font-size="16" fill="#40c4ff" opacity="0.6">{</text>
+  <text x="80" y="82" font-family="monospace" font-size="16" fill="#40c4ff" opacity="0.6">}</text>
+  <!-- Git branch lines -->
+  <circle cx="56" cy="86" r="2" fill="#40c4ff" opacity="0.5"/>
+  <circle cx="64" cy="90" r="2" fill="#40c4ff" opacity="0.5"/>
+  <circle cx="72" cy="86" r="2" fill="#40c4ff" opacity="0.5"/>
+  <line x1="56" y1="86" x2="64" y2="90" stroke="#40c4ff" stroke-width="1" opacity="0.4"/>
+  <line x1="64" y1="90" x2="72" y2="86" stroke="#40c4ff" stroke-width="1" opacity="0.4"/>
+  <!-- Label -->
+  <text x="64" y="108" text-anchor="middle" font-family="monospace" font-size="10" fill="#40c4ff" font-weight="bold">sentinel</text>
+</svg>
