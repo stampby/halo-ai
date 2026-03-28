@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai Vulkan/ROCm driver swap tool
 # Instantly switch llama.cpp between backends without reinstalling anything
 #

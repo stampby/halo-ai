@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-thaw.sh — Restore AI stack from a frozen snapshot
 # Usage: halo-thaw.sh [timestamp]  (defaults to latest)
 

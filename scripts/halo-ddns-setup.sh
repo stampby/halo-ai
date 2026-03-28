@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai DDNS setup for dynamic IP environments
 # Keeps your WireGuard VPN endpoint reachable when your ISP changes your IP
 set -euo pipefail

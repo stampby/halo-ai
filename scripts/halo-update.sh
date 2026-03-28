@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai update script
 # Takes Btrfs snapshots before any updates, rolls back on failure
 set -euo pipefail

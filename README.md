@@ -8,6 +8,8 @@
 
 **109 tok/s. Zero containers. 115GB GPU memory. Compiled from source.**
 
+*designed and built by the architect*
+
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=archlinux&logoColor=white)](https://archlinux.org)
 [![ROCm](https://img.shields.io/badge/ROCm_7.13-ED1C24?style=flat&logo=amd&logoColor=white)](https://rocm.docs.amd.com)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -152,9 +154,11 @@ halo-backup.sh                   # Manual backup
 
 ## Credits
 
+**Designed and built by the architect** — halo's dad, the one who wired it all together by hand. Every script, every service, every agent. From source. No shortcuts.
+
 Built on [DreamServer](https://github.com/Light-Heart-Labs/DreamServer) by Light-Heart-Labs — the project that proved a single Strix Halo chip can replace a rack of cloud services. Their open-source dashboard powers the halo-ai control center.
 
-Powered by [Lemonade SDK](https://github.com/lemonade-sdk/lemonade) (AMD), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Open WebUI](https://github.com/open-webui/open-webui), [Vane](https://github.com/ItzCrazyKns/Vane), [whisper.cpp](https://github.com/ggerganov/whisper.cpp), [Kokoro](https://github.com/remsky/Kokoro-FastAPI), [ComfyUI](https://github.com/comfyanonymous/ComfyUI), [SearXNG](https://github.com/searxng/searxng), [Qdrant](https://github.com/qdrant/qdrant), [n8n](https://github.com/n8n-io/n8n), [Caddy](https://github.com/caddyserver/caddy), and [ROCm](https://github.com/ROCm/TheRock).
+Powered by [AMD Gaia](https://github.com/amd/gaia), [Lemonade SDK](https://github.com/lemonade-sdk/lemonade) (AMD), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Open WebUI](https://github.com/open-webui/open-webui), [Vane](https://github.com/ItzCrazyKns/Vane), [whisper.cpp](https://github.com/ggerganov/whisper.cpp), [Kokoro](https://github.com/remsky/Kokoro-FastAPI), [ComfyUI](https://github.com/comfyanonymous/ComfyUI), [SearXNG](https://github.com/searxng/searxng), [Qdrant](https://github.com/qdrant/qdrant), [n8n](https://github.com/n8n-io/n8n), [Caddy](https://github.com/caddyserver/caddy), and [ROCm](https://github.com/ROCm/TheRock).
 
 Community: [kyuz0](https://github.com/kyuz0/amd-strix-halo-toolboxes), [Gygeek](https://github.com/Gygeek/Framework-strix-halo-llm-setup), and the Framework/Arch Linux communities.
 

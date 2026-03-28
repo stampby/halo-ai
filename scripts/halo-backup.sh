@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai nightly backup — run via systemd timer or manually
 # Usage: halo-backup.sh [/path/to/backup/destination]
 # Service: halo-backup.service calls this with /srv/ai/backups

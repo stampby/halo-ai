@@ -1,6 +1,7 @@
 #!/bin/bash
-# halo-ai installer for AMD Strix Halo (Arch Linux)
-# Usage: curl -fsSL https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/install.sh | bash
+# halo-ai — designed and built by the architect
+# Bare-metal AI stack for AMD Strix Halo (Arch Linux)
+# https://github.com/bong-water-water-bong/halo-ai
 set -euo pipefail
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'
@@ -33,11 +34,12 @@ cat << 'BANNER'
   ║>>  H  A  L  O  ═══════  A  I  >>║
   ╠═══════════════════════════════════╣
   ║>>  bare-metal ai stack         >>║
-  ║>>  gfx1151 │ 89t/s │ 115GB    >>║
+  ║>>  gfx1151 │ 109t/s │ 115GB   >>║
   ╚═══════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 echo -e "${DIM}  Bare-metal AI stack for AMD Strix Halo${NC}"
+echo -e "${DIM}  designed and built by the architect${NC}"
 echo -e "${DIM}  github.com/bong-water-water-bong/halo-ai${NC}"
 echo ''
 
@@ -656,6 +658,7 @@ body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, 
 </div>
 <div class="footer">
     <p>109 tok/s &middot; 115GB GPU &middot; zero containers &middot; <a href="https://github.com/bong-water-water-bong/halo-ai">GitHub</a></p>
+    <p style="font-size:0.75rem;color:#555;margin-top:4px;">designed and built by the architect</p>
 </div>
 </body>
 </html>

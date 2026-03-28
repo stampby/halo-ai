@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai uninstall — complete removal of all halo-ai components
 # Usage: halo-uninstall.sh [--keep-data]
 #   --keep-data   Soft uninstall: removes services/configs but keeps

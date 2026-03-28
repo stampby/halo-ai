@@ -1,3 +1,4 @@
+# halo-ai — designed and built by the architect
 #!/usr/bin/env python3
 """
 halo-ai Agent

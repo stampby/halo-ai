@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-freeze.sh — Lock the entire AI stack so Arch can't break it
 # Run this after a working build to snapshot the exact state
 # Run halo-thaw.sh to restore from snapshot

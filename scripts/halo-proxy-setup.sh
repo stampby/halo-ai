@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 set -euo pipefail
 echo "halo-ai Reverse Proxy Setup"
 echo ""

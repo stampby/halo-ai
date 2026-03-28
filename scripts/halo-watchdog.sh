@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai watchdog agent
 # Monitors all services, auto-repairs, checks for updates
 # Only reports when there's an issue it couldn't fix

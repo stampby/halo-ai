@@ -1,4 +1,5 @@
 #!/bin/bash
+# halo-ai — designed and built by the architect
 # halo-ai WireGuard VPN setup
 # Usage: halo-vpn-setup.sh              — initial server + first client setup
 #        halo-vpn-setup.sh add-client <name>  — add another client
