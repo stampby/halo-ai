@@ -1,48 +1,56 @@
 {
     admin off
+    auto_https off
+    order file_server before reverse_proxy
 }
 
-:443 {
-    tls internal
-
-    basicauth * {
-        # CHANGE THIS PASSWORD: Run scripts/halo-change-password.sh after install
-        # Generate new hash: caddy hash-password --plaintext 'newpassword'
-        caddy $2a$14$GfQWB.bJ0SNHRWVhLTRmt.JRcmXzkmTzpnPzVPvFicuwYwUwDiupy
+:80 {
+    # Setup wizard: no auth, served before anything else
+    @setup path /setup
+    handle @setup {
+        root * /srv/ai/configs
+        rewrite * /setup-wizard.html
+        file_server
     }
 
-    handle_path /chat/* {
+    # Everything else: auth required
+    route {
+        basicauth {
+            caddy $2a$14$GfQWB.bJ0SNHRWVhLTRmt.JRcmXzkmTzpnPzVPvFicuwYwUwDiupy
+        }
+
+        handle_path /chat/* {
+            reverse_proxy 127.0.0.1:3000
+        }
+
+        handle_path /research/* {
+            reverse_proxy 127.0.0.1:3001
+        }
+
+        handle_path /workflows/* {
+            reverse_proxy 127.0.0.1:5678
+        }
+
+        handle_path /api/* {
+            reverse_proxy 127.0.0.1:8080
+        }
+
+        handle_path /comfyui/* {
+            reverse_proxy 127.0.0.1:8188
+        }
+
+        handle_path /cave/* {
+            reverse_proxy 127.0.0.1:3005
+        }
+
+        handle_path /dashboard/* {
+            reverse_proxy 127.0.0.1:3003
+        }
+
+        handle_path /dashboard-api/* {
+            reverse_proxy 127.0.0.1:3002
+        }
+
         reverse_proxy 127.0.0.1:3000
     }
-
-    handle_path /research/* {
-        reverse_proxy 127.0.0.1:3001
-    }
-
-    handle_path /workflows/* {
-        reverse_proxy 127.0.0.1:5678
-    }
-
-    handle_path /api/* {
-        reverse_proxy 127.0.0.1:8080
-    }
-
-    handle_path /comfyui/* {
-        reverse_proxy 127.0.0.1:8188
-    }
-
-    handle_path /cave/* {
-        reverse_proxy 127.0.0.1:3005
-    }
-
-    handle_path /dashboard/* {
-        reverse_proxy 127.0.0.1:3003
-    }
-
-    handle_path /dashboard-api/* {
-        reverse_proxy 127.0.0.1:3002
-    }
-
-    # Default to Open WebUI
-    reverse_proxy 127.0.0.1:3000
 }
