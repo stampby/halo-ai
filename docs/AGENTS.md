@@ -160,6 +160,6 @@ Agent code: `/srv/ai/gaia/halo-agents/`
 Agent logs: `/srv/ai/logs/agents/`
 Agent state: `/srv/ai/agent/data/`
 
-## Future: The Architect
+## Future
 
-Agent #15 — **the architect** — is the user's personal AI avatar. It will use the architect's own cloned voice for output, making it the only agent that *speaks* rather than types. Voice model training is in progress (target: 200 hours of recordings).
+More agents are planned. The framework supports any number of agents — just subclass `HaloAgent`, write a `check()` method, and run `manage.sh install <name>`.

@@ -214,26 +214,6 @@ Vault agent becomes the backup system:
 
 ---
 
-## BP-08: Architect Agent + Voice
-
-**Priority:** Long-term (needs voice data)
-**Effort:** Ongoing
-
-Agent #15. The user's digital twin.
-- Voice output via trained TTS model (target: 200h recordings)
-- Personality built from real data over months
-- Only agent that speaks — all others type
-- Training on Sligar's 1080Ti
-- Integration: Gaia Agent subclass + Kokoro/custom TTS endpoint
-
-Phases:
-1. **10h recorded** → First test model, rough but recognizable
-2. **50h recorded** → Usable quality, deploy as preview
-3. **100h recorded** → Good quality, daily driver
-4. **200h recorded** → Indistinguishable, production release
-
----
-
 ## Build Order
 
 ```
@@ -249,9 +229,6 @@ Phase 3 (polish):
   BP-05  Agent feed        — live dashboard activity
   BP-06  Offline models    — air-gapped installs
   BP-07  Vault integration — backup through agents
-
-Phase 4 (ongoing):
-  BP-08  Architect voice   — your digital twin
 ```
 
 ---
