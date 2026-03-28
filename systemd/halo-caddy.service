@@ -15,7 +15,7 @@ ProtectSystem=strict
 PrivateTmp=yes
 NoNewPrivileges=yes
 ProtectHome=read-only
-ReadWritePaths=/srv/ai
+ReadWritePaths=/srv/ai %h/.local/share/caddy
 
 [Install]
 WantedBy=multi-user.target
