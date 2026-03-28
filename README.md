@@ -20,8 +20,6 @@
 
 ---
 
-## meet the ai family
-
 <div align="center">
 
 <picture>
