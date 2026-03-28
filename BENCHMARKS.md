@@ -68,6 +68,60 @@ All services running simultaneously:
 
 **System**: 27 GB RAM used, 97 GB available, 115 GB GPU-addressable.
 
+## Thermal & Fan Configuration
+
+These benchmarks were measured with a **custom quiet fan curve** applied via the `ec-su_axb35` kernel module. The Bosgame M5's stock fan profile is aggressive and unnecessary. This curve keeps the system silent under load while maintaining safe temperatures.
+
+### Fan Control Driver
+
+```bash
+# Install the kernel module (Bosgame M5 / GMKtec EVO-X2 / Sixunited AXB35 boards)
+git clone https://github.com/cmetz/ec-su_axb35-linux.git
+cd ec-su_axb35-linux
+make && sudo make install
+sudo modprobe ec_su_axb35
+```
+
+### Quiet Fan Curve (used for all benchmarks)
+
+Fans stay OFF until 70°C, then ramp gradually. Hysteresis prevents flapping.
+
+```bash
+# Ramp UP thresholds (°C): level 0→1, 1→2, 2→3, 3→4, 4→5
+echo "70,78,85,92,97" | sudo tee /sys/class/ec_su_axb35/fan1/rampup_curve
+echo "70,78,85,92,97" | sudo tee /sys/class/ec_su_axb35/fan2/rampup_curve
+echo "72,80,87,93,97" | sudo tee /sys/class/ec_su_axb35/fan3/rampup_curve
+
+# Ramp DOWN thresholds (°C): level 1→0, 2→1, 3→2, 4→3, 5→4
+echo "55,65,75,85,92" | sudo tee /sys/class/ec_su_axb35/fan1/rampdown_curve
+echo "55,65,75,85,92" | sudo tee /sys/class/ec_su_axb35/fan2/rampdown_curve
+echo "50,60,72,85,92" | sudo tee /sys/class/ec_su_axb35/fan3/rampdown_curve
+```
+
+Or use the unified CLI: `halo fan quiet`
+
+### Measured Thermals
+
+| Condition | GPU Temp | Fan1 | Fan2 | Fan3 | Noise |
+|-----------|----------|------|------|------|-------|
+| Idle | 31°C | 0 rpm | 0 rpm | 0 rpm | Silent |
+| Sustained inference (109 tok/s) | 55-65°C | 0 rpm | 0 rpm | 0 rpm | Silent |
+| Heavy GPU + all 25 services | 65-75°C | ~800 rpm | ~800 rpm | ~500 rpm | Barely audible |
+| Stress test (120W sustained) | 85-90°C | ~2000 rpm | ~2000 rpm | ~1500 rpm | Noticeable |
+
+**Key takeaway**: At 109 tok/s sustained inference, the GPU stays under 70°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance.
+
+### Persist Across Reboots
+
+```bash
+# Auto-load module
+echo "ec_su_axb35" | sudo tee /etc/modules-load.d/ec-su-axb35.conf
+
+# Systemd service applies curves on boot
+# See systemd/halo-fancontrol.service
+sudo systemctl enable halo-fancontrol
+```
+
 ## Boot Performance
 
 | Phase | Time |
