@@ -5,11 +5,14 @@
 }
 
 :80 {
-    # Setup wizard: no auth, served before anything else
-    @setup path /setup
-    handle @setup {
+    # Public pages: no auth required
+    @public path /setup /profiles
+    handle @public {
         root * /srv/ai/configs
-        rewrite * /setup-wizard.html
+        @isSetup path /setup
+        rewrite @isSetup /setup-wizard.html
+        @isProfiles path /profiles
+        rewrite @isProfiles /profiles.html
         file_server
     }
 

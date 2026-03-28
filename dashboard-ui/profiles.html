@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>halo-ai — who's here?</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --dim: #8b949e; --cyan: #00d4ff;
+    --green: #00ff88;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    min-height: 100vh; display: flex; justify-content: center; align-items: center;
+  }
+  .container { max-width: 560px; width: 100%; padding: 20px; }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .header h1 { font-family: monospace; color: var(--cyan); font-size: 1.3rem; }
+  .header p { color: var(--dim); font-size: 0.85rem; margin-top: 8px; }
+
+  .profiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; margin-bottom: 32px; }
+
+  .profile-card {
+    background: var(--card); border: 2px solid var(--border); border-radius: 16px;
+    padding: 24px 16px; text-align: center; cursor: pointer;
+    transition: all 0.2s; position: relative;
+  }
+  .profile-card:hover { transform: translateY(-3px); border-color: var(--dim); }
+  .profile-card.selected { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,212,255,0.15); }
+
+  .avatar {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700; font-family: monospace;
+    color: var(--bg);
+  }
+  .profile-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+  .profile-role { color: var(--dim); font-size: 0.75rem; }
+  .profile-agents { color: var(--dim); font-size: 0.7rem; margin-top: 8px; font-family: monospace; }
+
+  .add-card {
+    background: transparent; border: 2px dashed var(--border); border-radius: 16px;
+    padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .add-card:hover { border-color: var(--dim); }
+  .add-icon { font-size: 2rem; color: var(--dim); margin-bottom: 8px; }
+  .add-label { color: var(--dim); font-size: 0.85rem; }
+
+  .btn {
+    display: block; width: 100%; padding: 14px; border-radius: 10px; font-size: 1rem;
+    cursor: pointer; border: none; font-weight: 600; text-align: center;
+    background: var(--cyan); color: var(--bg); transition: all 0.2s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* New profile modal */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
+  .modal.open { display: flex; }
+  .modal-content {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 32px; max-width: 400px; width: 90%;
+  }
+  .modal h2 { margin-bottom: 20px; font-size: 1.1rem; }
+  input[type="text"] {
+    width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 1rem; margin-bottom: 12px; outline: none;
+  }
+  input:focus { border-color: var(--cyan); }
+  .color-picker { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .color-dot {
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.15s;
+  }
+  .color-dot:hover, .color-dot.selected { border-color: white; transform: scale(1.15); }
+
+  .agent-toggles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
+  .agent-toggle {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px; text-align: center; cursor: pointer; font-family: monospace;
+    font-size: 0.75rem; transition: all 0.15s; user-select: none;
+  }
+  .agent-toggle.on { border-color: var(--green); color: var(--green); }
+  .agent-toggle.off { opacity: 0.4; }
+
+  .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+  .modal-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+  .btn-save { background: var(--cyan); color: var(--bg); }
+  .btn-cancel { background: var(--border); color: var(--text); }
+  .btn-delete { background: #ff4444; color: white; font-size: 0.8rem; padding: 8px; }
+
+  .footer { text-align: center; color: var(--dim); font-size: 0.75rem; font-family: monospace; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>halo-ai</h1>
+    <p>who's here?</p>
+  </div>
+
+  <div class="profiles" id="profiles"></div>
+
+  <button class="btn" id="enter-btn" disabled onclick="enterAs()">Select a profile</button>
+
+  <div class="footer">designed and built by the architect</div>
+</div>
+
+<!-- New/Edit Profile Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2 id="modal-title">New profile</h2>
+    <input type="text" id="new-name" placeholder="Name" maxlength="20">
+
+    <label style="color:var(--dim);font-size:0.8rem;display:block;margin-bottom:6px">Color</label>
+    <div class="color-picker" id="color-picker"></div>
+
+    <label style="color:var(--dim);font-size:0.8rem;display:block;margin-bottom:6px">Agents</label>
+    <div class="agent-toggles" id="agent-toggles"></div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveProfile()">Save</button>
+    </div>
+    <div style="margin-top:12px;text-align:center">
+      <button class="btn-delete" id="delete-btn" style="display:none" onclick="deleteProfile()">Remove profile</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = ['#00d4ff','#ce93d8','#00ff88','#ff6f00','#e040fb','#ff4444','#448aff','#ffd740','#00bfa5','#78909c','#ff9800','#b388ff'];
+const AGENTS = [
+  {id:'halo',name:'halo',role:'the stack'},
+  {id:'echo',name:'echo',role:'social media'},
+  {id:'meek',name:'meek',role:'security'},
+  {id:'amp',name:'amp',role:'audio'},
+  {id:'bounty',name:'bounty',role:'bug hunter'},
+  {id:'pulse',name:'pulse',role:'health'},
+  {id:'ghost',name:'ghost',role:'secrets'},
+  {id:'gate',name:'gate',role:'firewall'},
+  {id:'shadow',name:'shadow',role:'integrity'},
+  {id:'fang',name:'fang',role:'intrusion'},
+  {id:'mirror',name:'mirror',role:'PII scan'},
+  {id:'vault',name:'vault',role:'backup'},
+  {id:'net',name:'net',role:'network'},
+  {id:'shield',name:'shield',role:'protection'},
+];
+
+let profiles = JSON.parse(localStorage.getItem('halo-profiles') || '[]');
+let selected = null;
+let editing = null;
+
+// First run: create architect profile
+if (profiles.length === 0) {
+  profiles.push({
+    id: 'architect',
+    name: 'architect',
+    color: '#FFD700',
+    role: 'admin',
+    agents: ['all'],
+  });
+  saveAll();
+}
+
+function saveAll() {
+  localStorage.setItem('halo-profiles', JSON.stringify(profiles));
+}
+
+function render() {
+  const grid = document.getElementById('profiles');
+  grid.innerHTML = '';
+
+  profiles.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'profile-card' + (selected === p.id ? ' selected' : '');
+    const initial = p.name.charAt(0).toUpperCase();
+    const agentCount = p.agents[0] === 'all' ? '14 agents' : p.agents.length + ' agents';
+    card.innerHTML = `
+      <div class="avatar" style="background:${p.color}">${initial}</div>
+      <div class="profile-name">${esc(p.name)}</div>
+      <div class="profile-role">${p.role || 'user'}</div>
+      <div class="profile-agents">${agentCount}</div>
+    `;
+    card.onclick = () => selectProfile(p.id);
+    card.ondblclick = () => editProfile(p.id);
+    grid.appendChild(card);
+  });
+
+  // Add new card
+  const add = document.createElement('div');
+  add.className = 'add-card';
+  add.innerHTML = '<div class="add-icon">+</div><div class="add-label">new profile</div>';
+  add.onclick = () => openModal();
+  grid.appendChild(add);
+
+  // Update button
+  const btn = document.getElementById('enter-btn');
+  if (selected) {
+    const p = profiles.find(x => x.id === selected);
+    btn.disabled = false;
+    btn.textContent = `Enter as ${p.name}`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Select a profile';
+  }
+}
+
+function selectProfile(id) {
+  selected = id;
+  render();
+}
+
+function enterAs() {
+  if (!selected) return;
+  const p = profiles.find(x => x.id === selected);
+  localStorage.setItem('halo-active-profile', JSON.stringify(p));
+  window.location.href = '/';
+}
+
+function openModal(id) {
+  editing = id || null;
+  const modal = document.getElementById('modal');
+  const title = document.getElementById('modal-title');
+  const nameInput = document.getElementById('new-name');
+  const delBtn = document.getElementById('delete-btn');
+
+  if (editing) {
+    const p = profiles.find(x => x.id === editing);
+    title.textContent = 'Edit profile';
+    nameInput.value = p.name;
+    selectedColor = p.color;
+    selectedAgents = p.agents[0] === 'all' ? AGENTS.map(a=>a.id) : [...p.agents];
+    delBtn.style.display = p.id === 'architect' ? 'none' : 'inline-block';
+  } else {
+    title.textContent = 'New profile';
+    nameInput.value = '';
+    selectedColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+    selectedAgents = AGENTS.map(a => a.id);
+    delBtn.style.display = 'none';
+  }
+
+  renderColorPicker();
+  renderAgentToggles();
+  modal.classList.add('open');
+}
+
+function editProfile(id) { openModal(id); }
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editing = null;
+}
+
+let selectedColor = '#00d4ff';
+let selectedAgents = [];
+
+function renderColorPicker() {
+  const picker = document.getElementById('color-picker');
+  picker.innerHTML = '';
+  COLORS.forEach(c => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
+    dot.style.background = c;
+    dot.onclick = () => { selectedColor = c; renderColorPicker(); };
+    picker.appendChild(dot);
+  });
+}
+
+function renderAgentToggles() {
+  const container = document.getElementById('agent-toggles');
+  container.innerHTML = '';
+  AGENTS.forEach(a => {
+    const toggle = document.createElement('div');
+    const isOn = selectedAgents.includes(a.id);
+    toggle.className = 'agent-toggle ' + (isOn ? 'on' : 'off');
+    toggle.textContent = a.name;
+    toggle.onclick = () => {
+      if (isOn) selectedAgents = selectedAgents.filter(x => x !== a.id);
+      else selectedAgents.push(a.id);
+      renderAgentToggles();
+    };
+    container.appendChild(toggle);
+  });
+}
+
+function saveProfile() {
+  const name = document.getElementById('new-name').value.trim();
+  if (!name) return;
+
+  const id = editing || name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const agents = selectedAgents.length === AGENTS.length ? ['all'] : selectedAgents;
+
+  if (editing) {
+    const p = profiles.find(x => x.id === editing);
+    p.name = name;
+    p.color = selectedColor;
+    p.agents = agents;
+  } else {
+    profiles.push({ id, name, color: selectedColor, role: 'user', agents });
+  }
+
+  saveAll();
+  closeModal();
+  render();
+}
+
+function deleteProfile() {
+  if (!editing || editing === 'architect') return;
+  profiles = profiles.filter(x => x.id !== editing);
+  if (selected === editing) selected = null;
+  saveAll();
+  closeModal();
+  render();
+}
+
+function esc(s) { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+render();
+
+// Auto-select last used profile
+const last = localStorage.getItem('halo-active-profile');
+if (last) {
+  try { selected = JSON.parse(last).id; render(); } catch(e) {}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "profiles": [
+    {
+      "id": "architect",
+      "name": "architect",
+      "color": "#FFD700",
+      "icon": "compass",
+      "role": "admin",
+      "agents": ["all"],
+      "model": "qwen3-30b-a3b",
+      "theme": "dark",
+      "panels": ["status", "agents", "services", "fan", "models", "backup"]
+    }
+  ],
+  "default": "architect"
+}
