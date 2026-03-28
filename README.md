@@ -23,7 +23,7 @@
 <div align="center">
 
 <picture>
-  <img src="https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/assets/avatars/family.svg" alt="the ai family" width="720">
+  <img src="https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/assets/avatars/family.svg?v=3" alt="the ai family" width="720">
 </picture>
 
 </div>
