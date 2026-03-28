@@ -53,8 +53,46 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 | Kokoro | 8083 | Text-to-speech |
 | ComfyUI | 8188 | Image generation |
 | Dashboard | 3003 | GPU metrics + service health |
+| **Gaia API** | 8090 | AMD agent framework — OpenAI-compatible agent server |
+| **Gaia MCP** | 8765 | Model Context Protocol bridge for agent tools |
 
 All services bind to `127.0.0.1` — access via `https://strixhalo` through the Caddy reverse proxy.
+
+## The AI Family
+
+14 autonomous agents run as individual systemd services, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will.
+
+**Core family:**
+
+| Agent | Role | Service |
+|-------|------|---------|
+| **halo** | The stack — system orchestrator | `halo-halo.service` |
+| **echo** | Social media — public face of the family | `halo-echo.service` |
+| **meek** | Security chief — commands the Reflex group | `halo-meek.service` |
+| **amp** | Audio engineer — music, voice, sound | `halo-amp.service` |
+| **bounty** | Bug hunter — offensive security | `halo-bounty.service` |
+
+**Reflex group** (meek's team — 9 security agents):
+
+| Agent | Role | Service |
+|-------|------|---------|
+| **pulse** | Health — system vitals | `halo-pulse.service` |
+| **ghost** | Secrets — credential scanning | `halo-ghost.service` |
+| **gate** | Firewall — network boundaries | `halo-gate.service` |
+| **shadow** | Integrity — file change detection | `halo-shadow.service` |
+| **fang** | Intrusion — threat detection | `halo-fang.service` |
+| **mirror** | PII scan — privacy enforcement | `halo-mirror.service` |
+| **vault** | Backup — data protection | `halo-vault.service` |
+| **net** | Network — connectivity monitoring | `halo-net.service` |
+| **shield** | Protection — system hardening | `halo-shield.service` |
+
+```bash
+# Manage agents like Lego blocks
+manage.sh install all       # spin up everyone
+manage.sh remove fang       # pull out just fang
+manage.sh install pulse     # add pulse back
+manage.sh status            # see who's running
+```
 
 ## Performance
 
@@ -84,23 +122,15 @@ Full benchmarks: [BENCHMARKS.md](BENCHMARKS.md)
 
 ## Agents
 
-Optional autonomous agents that extend your halo-ai stack. Enable, disable, or configure through the web GUI.
+14 autonomous agents running as systemd services, powered by [AMD Gaia](https://github.com/amd/gaia). Each is a Lego block — add or remove at will.
 
-| Agent | Role | Status |
-|---|---|---|
-| **[Meek](https://github.com/bong-water-water-bong/meek)** | Security monitoring — 9 Reflex agents guard your system 24/7 | Public |
-| **Echo** | Social media manager — monitors and posts across 5 platforms | Private |
-| *More coming soon* | | |
-
-All agents integrate with the halo-ai dashboard and can be toggled on/off at any time.
-
-See [Agent Marketplace](docs/AGENTS.md) for full documentation.
+See [The AI Family](docs/AGENTS.md) for full documentation, personas, and management commands.
 
 ## Docs
 
 | Guide | What it covers |
 |-------|----------------|
-| [Agent Marketplace](docs/AGENTS.md) | Available agents, planned agents, custom agent guide |
+| [The AI Family](docs/AGENTS.md) | 14 agents — personas, roles, management, Gaia backend |
 | [Architecture](docs/ARCHITECTURE.md) | System design, data flow, GPU backends |
 | [Services](docs/SERVICES.md) | All services — ports, configs, health checks |
 | [Security](docs/SECURITY.md) | Firewall, SSH, TLS certs, password rotation |

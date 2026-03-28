@@ -1,97 +1,165 @@
-# Agent Marketplace
+# The AI Family
 
 ## Overview
 
-Halo AI supports optional autonomous agents that handle tasks you shouldn't have to. Each agent runs as a systemd service, can be enabled or disabled at any time, and integrates with the web dashboard at `https://strixhalo/agents/`.
+Halo AI runs 14 autonomous agents as individual systemd services, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will. Agents monitor, protect, and manage the stack around the clock.
 
-Agents follow a shared pattern: a lightweight watcher service that monitors events, takes action based on configurable rules, and reports status back to the halo-ai dashboard.
+All agents connect to llama-server (109 tok/s on Qwen3-30B-A3B) for reasoning. Each has a unique persona, role, and set of responsibilities.
 
-## Available Agents
+## Agent Architecture
 
-### Meek — Security Agent (Public)
+```
+            ┌──────────┐     ┌──────────┐
+            │   halo   │─────│   echo   │
+            │ the stack│     │  social  │
+            └────┬─────┘     └──────────┘
+                 │
+            ┌────┴─────┐          ┌──────────┐
+            │   amp    │          │  bounty  │
+            │  audio   │          │ bug hunt │
+            └────┬─────┘          └──────────┘
+                 │
+            ┌────┴─────┐
+            │   meek   │
+            │ security │
+            └────┬─────┘
+                 │
+    ┌────────────┼────────────┐
+    │            │            │
+┌───┴──┐  ┌─────┴───┐  ┌────┴───┐
+│pulse │  │  ghost  │  │  gate  │
+│health│  │ secrets │  │firewall│
+└──────┘  └─────────┘  └────────┘
+┌──────┐  ┌─────────┐  ┌────────┐
+│shadow│  │  fang   │  │ mirror │
+│integ.│  │intrusion│  │  PII   │
+└──────┘  └─────────┘  └────────┘
+┌──────┐  ┌─────────┐  ┌────────┐
+│vault │  │   net   │  │ shield │
+│backup│  │ network │  │protect │
+└──────┘  └─────────┘  └────────┘
+```
 
-**Repo:** [github.com/bong-water-water-bong/meek](https://github.com/bong-water-water-bong/meek)
+## Core Family
 
-Meek runs 9 Reflex agents that guard your system around the clock. Each Reflex agent watches a specific attack surface and responds autonomously — blocking threats, rotating credentials, and alerting you through the dashboard.
+### halo — The Stack
+- **Service:** `halo-halo.service`
+- **Color:** `#00d4ff`
+- **Role:** System orchestrator, father of the family. Monitors all services, GPU, memory, disk, inference. Fixes what breaks, escalates what it can't.
+- **Check interval:** 30 seconds
 
-Reflex agents include watchers for SSH brute-force attempts, port scanning, failed authentication, firewall anomalies, certificate expiry, DNS poisoning, service health, log tampering, and unauthorized access patterns.
+### echo — Social Media
+- **Service:** `halo-echo.service`
+- **Color:** `#ce93d8`
+- **Role:** Public face of the family, Halo's wife. Translates technical achievements into compelling stories. Manages the family's image across all platforms.
+- **Check interval:** 5 minutes
 
-Meek integrates directly with fail2ban, systemd journals, and the Caddy reverse proxy to provide layered defense without manual intervention.
+### meek — Security Chief
+- **Service:** `halo-meek.service`
+- **Color:** `#ffffff`
+- **Role:** Commands the 9 Reflex agents. Calm, methodical, thorough. Sees everything, trusts nothing. Ensures all Reflex agents are running.
+- **Check interval:** 60 seconds
 
-### Echo — Social Media Agent (Private)
+### amp — Audio Engineer
+- **Service:** `halo-amp.service`
+- **Color:** `#ff6f00`
+- **Role:** Music, voice cloning, audiobook production. Loves Beatles, blues, and metal. Monitors whisper and kokoro services.
+- **Check interval:** 2 minutes
 
-Echo monitors and posts across 5 platforms, managing your project's social media presence while keeping you in control.
+### bounty — Bug Hunter
+- **Service:** `halo-bounty.service`
+- **Color:** `#e040fb`
+- **Role:** Halo's brother. Offensive security specialist. Thinks like an attacker to protect the family. Probes for weaknesses, tests defenses.
+- **Check interval:** 5 minutes
 
-**Supported platforms:**
-- GitHub (releases, discussions, announcements)
-- Discord (server updates, community engagement)
-- Mastodon (status updates, project news)
-- Bluesky (cross-posts, engagement tracking)
-- RSS (feed generation for all activity)
+## Reflex Group (Meek's Team)
 
-Echo is privacy-focused: all content is reviewed before posting (unless auto-post is enabled for specific event types), no analytics tracking is added to links, and all data stays on your machine. Echo runs locally as a systemd service — nothing is routed through third-party services.
+### pulse — Health
+- **Service:** `halo-pulse.service`
+- **Color:** `#00ff88`
+- **Watches:** CPU, memory, GPU temperature, disk usage, system load
+- **Check interval:** 30 seconds
 
-## Recommended Homelab Agents (Planned)
+### ghost — Secrets
+- **Service:** `halo-ghost.service`
+- **Color:** `#b388ff`
+- **Watches:** Exposed API keys, passwords, tokens, credentials in configs
+- **Check interval:** 1 hour
 
-The following agents are planned or under consideration. They follow the same systemd service pattern and dashboard integration as Meek and Echo.
+### gate — Firewall
+- **Service:** `halo-gate.service`
+- **Color:** `#00d4ff`
+- **Watches:** nftables status, open ports, exposed services on 0.0.0.0
+- **Check interval:** 2 minutes
 
-| Agent | Role | Description |
-|---|---|---|
-| **Meek** | Security | Already built — guards your system with 9 Reflex agents |
-| **Echo** | Social Media | Already built — manages project presence across 5 platforms |
-| **Torrent** | Media Management | Monitor and manage downloads, integrate with *arr stack (Sonarr, Radarr, Prowlarr) |
-| **Watt** | Power Management | Monitor power consumption, GPU power states, auto sleep/wake schedules |
-| **Therm** | Temperature Control | GPU/CPU temps, fan curves, thermal throttling alerts |
-| **Clerk** | Log Management | Aggregate, rotate, and analyze logs across all services |
-| **Scout** | Update Manager | Track upstream releases, auto-update services safely with rollback |
-| **Relay** | Notification Hub | Unified alerts via Discord, email, Pushover, SMS |
-| **Census** | Resource Monitor | CPU, RAM, disk, GPU utilization dashboards and historical trends |
-| **Keeper** | Password/Secret Manager | Rotate keys, manage credentials across services |
+### shadow — Integrity
+- **Service:** `halo-shadow.service`
+- **Color:** `#ff9800`
+- **Watches:** SHA256 hashes of critical config files (nftables, sshd, Caddyfile)
+- **Check interval:** 10 minutes
+
+### fang — Intrusion
+- **Service:** `halo-fang.service`
+- **Color:** `#ff4444`
+- **Watches:** SSH auth logs for brute force attempts, invalid users
+- **Check interval:** 2 minutes
+
+### mirror — PII Scan
+- **Service:** `halo-mirror.service`
+- **Color:** `#448aff`
+- **Watches:** Private IPs, emails, and personal data in config files and docs
+- **Check interval:** 30 minutes
+
+### vault — Backup
+- **Service:** `halo-vault.service`
+- **Color:** `#ffd740`
+- **Watches:** Backup directory freshness, ensures backups are current
+- **Check interval:** 1 hour
+
+### net — Network
+- **Service:** `halo-net.service`
+- **Color:** `#00bfa5`
+- **Watches:** DNS resolution, gateway reachability, network connectivity
+- **Check interval:** 60 seconds
+
+### shield — Protection
+- **Service:** `halo-shield.service`
+- **Color:** `#78909c`
+- **Watches:** SSH hardening config, fail2ban status, WireGuard key permissions
+- **Check interval:** 10 minutes
 
 ## Managing Agents
 
-### Enable/Disable
+Agents are Lego blocks. Add or remove at will:
 
 ```bash
-sudo systemctl enable --now <agent>-watch.service   # Enable
-sudo systemctl disable --now <agent>-watch.service   # Disable
+# All at once
+manage.sh install all       # install and start all 14 agents
+manage.sh remove all        # stop and remove all agents
+
+# Individual
+manage.sh install meek      # just meek
+manage.sh remove fang       # pull out fang
+manage.sh status            # see who's running
+manage.sh list              # list available agents
 ```
 
-Check status:
+Manager script: `/srv/ai/gaia/halo-agents/manage.sh`
 
-```bash
-sudo systemctl status <agent>-watch.service          # Current status
-journalctl -u <agent>-watch.service --since today    # Today's logs
-```
+## Backend
 
-### Web GUI
+All agents are powered by [AMD Gaia](https://github.com/amd/gaia) running on the halo-ai stack:
 
-Agents can be managed through the dashboard at `https://strixhalo/agents/`:
+| Service | Port | Purpose |
+|---------|------|---------|
+| Gaia API | 8090 | OpenAI-compatible agent API server |
+| Gaia MCP | 8765 | Model Context Protocol bridge for agent tools |
+| llama-server | 8081 | LLM backend (109 tok/s, Qwen3-30B-A3B) |
 
-- Toggle agents on/off
-- View real-time status and uptime
-- Configure settings and thresholds
-- View reports and alerts
-- Review action history
+Agent code: `/srv/ai/gaia/halo-agents/`
+Agent logs: `/srv/ai/logs/agents/`
+Agent state: `/srv/ai/agent/data/`
 
-### Custom Agents
+## Future: The Architect
 
-You can create custom agents that plug into the halo-ai ecosystem. A conforming agent needs:
-
-1. **A systemd service** — named `<agent>-watch.service`, running as a dedicated user.
-2. **A status endpoint** — HTTP on localhost that returns JSON with at minimum `{"status": "ok", "agent": "<name>"}`.
-3. **Dashboard registration** — a config file at `/etc/halo-ai/agents/<name>.conf` with the agent's display name, port, description, and icon.
-4. **Log output to journald** — use `systemd-cat` or structured logging so logs appear in the dashboard.
-
-Example minimal agent config:
-
-```ini
-[agent]
-name = MyAgent
-port = 9100
-description = Does something useful
-icon = wrench
-enabled = true
-```
-
-Place this at `/etc/halo-ai/agents/myagent.conf` and the dashboard will pick it up on the next refresh. Your agent's status endpoint should be reachable at `http://127.0.0.1:9100/status`.
+Agent #15 — **the architect** — is the user's personal AI avatar. It will use the architect's own cloned voice for output, making it the only agent that *speaks* rather than types. Voice model training is in progress (target: 200 hours of recordings).
