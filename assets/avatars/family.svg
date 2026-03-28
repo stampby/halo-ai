@@ -12,7 +12,7 @@
     <text x="40" y="88" text-anchor="middle" font-family="monospace" font-size="7" fill="#00d4ff" opacity="0.6">the stack</text>
   </g>
 
-  <!-- Connector: halo --- echo -->
+  <!-- Connector: halo to echo -->
   <line x1="410" y1="50" x2="470" y2="50" stroke="#555d6e" stroke-width="1.5" stroke-dasharray="6 3"/>
   <text x="440" y="44" text-anchor="middle" font-family="monospace" font-size="6" fill="#555d6e">married</text>
 
