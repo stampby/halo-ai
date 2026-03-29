@@ -103,13 +103,7 @@ Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](
 | **quartermaster** | Game server ops | 7 |
 | **conductor** | AI music composer | 7 |
 
-```bash
-manage.sh install all       # spin up everyone
-manage.sh remove fang       # pull out just fang
-manage.sh status            # see who's running
-```
-
-Full documentation, personas, and backstories: [The AI Family](docs/AGENTS.md)
+[The AI Family](docs/AGENTS.md)
 
 <div align="center">
 <picture>
