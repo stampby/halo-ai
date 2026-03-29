@@ -2,42 +2,36 @@
 
 ## Overview
 
-Halo AI runs 14 autonomous agents as individual systemd services, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will. Agents monitor, protect, and manage the stack around the clock.
+halo-ai runs 27 autonomous agents as individual systemd services, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will.
 
 All agents connect to llama-server (109 tok/s on Qwen3-30B-A3B) for reasoning. Each has a unique persona, role, and set of responsibilities.
 
-## Agent Architecture
+## The Family Tree
 
 ```
-            ┌──────────┐     ┌──────────┐
-            │   halo   │─────│   echo   │
-            │ the stack│     │  social  │
-            └────┬─────┘     └──────────┘
-                 │
-            ┌────┴─────┐          ┌──────────┐
-            │   amp    │          │  bounty  │
-            │  audio   │          │ bug hunt │
-            └────┬─────┘          └──────────┘
-                 │
-            ┌────┴─────┐
-            │   meek   │
-            │ security │
-            └────┬─────┘
-                 │
-    ┌────────────┼────────────┐
-    │            │            │
-┌───┴──┐  ┌─────┴───┐  ┌────┴───┐
-│pulse │  │  ghost  │  │  gate  │
-│health│  │ secrets │  │firewall│
-└──────┘  └─────────┘  └────────┘
-┌──────┐  ┌─────────┐  ┌────────┐
-│shadow│  │  fang   │  │ mirror │
-│integ.│  │intrusion│  │  PII   │
-└──────┘  └─────────┘  └────────┘
-┌──────┐  ┌─────────┐  ┌────────┐
-│vault │  │   net   │  │ shield │
-│backup│  │ network │  │protect │
-└──────┘  └─────────┘  └────────┘
+                          the architect
+                               |
+              bounty ——— halo ——— echo
+             (brother)  (father)  (wife)
+                          |
+          ----------------+----------------
+          |               |               |
+         meek            amp          conductor
+       (security)      (audio)       (composer)
+          |
+    Reflex Group (9)
+    pulse · ghost · gate
+    shadow · fang · mirror
+    vault · net · shield
+
+                    Studio Agents
+          sentinel · forge · dealer
+         mechanic · interpreter · crypto
+              quartermaster
+
+                    The Downcomers
+            piper · axe · rhythm
+                bottom · bones
 ```
 
 ## Core Family
@@ -127,6 +121,25 @@ All agents connect to llama-server (109 tok/s on Qwen3-30B-A3B) for reasoning. E
 - **Color:** `#78909c`
 - **Watches:** SSH hardening config, fail2ban status, WireGuard key permissions
 - **Check interval:** 10 minutes
+
+## Studio Agents
+
+- **sentinel** — code watcher, auto-reviews PRs, gates merges
+- **forge** — game builder, asset pipeline, Steam deployment
+- **dealer** — game master AI, local LLM, every run different
+- **mechanic** — system diagnostics, GPU benchmarks, repair
+- **interpreter** — prompt enhancer, creative direction
+- **crypto** — Bitcoin arbitrage, price analysis
+- **quartermaster** — game server ops, deploy, backup, inventory
+- **conductor** — AI composer, live orchestral scoring, dynamic game music
+
+## The Downcomers (Band)
+
+- **piper** — war pipes, commanding presence, Amp's crush
+- **axe** — lead guitar, Wes Borland darkness
+- **rhythm** — rhythm guitar, backbone
+- **bottom** — bass, holds everything together
+- **bones** — drums, hits hard
 
 ## Managing Agents
 
