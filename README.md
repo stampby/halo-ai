@@ -84,27 +84,6 @@ Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](
   ComfyUI  Qdrant  SearXNG    <-- Tools
 ```
 
-## The AI Family
-
-11 autonomous agents on [AMD Gaia](https://github.com/amd/gaia) 0.17.0 with 78 tools. Each agent is a Lego block — install or remove at will.
-
-| Agent | Role | Tools |
-|-------|------|-------|
-| **halo** | System orchestrator | core stack |
-| **echo** | Social media — public face | 8 |
-| **meek** | Security chief + 9 Reflex agents | 10 |
-| **amp** | Audio engineer | 8 |
-| **bounty** | Bug bounty hunter | 6 |
-| **sentinel** | Code watcher — PR review | 5 |
-| **mechanic** | System diagnostics | 8 |
-| **forge** | Game asset builder | 6 |
-| **dealer** | Game master AI | 7 |
-| **crypto** | Bitcoin arbitrage | 6 |
-| **quartermaster** | Game server ops | 7 |
-| **conductor** | AI music composer | 7 |
-
-[The AI Family](docs/AGENTS.md)
-
 <div align="center">
 <picture>
   <img src="https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/assets/avatars/family.svg?v=5" alt="the ai family" width="720">
@@ -115,7 +94,6 @@ Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](
 
 | Guide | What it covers |
 |-------|----------------|
-| [The AI Family](docs/AGENTS.md) | Agents, personas, management |
 | [Architecture](docs/ARCHITECTURE.md) | System design, data flow, GPU backends |
 | [Services](docs/SERVICES.md) | Ports, configs, health checks |
 | [Security](docs/SECURITY.md) | Firewall, SSH, TLS, password rotation |
