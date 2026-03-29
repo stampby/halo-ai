@@ -32,7 +32,8 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 
 - **Containers add 15-20% overhead** on GPU workloads. When you have 115GB of unified memory on a single chip, every watt and every byte should go to inference, not orchestration.
 - **Compiled from source** means native gfx1151 optimizations that pre-built binaries miss. That's where 109 tok/s comes from.
-- **Weekly source compiles** catch upstream breaking changes before they cascade. Freeze/thaw rollback means nothing breaks.
+- **No timers. No cron. Total AI.** Agents don't check on a schedule — they watch conditions and act when something changes. Service goes down? Detected and repaired before you notice. GPU overheats? Reported the moment it happens. Not every 30 seconds. The moment.
+- **Survives Arch rolling release.** Freeze the stack, let pacman update, agents detect if anything broke, thaw to rollback in 30 seconds. This is why halo-ai runs on Arch without fear.
 - **You own the whole stack.** No package manager decides when your AI server goes down.
 
 ## Quick Install
