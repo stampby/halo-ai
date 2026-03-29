@@ -45,3 +45,5 @@ agent/data/
 
 # Test / install logs (may contain leaked secrets)
 test-runs/
+configs/Caddyfile
+benchmarks/
