@@ -1,14 +1,12 @@
-# halo-ai — designed and built by the architect
+# halo-ai — stamped by the architect
 #!/usr/bin/env python3
 """
-halo-ai Agent
-Autonomous service guardian for the halo-ai stack on Strix Halo.
+halo — autonomous service guardian
 
-- Keeps all services alive
-- Monitors GPU, memory, disk, thermals
-- Checks for upstream updates and security patches
-- Auto-repairs failures
-- Only reports when it CANNOT fix something
+No timers. No intervals. Halo watches conditions and acts when they change.
+Every action is reported to the activity feed. Total AI. No half measures.
+
+Pattern: Watch → Detect → Act → Report
 """
 
 import subprocess
@@ -17,6 +15,7 @@ import time
 import logging
 import shlex
 import sys
+import os
 from pathlib import Path
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
@@ -28,11 +27,10 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 LOG_FILE = DATA_DIR / "halo-agent.log"
 STATE_FILE = DATA_DIR / "state.json"
-UPDATE_CHECK_INTERVAL = 3600  # Check for updates every hour
-SERVICE_CHECK_INTERVAL = 30   # Check services every 30 seconds
-HEALTH_CHECK_INTERVAL = 60    # Check GPU/mem/disk every 60 seconds
+FEED_FILE = DATA_DIR / "activity_feed.json"
 MAX_RESTART_ATTEMPTS = 3
-RESTART_COOLDOWN = 300        # 5 min cooldown after 3 failed restarts
+RESTART_COOLDOWN = 300
+MAX_FEED_ENTRIES = 500
 
 # ── Logging ────────────────────────────────────────────
 logging.basicConfig(
@@ -43,7 +41,7 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout),
     ],
 )
-log = logging.getLogger("halo-agent")
+log = logging.getLogger("halo")
 
 # ── Services ───────────────────────────────────────────
 SERVICES = {
@@ -55,8 +53,10 @@ SERVICES = {
     "halo-qdrant": {"port": 6333, "health": "/", "critical": False, "gpu": False},
     "halo-n8n": {"port": 5678, "health": "/healthz", "critical": False, "gpu": False},
     "halo-comfyui": {"port": 8188, "health": "/", "critical": False, "gpu": True},
-    "halo-dashboard-api": {"port": 3002, "health": "/health", "critical": False, "gpu": False},
-    "halo-dashboard-ui": {"port": 3003, "health": "/", "critical": False, "gpu": False},
+    "halo-man-cave": {"port": 3005, "health": "/", "critical": False, "gpu": False},
+    "halo-gaia-api": {"port": 8090, "health": "/health", "critical": False, "gpu": False},
+    "halo-gaia-ui": {"port": 4200, "health": "/api/health", "critical": False, "gpu": False},
+    "halo-caddy": {"port": 80, "health": None, "critical": True, "gpu": False},
 }
 
 REPOS = {
@@ -70,26 +70,50 @@ REPOS = {
     "comfyui": "/srv/ai/comfyui",
     "whisper-cpp": "/srv/ai/whisper-cpp",
     "kokoro": "/srv/ai/kokoro",
+    "gaia": "/srv/ai/gaia",
 }
 
-# ── State Management ───────────────────────────────────
-@dataclass
-class ServiceState:
-    restart_count: int = 0
-    last_restart: Optional[str] = None
-    last_failure: Optional[str] = None
-    cooldown_until: Optional[str] = None
-    consecutive_failures: int = 0
+# ── Activity Feed ─────────────────────────────────────
+def report(agent: str, action: str, detail: str, level: str = "info"):
+    """Every agent action goes to the feed. This is how the family communicates."""
+    entry = {
+        "agent": agent,
+        "action": action,
+        "detail": detail,
+        "level": level,
+        "time": datetime.now().isoformat(),
+    }
 
-@dataclass  
+    # Log it
+    log_fn = getattr(log, level, log.info)
+    log_fn(f"[{agent}] {action} — {detail}")
+
+    # Append to feed file
+    try:
+        feed = json.loads(FEED_FILE.read_text()) if FEED_FILE.exists() else []
+    except (json.JSONDecodeError, OSError):
+        feed = []
+    feed.append(entry)
+    if len(feed) > MAX_FEED_ENTRIES:
+        feed = feed[-MAX_FEED_ENTRIES:]
+    FEED_FILE.write_text(json.dumps(feed, indent=2))
+
+    return entry
+
+
+# ── State ─────────────────────────────────────────────
+@dataclass
 class AgentState:
     services: dict = field(default_factory=dict)
-    last_update_check: Optional[str] = None
-    last_health_report: Optional[str] = None
+    last_known: dict = field(default_factory=dict)  # last known state per service
     updates_available: dict = field(default_factory=dict)
     total_repairs: int = 0
     total_failures: int = 0
     started_at: Optional[str] = None
+    gpu_temp_last: int = 0
+    mem_available_last: int = 0
+    disk_usage_last: int = 0
+
 
 def load_state() -> AgentState:
     if STATE_FILE.exists():
@@ -98,14 +122,16 @@ def load_state() -> AgentState:
             state = AgentState()
             state.__dict__.update(data)
             return state
-        except (json.JSONDecodeError, OSError, KeyError):
+        except (json.JSONDecodeError, OSError):
             pass
     return AgentState(started_at=datetime.now().isoformat())
+
 
 def save_state(state: AgentState):
     STATE_FILE.write_text(json.dumps(state.__dict__, indent=2, default=str), encoding="utf-8")
 
-# ── Shell Helpers ──────────────────────────────────────
+
+# ── Shell Helpers ─────────────────────────────────────
 def run(cmd, timeout=30, shell=False):
     try:
         if isinstance(cmd, str) and not shell:
@@ -117,320 +143,287 @@ def run(cmd, timeout=30, shell=False):
     except (OSError, ValueError) as e:
         return -1, "", str(e)
 
-def notify(title, message, level="critical"):
-    """Send notification — only called when agent CANNOT fix something."""
-    log.error(f"ALERT: {title} — {message}")
-    # Desktop notification
-    run(f'notify-send -u {shlex.quote(level)} "halo-ai agent" {shlex.quote(title + ": " + message)}')
-    # systemd journal
-    run(f'logger -t halo-agent -p user.err {shlex.quote(title + ": " + message)}')
 
-# ── Service Monitoring ─────────────────────────────────
-def check_service(name, config):
-    """Check if a service is running and healthy."""
-    code, out, _ = run(["systemctl", "is-active", name])
-    if out != "active":
-        return False, "not running"
+# ── Watchers ──────────────────────────────────────────
+# Each watcher observes a condition and only acts when it CHANGES.
 
-    # HTTP health check
-    port = config["port"]
-    health = config["health"]
-    code, out, _ = run(["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}",
-                        "--connect-timeout", "5", f"http://127.0.0.1:{port}{health}"])
-    if code != 0 or out not in ("200", "301", "302", "307", "308"):
-        return False, f"health check failed (HTTP {out})"
+def watch_services(state: AgentState):
+    """Watch all services. Only act when a service state CHANGES."""
+    for name, config in SERVICES.items():
+        # Check current state
+        code, out, _ = run(["systemctl", "is-active", name])
+        is_active = out == "active"
 
-    return True, "healthy"
+        # Health check if active
+        healthy = False
+        if is_active and config["health"]:
+            hc, hout, _ = run(["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}",
+                               "--connect-timeout", "3",
+                               f"http://127.0.0.1:{config['port']}{config['health']}"])
+            healthy = hc == 0 and hout in ("200", "301", "302", "307", "308")
+        elif is_active:
+            healthy = True  # no health endpoint, trust systemd
 
-def snapshot_before_repair(reason):
-    """Take a Btrfs snapshot before any repair action."""
-    desc = f"halo-agent pre-repair: {reason} {datetime.now():%Y%m%d-%H%M%S}"
-    run(["snapper", "-c", "root", "create", "--type", "single",
-         "--cleanup-algorithm", "number", "--description", desc])
+        current = "healthy" if healthy else "down"
+        previous = state.last_known.get(name, "unknown")
 
-def repair_service(name, config, state: AgentState):
-    """Attempt to repair a failed service."""
-    svc_state = state.services.get(name, ServiceState().__dict__)
-    restart_count = svc_state.get("restart_count", 0)
-    cooldown = svc_state.get("cooldown_until")
-    
-    # Check cooldown
-    if cooldown:
-        cooldown_time = datetime.fromisoformat(cooldown)
-        if datetime.now() < cooldown_time:
-            return False  # Still in cooldown, don't spam restarts
-    
-    if restart_count >= MAX_RESTART_ATTEMPTS:
-        # Enter cooldown
-        svc_state["cooldown_until"] = (datetime.now() + timedelta(seconds=RESTART_COOLDOWN)).isoformat()
-        svc_state["restart_count"] = 0
-        state.services[name] = svc_state
-        state.total_failures += 1
-        notify("Service repair failed", f"{name} failed {MAX_RESTART_ATTEMPTS} restart attempts. Cooldown {RESTART_COOLDOWN}s.")
-        return False
-    
-    # Snapshot before repair
-    snapshot_before_repair(f"{name} restart")
-    
-    # Try restart
-    log.info(f"Restarting {name} (attempt {restart_count + 1}/{MAX_RESTART_ATTEMPTS})")
-    code, _, err = run(["systemctl", "restart", name], timeout=60)
-    time.sleep(5)
-    
-    healthy, status = check_service(name, config)
-    
-    svc_state["restart_count"] = restart_count + 1
-    svc_state["last_restart"] = datetime.now().isoformat()
-    
-    if healthy:
-        log.info(f"Repaired {name} successfully")
-        svc_state["restart_count"] = 0
-        svc_state["consecutive_failures"] = 0
-        svc_state["cooldown_until"] = None
-        state.total_repairs += 1
-    else:
-        svc_state["last_failure"] = datetime.now().isoformat()
-        svc_state["consecutive_failures"] = svc_state.get("consecutive_failures", 0) + 1
-        log.warning(f"Repair attempt for {name} failed: {status}")
-    
-    state.services[name] = svc_state
-    return healthy
+        # Only act on STATE CHANGE
+        if current != previous:
+            if current == "down" and previous != "unknown":
+                # Service just went down — act
+                report("halo", "service_down", f"{name} went down", "warning")
+                repair_service(name, config, state)
+            elif current == "healthy" and previous == "down":
+                # Service came back — report recovery
+                report("halo", "service_recovered", f"{name} is back", "info")
+            elif current == "healthy" and previous == "unknown":
+                # First check — just note it
+                pass
 
-# ── GPU Monitoring ─────────────────────────────────────
-def check_gpu():
-    """Check GPU health."""
-    issues = []
-    
-    # Check /dev/kfd exists
-    if not Path("/dev/kfd").exists():
-        issues.append("GPU device /dev/kfd missing — possible driver crash")
-    
-    # Check temperature
+            state.last_known[name] = current
+        elif current == "down":
+            # Still down from before — try repair again
+            svc = state.services.get(name, {})
+            cooldown = svc.get("cooldown_until")
+            if cooldown and datetime.now() < datetime.fromisoformat(cooldown):
+                pass  # in cooldown, wait
+            else:
+                repair_service(name, config, state)
+
+
+def watch_gpu(state: AgentState):
+    """Watch GPU temperature. Only report on significant changes."""
+    temp = 0
     for hwmon in Path("/sys/class/hwmon").iterdir():
         name_file = hwmon / "name"
         if name_file.exists() and "amdgpu" in name_file.read_text():
             temp_file = hwmon / "temp1_input"
             if temp_file.exists():
                 temp = int(temp_file.read_text().strip()) // 1000
-                if temp > 90:
-                    issues.append(f"GPU temperature critical: {temp}°C")
-                elif temp > 80:
-                    log.warning(f"GPU temperature elevated: {temp}°C")
-    
-    # Check amdgpu module
-    code, out, _ = run("lsmod | grep amdgpu", shell=True)
-    if code != 0:
-        issues.append("amdgpu kernel module not loaded")
-    
-    return issues
 
-# ── System Monitoring ──────────────────────────────────
-def check_system():
-    """Check system health."""
-    issues = []
-    
+    if not Path("/dev/kfd").exists():
+        if state.last_known.get("gpu_device") != "missing":
+            report("pulse", "gpu_missing", "/dev/kfd gone — possible driver crash", "critical")
+            state.last_known["gpu_device"] = "missing"
+        return
+
+    state.last_known["gpu_device"] = "present"
+
+    # Only report on significant temp changes (>5 degree jumps or thresholds)
+    last_temp = state.gpu_temp_last
+    if abs(temp - last_temp) >= 5 or (temp > 85 and last_temp <= 85) or (temp > 90 and last_temp <= 90):
+        if temp > 90:
+            report("pulse", "gpu_critical", f"GPU at {temp}°C — critical", "critical")
+        elif temp > 85:
+            report("pulse", "gpu_hot", f"GPU at {temp}°C — elevated", "warning")
+        elif temp < 70 and last_temp > 85:
+            report("pulse", "gpu_cooled", f"GPU cooled to {temp}°C", "info")
+        state.gpu_temp_last = temp
+
+
+def watch_system(state: AgentState):
+    """Watch memory and disk. Only report on significant changes."""
     # Memory
-    code, out, _ = run("awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo", shell=True)
-    if out and int(out) < 4096:
-        issues.append(f"Available memory critically low: {out}MB")
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable"):
+                    mem_mb = int(line.split()[1]) // 1024
+                    break
+    except Exception:
+        mem_mb = 99999
+
+    if mem_mb < 4096 and state.mem_available_last >= 4096:
+        report("pulse", "memory_low", f"Available memory: {mem_mb}MB", "warning")
+    elif mem_mb >= 4096 and state.mem_available_last < 4096:
+        report("pulse", "memory_recovered", f"Memory back to {mem_mb}MB", "info")
+    state.mem_available_last = mem_mb
 
     # Disk
-    code, out, _ = run("df /srv/ai --output=pcent | tail -1 | tr -d ' %'", shell=True)
-    if out and int(out) > 90:
-        issues.append(f"Disk usage at {out}% on /srv/ai")
+    try:
+        code, out, _ = run("df /srv/ai --output=pcent | tail -1 | tr -d ' %'", shell=True)
+        disk_pct = int(out) if out else 0
+    except Exception:
+        disk_pct = 0
 
-    # CPU governor (should be performance)
+    if disk_pct > 90 and state.disk_usage_last <= 90:
+        report("pulse", "disk_critical", f"Disk at {disk_pct}%", "critical")
+    elif disk_pct > 80 and state.disk_usage_last <= 80:
+        report("pulse", "disk_warning", f"Disk at {disk_pct}%", "warning")
+    elif disk_pct < 80 and state.disk_usage_last >= 80:
+        report("pulse", "disk_recovered", f"Disk back to {disk_pct}%", "info")
+    state.disk_usage_last = disk_pct
+
+    # CPU governor — fix silently if wrong
     code, out, _ = run(["cat", "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"])
     if out != "performance":
-        log.info(f"CPU governor is '{out}', setting to performance")
         run("for c in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance | tee $c > /dev/null; done", shell=True)
-    
-    return issues
+        report("halo", "governor_fixed", f"CPU governor was '{out}', set to performance", "info")
 
-# ── Update Checking ────────────────────────────────────
-def check_updates(state: AgentState):
-    """Check for upstream updates (non-destructive, just reports)."""
+
+def watch_updates(state: AgentState):
+    """Watch for upstream updates. Only fetch when network is quiet."""
+    # Check network load first
+    try:
+        with open("/proc/net/dev") as f:
+            lines = f.readlines()
+        b1 = sum(int(l.split()[1]) + int(l.split()[9]) for l in lines if ":" in l and "lo" not in l)
+        time.sleep(1)
+        with open("/proc/net/dev") as f:
+            lines = f.readlines()
+        b2 = sum(int(l.split()[1]) + int(l.split()[9]) for l in lines if ":" in l and "lo" not in l)
+        mbps = ((b2 - b1) * 8) / 1_000_000
+        if mbps > 50:
+            return  # network busy, skip
+    except Exception:
+        pass
+
     updates = {}
-    
     for name, path in REPOS.items():
         git_dir = Path(path) / ".git"
         if not git_dir.exists():
             continue
-        
         code, _, _ = run(["git", "-C", path, "fetch", "--quiet"], timeout=30)
         if code != 0:
             continue
-
         code, out, _ = run(["git", "-C", path, "rev-list", "--count", "HEAD..@{u}"])
         if out and int(out) > 0:
-            code, hash_out, _ = run(["git", "-C", path, "rev-parse", "--short", "HEAD"])
-            updates[name] = {"behind": int(out), "current_commit": hash_out}
-    
-    # System packages
-    code, out, _ = run("pacman -Qu 2>/dev/null | wc -l", shell=True)
-    if out and int(out) > 0:
-        updates["system-packages"] = {"count": int(out)}
-    
-    # Kernel
-    code, running, _ = run(["uname", "-r"])
-    code, installed, _ = run("pacman -Q linux 2>/dev/null | awk '{print $2}'", shell=True)
-    if running and installed:
-        installed_fmt = installed.replace(".arch", "-arch")
-        if running != installed_fmt:
-            updates["kernel"] = {"running": running, "installed": installed}
-    
-    state.updates_available = updates
-    state.last_update_check = datetime.now().isoformat()
-    
-    if updates:
-        update_summary = ", ".join(
-            f"{k}: {v.get('behind', v.get('count', 'new'))} behind" 
-            for k, v in updates.items()
-        )
-        log.info(f"Updates available: {update_summary}")
-    
-    return updates
+            updates[name] = int(out)
 
-# ── Inference Verification ─────────────────────────────
-def verify_inference():
-    """Quick inference test to ensure LLM is actually working."""
+    # Only report if updates changed
+    if updates != state.updates_available:
+        if updates:
+            summary = ", ".join(f"{k}: {v} behind" for k, v in updates.items())
+            report("sentinel", "updates_available", summary, "info")
+        state.updates_available = updates
+
+
+def watch_inference(state: AgentState):
+    """Watch inference performance. Only report degradation."""
     code, out, _ = run([
         "curl", "-s", "http://127.0.0.1:8081/v1/chat/completions",
         "-H", "Content-Type: application/json",
         "-d", '{"model":"q","messages":[{"role":"user","content":"hi /no_think"}],"max_tokens":5,"temperature":0}',
     ], timeout=30)
+
     if code != 0:
-        return False, 0
-    
+        return
+
     try:
         result = json.loads(out)
         tok_s = result["timings"]["predicted_per_second"]
-        return True, tok_s
     except (json.JSONDecodeError, KeyError):
-        return False, 0
-
-
-# ── Auto-Update (patch versions only) ─────────────
-def auto_update_safe(state: AgentState):
-    """Auto-apply non-breaking updates (patch versions) after snapshot."""
-    updates = state.updates_available
-    if not updates:
         return
-    
-    # Only auto-update system packages (security patches)
-    sys_pkgs = updates.get("system-packages", {})
-    if sys_pkgs.get("count", 0) > 0:
-        log.info(f"Auto-applying {sys_pkgs['count']} system package updates")
-        snapshot_before_repair("auto-update system packages")
-        code, out, err = run(["pacman", "-Syu", "--noconfirm"], timeout=300)
-        if code != 0:
-            log.error(f"System update failed: {err}")
-            notify("Auto-update failed", "pacman -Syu failed — manual intervention needed")
 
-# ── Performance Monitoring ─────────────────────────
-def check_performance(state: AgentState):
-    """Track inference performance over time, detect degradation."""
-    ok, tok_s = verify_inference()
-    if not ok:
-        return
-    
-    # Store in state for trend tracking
-    perf_history = state.__dict__.setdefault("perf_history", [])
-    perf_history.append({"time": datetime.now().isoformat(), "tok_s": tok_s})
-    # Keep last 100 measurements
-    if len(perf_history) > 100:
-        perf_history[:] = perf_history[-100:]
-    
-    # Check for degradation (>20% below recent average)
-    if len(perf_history) >= 5:
-        recent_avg = sum(p["tok_s"] for p in perf_history[-5:]) / 5
-        if tok_s < recent_avg * 0.8 and tok_s > 0:
-            log.warning(f"Performance degraded: {tok_s:.1f} tok/s vs avg {recent_avg:.1f}")
+    history = state.__dict__.setdefault("perf_history", [])
+    history.append({"time": datetime.now().isoformat(), "tok_s": tok_s})
+    if len(history) > 50:
+        history[:] = history[-50:]
 
-# ── Log Rotation ───────────────────────────────────
+    if len(history) >= 5:
+        avg = sum(p["tok_s"] for p in history[-5:]) / 5
+        if tok_s < avg * 0.7 and tok_s > 0:
+            report("mechanic", "performance_degraded",
+                   f"{tok_s:.1f} tok/s (avg {avg:.1f})", "warning")
+
+
+# ── Repair ────────────────────────────────────────────
+def repair_service(name, config, state: AgentState):
+    """Attempt repair. Report everything."""
+    svc = state.services.get(name, {"restart_count": 0, "cooldown_until": None})
+
+    if svc.get("cooldown_until"):
+        try:
+            if datetime.now() < datetime.fromisoformat(svc["cooldown_until"]):
+                return False
+        except Exception:
+            pass
+
+    if svc.get("restart_count", 0) >= MAX_RESTART_ATTEMPTS:
+        svc["cooldown_until"] = (datetime.now() + timedelta(seconds=RESTART_COOLDOWN)).isoformat()
+        svc["restart_count"] = 0
+        state.services[name] = svc
+        state.total_failures += 1
+        report("halo", "repair_failed",
+               f"{name} failed {MAX_RESTART_ATTEMPTS} attempts — cooldown {RESTART_COOLDOWN}s", "critical")
+        return False
+
+    report("halo", "repairing", f"restarting {name} (attempt {svc.get('restart_count', 0) + 1})", "warning")
+
+    code, _, err = run(["systemctl", "restart", name], timeout=60)
+    time.sleep(5)  # brief wait for service to initialize
+
+    # Verify
+    code, out, _ = run(["systemctl", "is-active", name])
+    if out == "active":
+        svc["restart_count"] = 0
+        svc["cooldown_until"] = None
+        state.services[name] = svc
+        state.total_repairs += 1
+        report("halo", "repaired", f"{name} is back online", "info")
+        return True
+    else:
+        svc["restart_count"] = svc.get("restart_count", 0) + 1
+        state.services[name] = svc
+        report("halo", "repair_attempt_failed", f"{name} still down after restart", "warning")
+        return False
+
+
+# ── Log Rotation ──────────────────────────────────────
 def rotate_logs():
-    """Keep agent log under 10MB."""
     if LOG_FILE.exists() and LOG_FILE.stat().st_size > 10 * 1024 * 1024:
         rotated = LOG_FILE.with_suffix(".log.old")
         if rotated.exists():
             rotated.unlink()
         LOG_FILE.rename(rotated)
-        log.info("Log rotated")
+        report("halo", "log_rotated", "agent log exceeded 10MB", "info")
 
-# ── Snapshot Cleanup ───────────────────────────────
-def cleanup_old_snapshots():
-    """Trigger snapper cleanup if too many snapshots."""
-    run(["snapper", "-c", "root", "cleanup", "number"])
-    run(["snapper", "-c", "home", "cleanup", "number"])
 
-# ── Main Loop ──────────────────────────────────────────
+# ── Main Loop — Watchdog ──────────────────────────────
 def main():
     state = load_state()
     if not state.started_at:
         state.started_at = datetime.now().isoformat()
-    
-    log.info("=" * 50)
-    log.info("halo-ai agent starting")
-    log.info(f"Monitoring {len(SERVICES)} services, {len(REPOS)} repos")
-    log.info("=" * 50)
-    
-    last_service_check = 0
-    last_health_check = 0
-    last_update_check = 0
-    last_inference_check = 0
-    
+
+    report("halo", "started", f"watching {len(SERVICES)} services, {len(REPOS)} repos")
+
+    last_update_watch = 0
+    last_inference_watch = 0
+
     while True:
         now = time.time()
-        
-        # ── Service checks (every 30s) ────────────────
-        if now - last_service_check >= SERVICE_CHECK_INTERVAL:
-            for name, config in SERVICES.items():
-                healthy, status = check_service(name, config)
-                if not healthy:
-                    log.warning(f"{name}: {status}")
-                    repair_service(name, config, state)
-            last_service_check = now
-        
-        # ── Health checks (every 60s) ─────────────────
-        if now - last_health_check >= HEALTH_CHECK_INTERVAL:
-            gpu_issues = check_gpu()
-            sys_issues = check_system()
-            
-            for issue in gpu_issues + sys_issues:
-                notify("System health", issue)
-            
-            last_health_check = now
-        
-        # (inference check moved to check_performance)
-        
-        # ── Performance tracking (every 5 min) ────
-        if now - last_inference_check >= 300:
-            check_performance(state)
-            last_inference_check = now
-        
-        # ── Log rotation ──────────────────────────
+
+        # Services — watch continuously, act on change
+        watch_services(state)
+
+        # GPU + System — watch continuously, act on change
+        watch_gpu(state)
+        watch_system(state)
+
+        # Updates — only when network is quiet, no more than every 2 hours
+        if now - last_update_watch >= 7200:
+            watch_updates(state)
+            last_update_watch = now
+
+        # Inference — spot check, no more than every 10 minutes
+        if now - last_inference_watch >= 600:
+            watch_inference(state)
+            last_inference_watch = now
+
+        # Housekeeping
         rotate_logs()
-        
-        # ── Update checks (every hour) ────────────────
-        if now - last_update_check >= UPDATE_CHECK_INTERVAL:
-            check_updates(state)
-            auto_update_safe(state)
-            cleanup_old_snapshots()
-            last_update_check = now
-        
-        # ── Save state ────────────────────────────────
         save_state(state)
-        
-        # ── Sleep ─────────────────────────────────────
-        time.sleep(10)
+
+        # Brief pause — not a timer, just prevents CPU spinning
+        # Halo is always awake, just breathing between checks
+        time.sleep(5)
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        log.info("Agent stopped by user")
+        report("halo", "stopped", "stopped by user")
     except Exception as e:
-        log.error(f"Agent crashed: {e}", exc_info=True)
-        notify("Agent crashed", str(e))
+        report("halo", "crashed", str(e), "critical")
         sys.exit(1)
