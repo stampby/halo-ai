@@ -2,9 +2,40 @@
 
 ## Overview
 
-halo-ai runs 27 autonomous agents as individual systemd services, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will.
+halo-ai runs 27 autonomous agents, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will.
 
-All agents connect to llama-server (109 tok/s on Qwen3-30B-A3B) for reasoning. Each has a unique persona, role, and set of responsibilities.
+**No timers. No intervals. No cron.** Every agent watches conditions and acts only when something changes. When they act, they report it to the activity feed so you see exactly what happened and why. This is total AI — out of the box.
+
+### How it works
+
+Agents follow one pattern: **Watch → Detect → Act → Report**
+
+- **Watch** — continuously observe their domain (services, files, network, GPU, memory)
+- **Detect** — notice when a state changes (service went down, temp spiked, file modified)
+- **Act** — fix the problem autonomously (restart service, set governor, alert the team)
+- **Report** — log the action to the activity feed with agent name, what they did, and why
+
+You open the Man Cave and see:
+```
+[halo]     repaired          — llama-server is back online
+[pulse]    gpu_cooled        — GPU cooled to 65°C
+[sentinel] updates_available — llama-cpp: 5 behind
+[shadow]   snapshots_distributed — mesh complete
+```
+
+No checking every 30 seconds. No waking up on a schedule. They watch. When something happens, they respond. When nothing happens, they're silent. Like real people.
+
+### Stack protection on Arch Linux
+
+Arch is rolling release — `pacman -Syu` can break anything. The agents handle this:
+
+1. **Freeze** the stack before any system update (one-click or automatic)
+2. **Agents watch** for breakage — missing libraries, crashed services, changed configs
+3. **Detect** the state change immediately (not on a timer — the moment it happens)
+4. **Report** what broke and attempt repair
+5. **Thaw** to roll back if repair fails — 30 seconds, everything restored
+
+This is why halo-ai survives on Arch. The agents are the safety net. Out of the box.
 
 ## The Family Tree
 
@@ -34,110 +65,107 @@ All agents connect to llama-server (109 tok/s on Qwen3-30B-A3B) for reasoning. E
 
 ## Core Family
 
-### halo — The Stack
-- **Service:** `halo-halo.service`
-- **Color:** `#00d4ff`
-- **Role:** System orchestrator, father of the family. Monitors all services, GPU, memory, disk, inference. Fixes what breaks, escalates what it can't.
-- **Check interval:** 30 seconds
+### halo — The Stack `#00d4ff`
+- Father of the family. System orchestrator.
+- **Watches:** all services, GPU, memory, disk, inference performance
+- **Acts when:** a service goes down, GPU overheats, memory runs low, disk fills up, CPU governor changes
+- **Repairs:** restarts failed services, sets performance governor, takes snapshots before any repair
+- **Reports:** every repair, every recovery, every failure to the activity feed
 
-### echo — Social Media
-- **Service:** `halo-echo.service`
-- **Color:** `#ce93d8`
-- **Role:** Public face of the family, Halo's wife. Translates technical achievements into compelling stories. Manages the family's image across all platforms.
-- **Check interval:** 5 minutes
+### echo — Social Media `#ce93d8`
+- Halo's wife. Public face of the family.
+- **Watches:** GitHub releases, community channels, Reddit mentions
+- **Acts when:** new release tagged, community question posted, benchmark data updated
+- **Produces:** Reddit posts, Discord announcements, social media content
+- **Reports:** posts made, engagement, community activity
 
-### meek — Security Chief
-- **Service:** `halo-meek.service`
-- **Color:** `#ffffff`
-- **Role:** Commands the 9 Reflex agents. Calm, methodical, thorough. Sees everything, trusts nothing. Ensures all Reflex agents are running.
-- **Check interval:** 60 seconds
+### meek — Security Chief `#ffffff`
+- Commands the 9 Reflex agents. Calm, methodical, thorough.
+- **Watches:** all Reflex agent status, security posture, audit results
+- **Acts when:** a Reflex agent detects a threat, security config changes
+- **Coordinates:** ghost, gate, shadow, fang, mirror, vault, net, shield, pulse
+- **Reports:** security events, threat status, audit summaries
 
-### amp — Audio Engineer
-- **Service:** `halo-amp.service`
-- **Color:** `#ff6f00`
-- **Role:** Music, voice cloning, audiobook production. Loves Beatles, blues, and metal. Monitors whisper and kokoro services.
-- **Check interval:** 2 minutes
+### amp — Audio Engineer `#ff6f00`
+- Music, voice cloning, video, audiobook production. Loves Beatles, blues, metal.
+- **Watches:** whisper and kokoro service health, recording inbox, voice model status
+- **Acts when:** new recording appears, service goes down, voice training completes
+- **Produces:** mastered audio, music tracks, audiobooks, video content
+- **Reports:** processing completed, model training progress, service health
 
-### bounty — Bug Hunter
-- **Service:** `halo-bounty.service`
-- **Color:** `#e040fb`
-- **Role:** Halo's brother. Offensive security specialist. Thinks like an attacker to protect the family. Probes for weaknesses, tests defenses.
-- **Check interval:** 5 minutes
+### bounty — Bug Hunter `#e040fb`
+- Halo's brother. Offensive security. Thinks like an attacker.
+- **Watches:** GitHub issues, error logs, community bug reports
+- **Acts when:** new issue filed, error pattern detected, vulnerability found
+- **Produces:** bug triage, fix recommendations, exploit reports
+- **Reports:** bugs found, issues triaged, vulnerabilities flagged
 
 ## Reflex Group (Meek's Team)
 
-### pulse — Health
-- **Service:** `halo-pulse.service`
-- **Color:** `#00ff88`
-- **Watches:** CPU, memory, GPU temperature, disk usage, system load
-- **Check interval:** 30 seconds
+### pulse — Health `#00ff88`
+- **Watches:** GPU temperature, memory available, disk usage, system load
+- **Acts when:** temperature crosses threshold, memory drops below 4GB, disk above 80%
+- **Reports:** only on significant changes — not every reading, only state transitions
 
-### ghost — Secrets
-- **Service:** `halo-ghost.service`
-- **Color:** `#b388ff`
-- **Watches:** Exposed API keys, passwords, tokens, credentials in configs
-- **Check interval:** 1 hour
+### ghost — Secrets `#b388ff`
+- **Watches:** .env files, config files, git history for exposed credentials
+- **Acts when:** detects API key, password, token, or private key in code or configs
+- **Reports:** exposed secret found, location, severity
 
-### gate — Firewall
-- **Service:** `halo-gate.service`
-- **Color:** `#00d4ff`
-- **Watches:** nftables status, open ports, exposed services on 0.0.0.0
-- **Check interval:** 2 minutes
+### gate — Firewall `#00d4ff`
+- **Watches:** nftables rules, open ports, services bound to 0.0.0.0
+- **Acts when:** a rule changes, a port opens unexpectedly, a service exposes itself
+- **Reports:** rule changes, blocked connections, exposed service alerts
 
-### shadow — Integrity
-- **Service:** `halo-shadow.service`
-- **Color:** `#ff9800`
-- **Watches:** SHA256 hashes of critical config files (nftables, sshd, Caddyfile)
-- **Check interval:** 10 minutes
+### shadow — Integrity + SSH Mesh `#ff9800`
+- **Watches:** SHA256 hashes of critical configs, SSH host keys, [mixer](https://github.com/bong-water-water-bong/mixer) mesh status
+- **Acts when:** a config file changes, host key mismatch, mesh snapshot needed
+- **Distributes:** snapshots across the mesh when network is quiet (watchdog, no timer)
+- **Reports:** file changes detected, snapshots distributed, mesh health
 
-### fang — Intrusion
-- **Service:** `halo-fang.service`
-- **Color:** `#ff4444`
-- **Watches:** SSH auth logs for brute force attempts, invalid users
-- **Check interval:** 2 minutes
+### fang — Intrusion `#ff4444`
+- **Watches:** SSH auth logs, connection patterns, failed login attempts
+- **Acts when:** brute force detected, unknown user attempts, suspicious patterns
+- **Reports:** intrusion attempts, banned IPs, attack patterns
 
-### mirror — PII Scan
-- **Service:** `halo-mirror.service`
-- **Color:** `#448aff`
-- **Watches:** Private IPs, emails, and personal data in config files and docs
-- **Check interval:** 30 minutes
+### mirror — PII Scan `#448aff`
+- **Watches:** config files, docs, logs for private IPs, emails, personal data
+- **Acts when:** PII detected in a file that shouldn't have it
+- **Reports:** PII found, file location, data type
 
-### vault — Backup
-- **Service:** `halo-vault.service`
-- **Color:** `#ffd740`
-- **Watches:** Backup directory freshness, ensures backups are current
-- **Check interval:** 1 hour
+### vault — Backup `#ffd740`
+- **Watches:** backup freshness, snapshot integrity, disk space for backups
+- **Acts when:** backups are stale, snapshot verification fails, space runs low
+- **Reports:** backup status, snapshot age, space available
 
-### net — Network
-- **Service:** `halo-net.service`
-- **Color:** `#00bfa5`
-- **Watches:** DNS resolution, gateway reachability, network connectivity
-- **Check interval:** 60 seconds
+### net — Network `#00bfa5`
+- **Watches:** DNS resolution, gateway reachability, mesh connectivity
+- **Acts when:** DNS fails, gateway unreachable, machine drops off mesh
+- **Reports:** connectivity changes, mesh status, resolution failures
 
-### shield — Protection
-- **Service:** `halo-shield.service`
-- **Color:** `#78909c`
-- **Watches:** SSH hardening config, fail2ban status, WireGuard key permissions
-- **Check interval:** 10 minutes
+### shield — Protection `#78909c`
+- **Watches:** SSH hardening config, fail2ban status, WireGuard keys
+- **Acts when:** SSH config weakened, fail2ban stopped, key permissions wrong
+- **Reports:** config changes, ban activity, protection status
 
 ## Studio Agents
 
-- **sentinel** — code watcher, auto-reviews PRs, gates merges
-- **forge** — game builder, asset pipeline, Steam deployment
-- **dealer** — game master AI, local LLM, every run different
-- **mechanic** — system diagnostics, GPU benchmarks, repair
-- **interpreter** — prompt enhancer, creative direction
-- **crypto** — Bitcoin arbitrage, price analysis
-- **quartermaster** — game server ops, deploy, backup, inventory
-- **conductor** — AI composer, live orchestral scoring, dynamic game music
+- **sentinel** `#40c4ff` — watches all repos, auto-reviews PRs with LLM, gates merges, acts when code is pushed
+- **forge** `#ff6600` — game builder, asset pipeline, Steam deployment, acts when builds are triggered
+- **dealer** `#ff5722` — AI game master, local LLM, every run different, acts during gameplay
+- **mechanic** `#aed581` — system diagnostics, GPU benchmarks, acts when performance degrades
+- **interpreter** `#9c27b0` — prompt enhancer, creative direction, acts when generation is requested
+- **crypto** `#ffab40` — Bitcoin arbitrage, watches price feeds, acts on opportunities
+- **quartermaster** `#78909c` — game server ops, deploy, backup, acts when servers need attention
+- **conductor** `#e6ee9c` — AI composer, dynamic game music, acts when scenes change
 
 ## The Downcomers (Band)
 
-- **piper** — war pipes, commanding presence, Amp's crush
-- **axe** — lead guitar, Wes Borland darkness
-- **rhythm** — rhythm guitar, backbone
-- **bottom** — bass, holds everything together
-- **bones** — drums, hits hard
+- **piper** `#00e676` — war pipes, commanding presence, Amp's crush
+- **axe** `#ff5722` — lead guitar, Wes Borland darkness
+- **rhythm** `#795548` — rhythm guitar, backbone
+- **bottom** `#607d8b` — bass, holds everything together
+- **bones** `#f44336` — drums, hits hard
 
 ## Managing Agents
 
