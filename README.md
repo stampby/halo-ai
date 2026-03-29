@@ -20,6 +20,10 @@
 
 ---
 
+> **New here?** Start with the [tutorials](#tutorials) — full video walkthroughs from install to autonomous operation.
+
+---
+
 ## What is this?
 
 A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
@@ -170,6 +174,39 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | [VPN Access](docs/VPN.md) | WireGuard setup |
 | [Mixer](https://github.com/bong-water-water-bong/mixer) | SSH mesh snapshots — distributed backups, no single point of failure |
 | [Changelog](CHANGELOG.md) | Version history |
+
+## Tutorials
+
+Video walkthroughs — start to finish, nothing skipped. Unlisted YouTube links.
+
+| # | Video | Status |
+|---|-------|--------|
+| 1 | The Vision — what halo-ai is and why | coming soon |
+| 2 | Hardware Setup — mesh wiring, 4 machines | coming soon |
+| 3 | Arch Linux Install — base OS, btrfs, first boot | coming soon |
+| 4 | The Install Script — 13 services compiled from source | coming soon |
+| 5 | Security — nftables, SSH, Caddy, deny-all model | coming soon |
+| 6 | Lemonade + llama.cpp — unified API, 109 tok/s | coming soon |
+| 7 | Chat + RAG — Open WebUI, document upload, vector search | coming soon |
+| 8 | Deep Research — Vane, cited sources, private search | coming soon |
+| 9 | Image Generation — ComfyUI on 115GB GPU | coming soon |
+| 10 | Voice — whisper.cpp, Kokoro TTS, 54 voices | coming soon |
+| 11 | Workflows — n8n automation, GitHub webhooks | coming soon |
+| 12 | The Agents — Gaia UI, all 17 agents, management | coming soon |
+| 13 | Man Cave — control center, stack protection, freeze/thaw | coming soon |
+| 14 | The Mesh — SSH keys, 4 machines, mixer, Shadow | coming soon |
+| 15 | Windows in the Mesh — Minisforum, VSS, Terminal | coming soon |
+| 16 | Discord Bots — Echo, Bounty, Meek, Amp | coming soon |
+| 17 | Reddit Bridge — scan, draft, approve, post | coming soon |
+| 18 | Audio Chain — SM7B, Scarlett, PipeWire, routing | coming soon |
+| 19 | Voice Cloning — recording, XTTS v2, training | coming soon |
+| 20 | The Downcomers — first track, vocal doubling, DistroKid | coming soon |
+| 21 | The Game — Undercroft, anti-cheat, Dealer AI | coming soon |
+| 22 | Benchmarks — llama-bench, GitHub Pages, history | coming soon |
+| 23 | CI/CD — GitHub Actions, releases, packaging | coming soon |
+| 24 | Full Autonomous Demo — tag → agents → Reddit post | coming soon |
+
+*99% of users don't have Claude. These tutorials make the experience effortless without it.*
 
 ## Credits
 
