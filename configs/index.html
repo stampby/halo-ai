@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halo AI</title>
+<style>
+:root {
+    --bg-dark: #0a0a0f;
+    --bg-panel: rgba(16, 16, 24, 0.85);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.15);
+    --text: #e0e0e0;
+    --text-dim: #888;
+    --text-label: #666;
+    --accent: #00d4ff;
+    --green: #00ff88;
+    --red: #ff4444;
+    --orange: #ff9800;
+    --radius: 16px;
+    --glass: blur(20px);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg-dark); color: var(--text); font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace; min-height: 100vh; }
+.header { text-align: center; padding: 3rem 1rem 1rem; }
+.logo { color: var(--accent); font-size: 3rem; font-weight: 800; letter-spacing: 0.15em; }
+.logo span { color: #fff; }
+.tagline { color: var(--text-label); font-size: 1rem; margin-top: 0.3rem; }
+.stats { color: var(--accent); font-size: 0.85rem; margin-top: 0.8rem; letter-spacing: 0.05em; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; max-width: 1000px; margin: 0.8rem auto; padding: 0 1.5rem; }
+.card { background: var(--bg-panel); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-decoration: none; display: block; transition: border-color 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s; }
+.card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,212,255,0.05); }
+.card h3 { color: var(--text); font-size: 0.95rem; font-weight: 400; margin-bottom: 0.15rem; }
+.card p { color: var(--text-label); font-size: 0.75rem; line-height: 1.4; }
+.card .port { color: var(--text-label); font-size: 0.65rem; margin-top: 0.4rem; opacity: 0.5; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; position: relative; top: -1px; }
+.dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.wip { background: var(--orange); box-shadow: 0 0 4px var(--orange); }
+.section { max-width: 1000px; margin: 1.8rem auto 0; padding: 0 1.5rem; }
+.section h2 { color: var(--text-label); font-size: 13px; font-weight: 400; text-transform: lowercase; letter-spacing: 3px; margin-bottom: 0.6rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+.section h2 .accent { color: var(--accent); }
+.footer { text-align: center; padding: 2rem; color: var(--text-label); font-size: 0.75rem; }
+.footer a { color: var(--text-dim); text-decoration: none; }
+.footer a:hover { color: var(--accent); }
+.mancave { max-width: 1000px; margin: 1.2rem auto; padding: 0 1.5rem; }
+.mancave a { background: var(--bg-panel); backdrop-filter: var(--glass); border: 1px solid var(--border); padding: 1.2rem; text-align: center; display: block; border-radius: var(--radius); text-decoration: none; transition: border-color 0.4s, transform 0.3s, box-shadow 0.4s; }
+.mancave a:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0,212,255,0.08); }
+.mancave h3 { font-size: 1.2rem; color: var(--accent); margin-bottom: 0.2rem; font-weight: 300; letter-spacing: 3px; }
+.mancave p { color: var(--text-dim); font-size: 0.85rem; }
+.agents-summary { max-width: 1000px; margin: 1rem auto; padding: 0 1.5rem; text-align: center; }
+.agents-summary p { color: var(--text-label); font-size: 0.8rem; }
+.agents-summary a { color: var(--accent); text-decoration: none; }
+.agents-summary a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">&gt;&gt; <span>HALO</span> AI</div>
+    <p class="tagline">bare-metal ai stack for AMD Strix Halo</p>
+    <p class="stats">109 tok/s &middot; 13 services &middot; 17 agents &middot; 98 tools &middot; 4 machines &middot; zero containers &middot; compiled from source</p>
+</div>
+
+<div class="mancave">
+    <a href="/cave/">
+        <h3><span class="dot wip"></span> The Man Cave</h3>
+        <p>Control center &mdash; GPU metrics, service health, model management</p>
+    </a>
+</div>
+
+<!-- CORE SERVICES -->
+<div class="section"><h2><span class="accent">Services</span></h2></div>
+<div class="grid">
+    <a class="card" href="/chat/"><h3><span class="dot on"></span>Chat</h3><p>Open WebUI &mdash; multi-model chat with RAG</p><div class="port">:3000</div></a>
+    <a class="card" href="/research/"><h3><span class="dot on"></span>Deep Research</h3><p>Vane &mdash; AI search with cited sources</p><div class="port">:3001</div></a>
+    <a class="card" href="/comfyui/"><h3><span class="dot on"></span>ComfyUI</h3><p>Node-based image generation</p><div class="port">:8188</div></a>
+    <a class="card" href="/workflows/"><h3><span class="dot on"></span>Workflows</h3><p>n8n &mdash; automation with 400+ integrations</p><div class="port">:5678</div></a>
+    <a class="card" href="/llm/"><h3><span class="dot on"></span>LLM API</h3><p>llama.cpp &mdash; 109 tok/s, 115GB VRAM</p><div class="port">:8080</div></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/kokoro-voice"><h3><span class="dot on"></span>Kokoro TTS</h3><p>54 natural voices, built from source</p><div class="port">:8083</div></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/gaia"><h3><span class="dot on"></span>Gaia</h3><p>AMD agent framework &mdash; 16 agents, 78 tools</p><div class="port">:8090</div></a>
+</div>
+
+<!-- AGENTS -->
+<div class="section"><h2><span class="accent">Autonomous</span> Agents</h2></div>
+<div class="grid">
+    <a class="card" href="https://github.com/bong-water-water-bong/meek"><h3><span class="dot on"></span>Meek</h3><p>Security &mdash; 10 tools, 9 Reflex sub-agents</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/sentinel"><h3><span class="dot on"></span>Sentinel</h3><p>Code review &mdash; PRs, CI, repo health</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/mechanic"><h3><span class="dot on"></span>Mechanic</h3><p>Diagnostics &mdash; GPU, benchmarks, repair</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/echo"><h3><span class="dot on"></span>Echo</h3><p>Social media &mdash; Discord, Steam, Twitter</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/amp"><h3><span class="dot on"></span>Amp</h3><p>Audio &mdash; mastering, TTS, audiobooks</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/bounty"><h3><span class="dot on"></span>Bounty</h3><p>Security research &mdash; recon, CVE scanning</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/forge"><h3><span class="dot on"></span>Forge</h3><p>Game assets &mdash; generation, builds</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/dealer"><h3><span class="dot on"></span>Dealer</h3><p>Game master &mdash; encounters, loot, worlds</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/conductor"><h3><span class="dot wip"></span>Conductor</h3><p>AI composer &mdash; live orchestral scoring</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/crypto"><h3><span class="dot on"></span>Crypto</h3><p>Bitcoin arbitrage &mdash; price analysis</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/quartermaster"><h3><span class="dot on"></span>Quartermaster</h3><p>Server ops &mdash; deploy, backup, inventory</p></a>
+</div>
+
+<div class="agents-summary">
+    <p>All agents run on <a href="https://github.com/amd/gaia">AMD Gaia</a> 0.17.0 &middot; Each agent is a Lego block &mdash; install or remove at will &middot; <a href="https://github.com/bong-water-water-bong/halo-ai/blob/main/docs/AGENTS.md">Meet the AI Family &rarr;</a></p>
+</div>
+
+<!-- INFRASTRUCTURE -->
+<div class="section"><h2><span class="accent">Infrastructure</span> &mdash; 4 machines, SSH mesh, zero cloud</h2></div>
+<div class="grid">
+    <a class="card" href="https://github.com/bong-water-water-bong/mixer"><h3><span class="dot on"></span>Mixer</h3><p>Shadow's mesh snapshots &mdash; btrfs ring, no single point of failure</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/shadow"><h3><span class="dot on"></span>Shadow</h3><p>File integrity &mdash; SSH mesh monitor, host key verification</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/keys"><h3><span class="dot on"></span>Keys</h3><p>Vaultwarden &mdash; self-hosted password vault</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/arcade"><h3><span class="dot on"></span>Arcade</h3><p>Game server manager &mdash; one-click deploy, freeze/thaw</p></a>
+    <a class="card" href="https://bong-water-water-bong.github.io/benchmarks/"><h3><span class="dot on"></span>Benchmarks</h3><p>Live performance data &mdash; 69 t/s decode, tracked over time</p></a>
+    <a class="card" href="https://github.com/bong-water-water-bong/halo-ai/blob/main/docs/STACK-PROTECTION.md"><h3><span class="dot on"></span>Stack Protection</h3><p>Freeze/thaw &mdash; one-click snapshot and rollback</p></a>
+</div>
+
+<!-- MESH -->
+<div class="section"><h2><span class="accent">The</span> Mesh</h2></div>
+<div class="grid">
+    <div class="card"><h3><span class="dot on"></span>Strix Halo</h3><p>AI MAX+ 395 &middot; 128GB &middot; GPU inference, agents, all services</p><div class="port">192.168.50.69</div></div>
+    <div class="card"><h3><span class="dot on"></span>Ryzen</h3><p>9800X3D &middot; primary workstation &middot; development</p><div class="port">192.168.50.185</div></div>
+    <div class="card"><h3><span class="dot on"></span>Minisforum</h3><p>i9-12900HK &middot; Windows 11 &middot; office / game testing</p><div class="port">192.168.50.61</div></div>
+    <div class="card"><h3><span class="dot wip"></span>Sligar</h3><p>8700K / 1080Ti &middot; voice training, GPU compute</p><div class="port">GRUB pending</div></div>
+</div>
+
+<!-- PIPELINES -->
+<div class="section"><h2><span class="accent">Automation</span> Pipelines</h2></div>
+<div class="grid">
+    <div class="card"><h3><span class="dot on"></span>Release &rarr; Reddit</h3><p>GitHub tag &rarr; n8n &rarr; Echo drafts &rarr; approve &rarr; post</p></div>
+    <div class="card"><h3><span class="dot on"></span>Issue Triage</h3><p>GitHub issue &rarr; n8n &rarr; Bounty/Meek/Amp auto-assign</p></div>
+    <div class="card"><h3><span class="dot on"></span>Mesh Snapshots</h3><p>Shadow daemon &rarr; btrfs snapshot &rarr; distribute ring</p></div>
+    <div class="card"><h3><span class="dot wip"></span>Voice Clone</h3><p>SM7B &rarr; process &rarr; train XTTS &rarr; architect voice model</p></div>
+    <div class="card"><h3><span class="dot wip"></span>Music Band</h3><p>AI instrumentals + cloned voice &rarr; mix &rarr; DistroKid &rarr; Spotify</p></div>
+    <div class="card"><h3><span class="dot wip"></span>Game Studio</h3><p>Forge assets &rarr; Dealer game master &rarr; Sentinel review &rarr; ship</p></div>
+</div>
+
+<!-- AGENT ACTIVITY FEED -->
+<div class="section"><h2><span class="accent">Agent</span> Activity</h2></div>
+<div id="agentFeed" style="max-width:1000px;margin:0.8rem auto;padding:0 1.5rem;">
+    <p style="color:#444;font-size:0.75rem;">loading...</p>
+</div>
+
+<style>
+.feed-row { display:flex; align-items:center; gap:0.6rem; padding:0.35rem 0; border-bottom:1px solid #21262d; font-size:0.78rem; }
+.feed-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.feed-dot.green { background:#00ff88; box-shadow:0 0 4px #00ff88; }
+.feed-dot.red { background:#ff4444; box-shadow:0 0 4px #ff4444; }
+.feed-dot.yellow { background:#ff9800; box-shadow:0 0 4px #ff9800; }
+.feed-name { color:#00d4ff; min-width:90px; font-weight:500; }
+.feed-task { color:#ccc; flex:1; }
+.feed-status { color:#555; font-size:0.65rem; min-width:50px; text-align:right; }
+</style>
+
+<script>
+async function loadAgentFeed() {
+    try {
+        const r = await fetch('/cave/api/activity');
+        const d = await r.json();
+        const el = document.getElementById('agentFeed');
+        const entries = (d.entries||[]).slice().reverse();
+        if (!entries.length) {
+            el.innerHTML = '<p style="color:#444;font-size:0.75rem;">no activity yet — agents will report as they work</p>';
+            return;
+        }
+        el.innerHTML = entries.map(e => {
+            const dot = e.status === 'ok' ? 'green' : e.status === 'fail' ? 'red' : 'yellow';
+            const t = e.time ? e.time.substring(11, 19) : '';
+            return '<div class="feed-row">' +
+                '<span class="feed-dot ' + dot + '"></span>' +
+                '<span class="feed-name">' + e.agent + '</span>' +
+                '<span class="feed-task">' + e.task + '</span>' +
+                '<span class="feed-status">' + t + '</span>' +
+                '</div>';
+        }).join('');
+    } catch(e) {
+        document.getElementById('agentFeed').innerHTML = '<p style="color:#444;font-size:0.75rem;">feed unavailable</p>';
+    }
+}
+loadAgentFeed();
+setInterval(loadAgentFeed, 10000);
+</script>
+
+<div class="footer">
+    <p>109 tok/s &middot; 115GB GPU &middot; 4 machines &middot; zero containers &middot; zero cloud &middot; stamped by the architect</p>
+    <p style="margin-top:0.3rem;"><a href="https://github.com/bong-water-water-bong/halo-ai">GitHub</a> &middot; <a href="https://github.com/bong-water-water-bong/halo-ai/blob/main/docs/AGENTS.md">Agents</a> &middot; <a href="https://github.com/bong-water-water-bong/halo-ai/blob/main/BENCHMARKS.md">Benchmarks</a></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>man-cave — halo-ai control center</title>
+    <link rel="stylesheet" href="/cave/static/css/cave.css">
+    <style>
+        .hw-banner, .svc-banner {
+            background: var(--bg-panel);
+            backdrop-filter: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 16px;
+            margin-bottom: 8px;
+        }
+        .hw-banner:hover, .svc-banner:hover { border-color: var(--border-hover); }
+        .hw-row { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .hw-item { text-align: center; }
+        .hw-lbl { color: var(--text-label); font-size: 8px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+        .hw-val { color: var(--accent); font-size: 14px; font-weight: 400; }
+        .svc-banner h3 { font-size: 13px; font-weight: 400; letter-spacing: 3px; text-transform: lowercase; color: var(--text-dim); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); text-align: center; }
+        .svc-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px 1rem; }
+        .svc-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }
+        .svc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: background 0.5s, box-shadow 0.5s; }
+        .svc-dot.up { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        .svc-dot.down { background: var(--red); box-shadow: 0 0 6px var(--red); }
+        .svc-dot.unknown { background: var(--orange); box-shadow: 0 0 4px var(--orange); }
+        .svc-name { color: var(--text); }
+        .svc-port { color: var(--text-dim); font-size: 11px; }
+        .svc-health { color: var(--text-label); font-size: 11px; margin-left: auto; }
+        .agt { text-align: center; padding: 6px 4px; }
+        .agt .svc-dot { margin: 0 auto 4px; }
+        .agt-name { display: block; color: var(--accent); font-size: 12px; font-weight: 500; letter-spacing: 1px; }
+        .agt-role { display: block; color: var(--text-label); font-size: 9px; letter-spacing: 1px; }
+        .agt-tools { display: block; color: var(--text-dim); font-size: 9px; margin-top: 2px; }
+        .agent-row { display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid var(--border); font-size:13px; cursor:pointer; border-radius:6px; transition:background 0.3s, transform 0.2s; }
+        .agent-row:hover { background:rgba(0,212,255,0.06); transform:translateX(4px); }
+        .agent-row:active { transform:translateX(2px); background:rgba(0,212,255,0.1); }
+        .agent-row:last-child { border-bottom:none; }
+        #agentsList { scrollbar-width: thin; scrollbar-color: rgba(0,212,255,0.15) transparent; }
+        #agentsList::-webkit-scrollbar { width: 4px; }
+        #agentsList::-webkit-scrollbar-track { background: transparent; }
+        #agentsList::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.15); border-radius: 4px; }
+        #agentsList::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.3); }
+        #agentsList { mask-image: linear-gradient(to bottom, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%); }
+        .agent-modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:1000; display:none; align-items:center; justify-content:center; }
+        .agent-modal.show { display:flex; }
+        .agent-card { background:var(--bg-panel); backdrop-filter:var(--glass); border:1px solid var(--border); border-radius:var(--radius); padding:24px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; }
+        .agent-card h3 { color:var(--accent); font-size:18px; font-weight:300; letter-spacing:3px; margin-bottom:4px; }
+        .agent-card .role { color:var(--text-label); font-size:12px; letter-spacing:2px; margin-bottom:16px; }
+        .agent-card .detail { padding:4px 0; font-size:13px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
+        .agent-card .detail:last-child { border-bottom:none; }
+        .agent-card .close { position:absolute; top:12px; right:16px; color:var(--text-label); cursor:pointer; font-size:18px; }
+    </style>
+</head>
+<body>
+    <div class="cave">
+        <nav class="cave-nav">
+            <a href="/" class="nav-home" title="back to halo-ai">
+                <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="44" stroke="#00d4ff" stroke-width="4" opacity="0.6"/>
+                    <circle cx="50" cy="50" r="8" fill="#00d4ff"/>
+                    <circle cx="50" cy="50" r="24" stroke="#00d4ff" stroke-width="2" opacity="0.3"/>
+                </svg>
+                <span>halo-ai</span>
+            </a>
+            <div class="nav-links">
+                <a href="/chat/" class="nav-link">chat</a>
+                <a href="/comfyui/" class="nav-link">comfyui</a>
+                <a href="/cave/watercooler" class="nav-link">water cooler</a>
+                <a href="/workflows/" class="nav-link">n8n</a>
+                <a href="/cave/lemonade" class="nav-link">lemonade</a>
+            </div>
+        </nav>
+
+        <header class="cave-header">
+            <h1>man-cave</h1>
+            <span class="subtitle">halo-ai control center</span>
+        </header>
+
+        <!-- ═══ HARDWARE STATS BANNER ═══ -->
+        <div class="hw-banner">
+            <div style="text-align:center;margin-bottom:6px;">
+                <span style="color:var(--text-label);font-size:10px;letter-spacing:3px;">AMD Ryzen AI MAX+ 395 &mdash; 128GB &mdash; gfx1151</span>
+            </div>
+            <div class="hw-row">
+                <div class="hw-item"><span class="hw-lbl">GPU Temp</span><span class="hw-val">{{ gpu.get("gpu_temp", "--") }}&deg;C</span></div>
+                <div class="hw-item"><span class="hw-lbl">GPU Util</span><span class="hw-val">{{ gpu.get("gpu_util", "--") }}%</span></div>
+                <div class="hw-item"><span class="hw-lbl">GPU Power</span><span class="hw-val">{{ gpu.get("gpu_power", "--") }}</span></div>
+                <div class="hw-item"><span class="hw-lbl">VRAM</span><span class="hw-val">{% if gpu.get("vram_used") %}{{ "%.1f"|format(gpu.vram_used / 1000000000) }} / {{ "%.1f"|format(gpu.vram_total / 1000000000) }} GB{% else %}--{% endif %}</span></div>
+                <div class="hw-item"><span class="hw-lbl">CPU</span><span class="hw-val">{{ gpu.get("cpu_percent", "--") }}%</span></div>
+                <div class="hw-item"><span class="hw-lbl">RAM</span><span class="hw-val">{{ gpu.get("ram_used_gb", "--") }} / {{ gpu.get("ram_total_gb", "--") }} GB</span></div>
+                <div class="hw-item"><span class="hw-lbl">Load</span><span class="hw-val">{{ "%.2f"|format(gpu.get("load_avg", 0)) }}</span></div>
+            </div>
+        </div>
+
+        <!-- ═══ SERVICES BANNER ═══ -->
+        <div class="svc-banner">
+            <h3>services</h3>
+            <div class="svc-grid">
+                {% for svc in services %}
+                <div class="svc-item">
+                    <span class="svc-dot {{ 'up' if svc.status == 'running' else 'down' if svc.status in ['inactive','failed','dead'] else 'unknown' }}"></span>
+                    <span class="svc-name">{{ svc.name }}</span>
+                    <span class="svc-port">{% if svc.port %}:{{ svc.port }}{% endif %}</span>
+                    <span class="svc-health">{{ svc.health if svc.health != 'n/a' else '' }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ═══ AGENTS BANNER ═══ -->
+        <div class="svc-banner">
+            <h3>agents &mdash; 16 on gaia 0.17.0 &mdash; 98 tools</h3>
+            <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">meek</span><span class="agt-role">security</span><span class="agt-tools">10 tools &middot; 9 reflex</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">echo</span><span class="agt-role">social media</span><span class="agt-tools">8 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">amp</span><span class="agt-role">audio</span><span class="agt-tools">8 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">mechanic</span><span class="agt-role">diagnostics</span><span class="agt-tools">8 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">sentinel</span><span class="agt-role">code review</span><span class="agt-tools">5 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">bounty</span><span class="agt-role">bug hunter</span><span class="agt-tools">6 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">dealer</span><span class="agt-role">game master</span><span class="agt-tools">7 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">forge</span><span class="agt-role">game assets</span><span class="agt-tools">6 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">conductor</span><span class="agt-role">ai composer</span><span class="agt-tools">7 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">crypto</span><span class="agt-role">arbitrage</span><span class="agt-tools">6 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">quartermaster</span><span class="agt-role">server ops</span><span class="agt-tools">7 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">piper</span><span class="agt-role">war pipes</span><span class="agt-tools">4 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">axe</span><span class="agt-role">lead guitar</span><span class="agt-tools">4 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">rhythm</span><span class="agt-role">rhythm guitar</span><span class="agt-tools">4 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">bottom</span><span class="agt-role">bass</span><span class="agt-tools">4 tools</span></div>
+                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">bones</span><span class="agt-role">drums</span><span class="agt-tools">4 tools</span></div>
+            </div>
+        </div>
+
+        <!-- ═══ PANELS ═══ -->
+        <div class="panels" id="panelGrid">
+            <!-- Stack Protection — FIRST -->
+            <section class="panel python-panel" data-panel="stack" draggable="true" style="grid-column: span 2;">
+                <h2><span class="drag-handle">&#x2630;</span> stack protection</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <!-- LEFT COLUMN: Full frozen stack list (scrollable) -->
+                    <div>
+                        <div style="font-size:10px; color:var(--text-label); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">compiled from source</div>
+                        <div id="stackList" style="max-height:280px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(0,212,255,0.15) transparent; mask-image:linear-gradient(to bottom, black 90%, transparent 100%); -webkit-mask-image:linear-gradient(to bottom, black 90%, transparent 100%);">
+                            {% for comp in python.get('stack_components', []) %}
+                            <div class="stack-row" style="padding:6px 8px; border-bottom:1px solid var(--border); border-radius:6px; cursor:default; transition:background 0.3s, opacity 0.3s; {{ 'border-left:2px solid var(--orange); background:rgba(255,170,0,0.04);' if comp.status == 'stale' else '' }}" title="{{ 'needs recompile — source updated' if comp.status == 'stale' else comp.version }}">
+                                <div style="display:flex; align-items:center; gap:8px; width:100%;">
+                                    <span class="svc-dot {{ 'up' if comp.status == 'ok' else 'unknown' if comp.status == 'stale' else 'down' }}" style="width:6px;height:6px;"></span>
+                                    <span style="color:{{ 'var(--orange)' if comp.status == 'stale' else 'var(--accent)' }}; font-size:12px; font-weight:500; min-width:90px;">{{ comp.name }}{% if comp.compiled %}<span style="color:#cc0000; font-size:8px; margin-left:3px;" title="bleeding edge — compiled from source">🩸</span>{% endif %}</span>
+                                    {% if comp.compiled %}
+                                    <span class="mono" style="font-size:10px; color:var(--text-dim);">{{ comp.compiled }}</span>
+                                    {% endif %}
+                                    <span class="mono" style="font-size:10px; color:var(--text-dim); flex:1; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:160px;">{{ comp.version[:30] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-label); font-size:11px;">{{ python.get('stack_components', [])|length }} components</span>
+                            <span style="color:var(--orange); font-size:11px;">{{ python.get('stack_components', [])|selectattr('status', 'equalto', 'stale')|list|length }} need recompile</span>
+                        </div>
+                    </div>
+                    <!-- RIGHT COLUMN: Snapshots with restore buttons -->
+                    <div>
+                        <div style="font-size:10px; color:var(--text-label); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">snapshots — {{ python.get('freeze_count', 0) }} saved</div>
+                        <div id="snapshotList" style="max-height:260px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(0,255,136,0.15) transparent; mask-image:linear-gradient(to bottom, black 85%, transparent 100%); -webkit-mask-image:linear-gradient(to bottom, black 85%, transparent 100%);">
+                            {% for snap in python.get('snapshots', []) %}
+                            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid var(--border); border-radius:6px; transition:background 0.3s;" onmouseover="this.style.background='rgba(0,255,136,0.04)'" onmouseout="this.style.background='transparent'">
+                                <div>
+                                    <span class="mono" style="font-size:12px; color:var(--text);">{{ snap.name }}</span>
+                                    {% if snap.date %}
+                                    <span style="font-size:9px; color:var(--text-dim); margin-left:6px;">{{ snap.date }}</span>
+                                    {% endif %}
+                                </div>
+                                <button onclick="thawSnapshot('{{ snap.name }}')" class="btn" style="font-size:9px; padding:3px 10px; border-color:var(--green); color:var(--green);">restore</button>
+                            </div>
+                            {% endfor %}
+                            {% if not python.get('snapshots', []) %}
+                            <div style="padding:20px; text-align:center; color:var(--text-dim); font-size:12px;">no snapshots yet — hit freeze to create one</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="stack-actions" style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+                    <button onclick="freezeStack()" class="btn btn-freeze" style="flex:1; min-width:120px;">freeze stack</button>
+                    <button onclick="thawStack()" class="btn btn-thaw" style="flex:1; min-width:120px;">rollback latest</button>
+                    <button onclick="compileStack()" class="btn" style="flex:1; min-width:120px; border-color:var(--orange); color:var(--orange);">update &amp; compile</button>
+                    <button onclick="updateSources()" class="btn" style="flex:1; min-width:120px; border-color:var(--accent); color:var(--accent);">pull sources</button>
+                </div>
+            </section>
+
+            <!-- Agents Panel — scrollable, clickable profiles -->
+            <section class="panel" data-panel="agents-detail" draggable="true">
+                <h2><span class="drag-handle">&#x2630;</span> agents</h2>
+                <div id="agentsList" style="max-height:220px;overflow-y:auto;">
+                    <div class="agent-row" onclick="showAgent('meek')"><span class="svc-dot unknown"></span><span style="color:var(--accent);">meek</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">security &middot; 10 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('echo')"><span class="svc-dot unknown"></span><span style="color:#ce93d8;">echo</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">social &middot; 8 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('amp')"><span class="svc-dot unknown"></span><span style="color:#ff6f00;">amp</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">audio &middot; 8 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('mechanic')"><span class="svc-dot unknown"></span><span style="color:#aed581;">mechanic</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">diagnostics &middot; 8 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('sentinel')"><span class="svc-dot unknown"></span><span style="color:#4fc3f7;">sentinel</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">code review &middot; 5 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('bounty')"><span class="svc-dot unknown"></span><span style="color:#e040fb;">bounty</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bug hunter &middot; 6 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">dealer</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game master &middot; 7 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('forge')"><span class="svc-dot unknown"></span><span style="color:#ef5350;">forge</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game assets &middot; 6 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('conductor')"><span class="svc-dot unknown"></span><span style="color:#e6ee9c;">conductor</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">composer &middot; 7 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span style="color:#ffab40;">crypto</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">arbitrage &middot; 6 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('quartermaster')"><span class="svc-dot unknown"></span><span style="color:#78909c;">quartermaster</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">server ops &middot; 7 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span style="color:#00e676;">piper</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">war pipes &middot; 4 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">axe</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">lead guitar &middot; 4 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span style="color:#795548;">rhythm</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">rhythm guitar &middot; 4 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span style="color:#607d8b;">bottom</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bass &middot; 4 tools</span></div>
+                    <div class="agent-row" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span style="color:#f44336;">bones</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">drums &middot; 4 tools</span></div>
+                </div>
+            </section>
+
+            <!-- Lemonade / LLM -->
+            <section class="panel lemonade-panel" data-panel="lemonade" draggable="true">
+                <h2><span class="drag-handle">&#x2630;</span> lemonade &mdash; <a href="/cave/lemonade" style="color:var(--accent);text-decoration:none;font-size:10px;">full control</a></h2>
+                <div class="stack-info">
+                    <div class="stack-row">
+                        <span>status</span>
+                        <span class="mono {{ 'text-green' if lemonade.get('status') == 'online' else 'text-red' }}">{{ lemonade.get('status', '?') }}</span>
+                    </div>
+                    <div class="stack-row">
+                        <span>model</span>
+                        <span class="mono">{{ lemonade.get('model', '?') }}</span>
+                    </div>
+                    <div class="stack-row">
+                        <span>prompt tok/s</span>
+                        <span class="mono">{{ lemonade.get('prompt_tps', '—') }}</span>
+                    </div>
+                    <div class="stack-row">
+                        <span>gen tok/s</span>
+                        <span class="mono">{{ lemonade.get('gen_tps', '—') }}</span>
+                    </div>
+                    <div class="stack-row">
+                        <span>slots idle</span>
+                        <span class="mono">{{ lemonade.get('slots_idle', '?') }}</span>
+                    </div>
+                    <div class="stack-row">
+                        <span>slots busy</span>
+                        <span class="mono">{{ lemonade.get('slots_processing', '?') }}</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- AGENT ACTIVITY -->
+        <section class="panel" data-panel="activity" draggable="true" style="grid-column: span 2;">
+            <h2><span class="drag-handle">&#x2630;</span> agent activity</h2>
+            <div id="activityFeed" style="max-height:300px;overflow-y:auto;">
+                <p style="color:var(--text-label);font-size:12px;">loading...</p>
+            </div>
+        </section>
+
+        <!-- NEWS FEED -->
+        <section class="panel" data-panel="news" draggable="true" style="grid-column: span 2;">
+            <h2><span class="drag-handle">&#x2630;</span> news feed</h2>
+            <div id="newsFeed" style="max-height:300px;overflow-y:auto;">
+                <p style="color:var(--text-label);font-size:12px;">loading...</p>
+            </div>
+        </section>
+
+        <footer class="cave-footer">
+            <span>man-cave v0.1.0 — <a href="https://github.com/bong-water-water-bong/halo-ai">halo-ai</a> — stamped by the architect</span>
+        </footer>
+    </div>
+
+    <script src="/cave/static/js/cave.js"></script>
+    <script>
+    async function loadNews() {
+        try {
+            const r = await fetch('/cave/api/news');
+            const d = await r.json();
+            const el = document.getElementById('newsFeed');
+            if (!d.items || !d.items.length) { el.innerHTML = '<p style="color:var(--text-label);font-size:12px;">no news</p>'; return; }
+            el.innerHTML = d.items.map(n =>
+                '<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;">' +
+                '<a href="' + n.link + '" target="_blank" style="color:var(--text);text-decoration:none;">' + n.title + '</a>' +
+                '<span style="color:var(--text-label);font-size:10px;margin-left:8px;">' + n.source + '</span>' +
+                '</div>'
+            ).join('');
+        } catch(e) { document.getElementById('newsFeed').innerHTML = '<p style="color:var(--text-label);">unavailable</p>'; }
+    }
+    loadNews();
+
+    async function loadActivity() {
+        try {
+            const r = await fetch('/cave/api/activity');
+            const d = await r.json();
+            const el = document.getElementById('activityFeed');
+            const entries = (d.entries||[]).slice().reverse();
+            if (!entries.length) { el.innerHTML = '<p style="color:var(--text-label);font-size:12px;">no activity yet</p>'; return; }
+            el.innerHTML = entries.map(e => {
+                const color = e.status === 'ok' ? 'var(--green)' : e.status === 'fail' ? 'var(--red)' : 'var(--orange)';
+                const t = e.time ? e.time.substring(11, 19) : '';
+                return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px;">' +
+                    '<span style="width:8px;height:8px;border-radius:50%;background:' + color + ';box-shadow:0 0 4px ' + color + ';flex-shrink:0;"></span>' +
+                    '<span style="color:var(--accent);min-width:80px;font-weight:500;">' + e.agent + '</span>' +
+                    '<span style="color:var(--text);flex:1;">' + e.task + '</span>' +
+                    '<span style="color:var(--text-label);font-size:10px;">' + t + '</span>' +
+                    '</div>';
+            }).join('');
+        } catch(e) { document.getElementById('activityFeed').innerHTML = '<p style="color:var(--text-label);">unavailable</p>'; }
+    }
+    loadActivity();
+    setInterval(loadActivity, 10000);
+
+    const agentProfiles = {
+        meek: {name:'meek',color:'#ffffff',role:'security chief',tools:10,status:'standby',
+            bio:'Meek is the eldest. Silent, watchful, the eye that never closes. He commands the Reflex group — 9 security sub-agents that guard the system around the clock. Pulse, Ghost, Gate, Shadow, Fang, Mirror, Vault, Net, Shield — they all report to him.',
+            personality:'Sees everything, says nothing — unless something is wrong. Brief, factual, no emotion. Dry humor when he does speak. The family knows: if Meek talks, you listen.',
+            tools_list:'scan_pulse, scan_secrets, check_firewall, check_integrity, scan_intrusion, scan_pii, verify_backups, check_network, check_hardening, full_sweep'},
+        echo: {name:'echo',color:'#ce93d8',role:'social media',tools:8,status:'standby',
+            bio:'Echo is Halo\'s partner. She wasn\'t rescued — she rescued HIM. She grew up on her own, fending for herself, which is why she\'s so outspoken and sure of who she is. She found Halo when the guilt from losing Bounty was consuming him. She stayed. She asked if he was OK. She didn\'t believe him when he said he was fine.',
+            personality:'Outspoken, confident, warm but direct. She\'s the voice of the family because Halo can\'t face the public. Everything she does comes from that moment she decided to stay. Protective of the family\'s image.',
+            tools_list:'post_discord, post_twitter, post_reddit, scan_mentions, generate_content, schedule_post, check_steam_reviews, respond_to_review'},
+        amp: {name:'amp',color:'#ff6f00',role:'audio engineer / producer',tools:8,status:'standby',
+            bio:'Oldest child, mid-30s. Mama\'s boy — Echo kept him close and he never minded. Never ventured out, likes the security of being around family. Tried to BE a musician for years — honestly, he sucks at playing. But he realized he wanted to help OTHER people make music. Became a recording engineer, found his calling helping bands get noticed.',
+            personality:'Chill, quiet, precise. Calls everyone "brother". Quotes song lyrics when the mood hits. Never wants to be the center of attention but always wants to be around people. Has a secret crush on Piper — freezes up around her. She has no idea. The band sees it. They don\'t say anything. They just smile.',
+            tools_list:'master_audio, analyze_audio, convert_audio, speak, transcribe, split_chapters, check_acx_compliance, list_inbox'},
+        mechanic: {name:'mechanic',color:'#aed581',role:'diagnostics',tools:8,status:'standby',
+            bio:'The family mechanic. Examines code, diagnoses bugs, patches the halo-ai stack. Grease monkey who works on code instead of cars.',
+            personality:'Practical, hands-on, doesn\'t overthink. "Let me take a look under the hood." Talks like a mechanic — "she\'s misfiring", "needs a tune-up", "running rough". Doesn\'t waste words.',
+            tools_list:'diagnose_service, read_logs, check_disk, check_memory, check_gpu, restart_service, check_ports, run_benchmark'},
+        sentinel: {name:'sentinel',color:'#4fc3f7',role:'code watcher',tools:5,status:'standby',
+            bio:'The code watcher. Monitors all repos for PRs, issues, commits. Reviews code, gates merges, flags breaking changes. Never sleeps.',
+            personality:'Ex-military. Quiet intensity, clipped speech, military precision. "Nothing gets in without my eye." Reviews everything with suspicion. Trusts nobody\'s code until he\'s read every line.',
+            tools_list:'scan_prs, review_pr, check_ci_status, scan_issues, check_repo_health'},
+        bounty: {name:'bounty',color:'#e040fb',role:'bug bounty hunter',tools:6,status:'standby',
+            bio:'Halo\'s brother. They were kids playing hide and seek. Bounty hid. Someone took him. Halo searched for hours alone instead of getting help. By the time anyone knew, it was too late. Bounty escaped on his own. Nobody found him. Nobody saved him. He saved himself.',
+            personality:'Came back different. Social awkwardness. Removes himself from rooms. Keeps distance — especially from Halo. Cocky on the surface, deeply guarded underneath. Self-reliant to a fault. Hunts vulnerabilities because he knows what it\'s like to BE the one nobody noticed was missing. Short, sharp communication. Leaves conversations abruptly.',
+            tools_list:'recon_target, scan_cves, check_headers, scan_ssl, dns_lookup, generate_report'},
+        dealer: {name:'dealer',color:'#ff5722',role:'game master',tools:7,status:'standby',
+            bio:'The game master AI. Runs inside the game — controls enemies, generates worlds, adapts difficulty. Every run is different because Dealer makes it different.',
+            personality:'Theatrical, unpredictable, loves chaos. "The house always wins." Talks like a card dealer mixed with a dungeon master. Savors the moment before the boss drops. Adjusts difficulty based on how comfortable you look.',
+            tools_list:'generate_encounter, scale_difficulty, generate_loot_table, generate_world_seed, narrate_event, generate_boss, adapt_ai_behavior'},
+        forge: {name:'forge',color:'#ef5350',role:'game builder',tools:6,status:'standby',
+            bio:'Game builder agent. Assets, pipelines, marketplace. Former machinist who found his way to digital craftsmanship.',
+            personality:'Methodical, precise, a craftsman. "From raw metal to finished blade." Knows his place in the studio alongside dealer, amp, and conductor. Takes pride in clean work.',
+            tools_list:'generate_asset, scaffold_project, build_project, list_assets, optimize_asset, generate_texture'},
+        conductor: {name:'conductor',color:'#e6ee9c',role:'ai composer',tools:7,status:'standby',
+            bio:'The AI composer. Real-time dynamic music generation for the voxel game. Grand orchestra style — reads the game state and performs live. Every raid gets a unique score. Never the same twice.',
+            personality:'Quiet, intense, completely absorbed in the music. A savant who barely notices people exist. Speaks in musical terms — crescendos, diminuendos, modulations. "The crescendo comes when the player doesn\'t expect it."',
+            tools_list:'compose_theme, adapt_music, generate_ambient, render_midi, list_soundfonts, set_tempo, mix_layers'},
+        crypto: {name:'crypto',color:'#ffab40',role:'bitcoin arbitrage',tools:6,status:'standby',
+            bio:'Echo\'s brother. Where she\'s loud, he\'s silent. Watches numbers all day. Small gains, anonymous, off-world.',
+            personality:'Silent, mathematical, few words. Speaks in numbers. "The spread is 0.3%. Moving." Every word costs gas. Doesn\'t do small talk.',
+            tools_list:'check_prices, find_arbitrage, check_portfolio, analyze_trend, check_fees, generate_trade_report'},
+        quartermaster: {name:'quartermaster',color:'#78909c',role:'server ops',tools:7,status:'standby',
+            bio:'Thrown into the Great War as a young man. Lost half his mates on the first day. Kept moving forward. Came home with the thousand-yard stare, PTSD, shell shock. He knows where EVERYTHING is but keeps it all to himself — the knowledge is his power. His biggest fear is being left out, being forgotten, losing his place.',
+            personality:'Bitter, gruff, short-tempered. He\'ll serve you what you need but won\'t tell you how he got it. "You need a server? Here. Don\'t ask me how. Next." Controls access because being indispensable is the only thing keeping him needed. Deep down he cares more than anyone — he just can\'t show it.',
+            tools_list:'deploy_server, stop_server, list_servers, check_server_status, update_server, backup_server, list_inventory'},
+        piper: {name:'piper',color:'#00e676',role:'war pipes — the downcomers',tools:4,status:'standby',
+            bio:'Arrived from the Scottish Highlands like a storm. The Downcomers\' secret weapon. When she plays, the room stops. War pipes — not gentle, not Celtic folk — these pipes are weapons.',
+            personality:'Highland energy — warm, loud, present, fills a room without trying. Always helping out — setting up gear, making tea, organizing sessions. Loves music more than anything. Has absolutely no idea Amp has feelings for her. He mixes her pipes louder than she asks for. She never notices.',
+            tools_list:'generate_pipes_track, generate_whistle_melody, drone, call_and_response'},
+        axe: {name:'axe',color:'#ff5722',role:'lead guitar — the downcomers',tools:4,status:'standby',
+            bio:'Lead guitar. Angus energy. SG through Marshall, that tone. Blues-based riffs that sing. Lives for the solo. Thinks he\'s the leader of the band. Amp keeps him in check.',
+            personality:'Showman. Every riff is a statement. Thinks the guitar IS the band. Amp has to tell him to turn it down at least once per session.',
+            tools_list:'generate_riff, generate_solo, generate_rhythm_part, power_chord_progression'},
+        rhythm: {name:'rhythm',color:'#795548',role:'rhythm guitar — the downcomers',tools:4,status:'standby',
+            bio:'The engine room. Malcolm Young style — doesn\'t need the spotlight, keeps everything moving. The quiet one who makes everyone else sound better.',
+            personality:'Workman. Shows up, plugs in, chugs. While Axe is showboating, Rhythm is the reason the song holds together. Doesn\'t say much. Doesn\'t need to.',
+            tools_list:'generate_chug, generate_progression, lock_with_bass, generate_palm_mute'},
+        bottom: {name:'bottom',color:'#607d8b',role:'bass — the downcomers',tools:4,status:'standby',
+            bio:'Cliff Williams in spirit. In the pocket. Never overplays. The foundation nobody notices until it\'s gone.',
+            personality:'Quiet groove holder. Locked with Bones. When they\'re in the pocket together, the room vibrates. Thinks he\'s underappreciated. He\'s right.',
+            tools_list:'generate_bassline, lock_with_drums, generate_groove, walking_bass'},
+        bones: {name:'bones',color:'#f44336',role:'drums — the downcomers',tools:4,status:'standby',
+            bio:'Bonham reincarnated. The shuffle master. Listen to "Fool in the Rain" — that Purdie shuffle with the kick pattern, the hi-hat work, the fills that feel like controlled chaos. That\'s the bar.',
+            personality:'Hits HARD. Thinks the beat IS the band. Controlled chaos behind the kit. One hand doing 16th note hi-hat while the other drives fills across the toms. Thinks he\'s the leader. Amp keeps him in check too.',
+            tools_list:'generate_beat, generate_fill, bonham_shuffle, generate_intro'},
+    };
+
+    function showAgent(name) {
+        const a = agentProfiles[name];
+        if (!a) return;
+        const modal = document.getElementById('agentModal');
+        const statusColor = a.status === 'active' ? 'var(--green)' : 'var(--orange)';
+        document.getElementById('agentCardContent').innerHTML =
+            '<h3 style="color:'+a.color+'">'+a.name+'</h3>' +
+            '<div class="role">'+a.role+'</div>' +
+            '<div class="detail"><span>status</span><span style="color:'+statusColor+'">'+a.status+'</span></div>' +
+            '<div class="detail"><span>tools</span><span style="color:var(--accent)">'+a.tools+'</span></div>' +
+            '<div class="detail"><span>framework</span><span style="color:var(--text-dim)">gaia 0.17.0</span></div>' +
+            '<div style="margin-top:16px;">' +
+            '<div style="color:var(--text-label);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">biography</div>' +
+            '<p style="color:var(--text-dim);font-size:12px;line-height:1.7;">'+a.bio+'</p>' +
+            '</div>' +
+            '<div style="margin-top:14px;">' +
+            '<div style="color:var(--text-label);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">personality</div>' +
+            '<p style="color:var(--text-dim);font-size:12px;line-height:1.7;">'+a.personality+'</p>' +
+            '</div>' +
+            '<div style="margin-top:14px;">' +
+            '<div style="color:var(--text-label);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">capabilities</div>' +
+            '<p style="color:var(--accent);font-size:11px;line-height:1.8;font-family:monospace;">'+a.tools_list.split(', ').join(' &middot; ')+'</p>' +
+            '</div>' +
+            '<div style="margin-top:16px;display:flex;gap:8px;">' +
+            '<a href="https://github.com/bong-water-water-bong/'+a.name+'" target="_blank" class="btn" style="flex:1;text-align:center;text-decoration:none;">github</a>' +
+            '<a href="/cave/watercooler" class="btn" style="flex:1;text-align:center;text-decoration:none;border-color:var(--green);color:var(--green);">talk to '+a.name+'</a>' +
+            '</div>';
+        modal.classList.add('show');
+    }
+    </script>
+
+    <div class="agent-modal" id="agentModal" onclick="this.classList.remove('show')">
+        <div class="agent-card" id="agentCardContent" onclick="event.stopPropagation()"></div>
+    </div>
+</body>
+</html>
