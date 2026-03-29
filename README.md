@@ -84,12 +84,6 @@ Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](
   ComfyUI  Qdrant  SearXNG    <-- Tools
 ```
 
-<div align="center">
-<picture>
-  <img src="https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/assets/avatars/family.svg?v=5" alt="the ai family" width="720">
-</picture>
-</div>
-
 ## Docs
 
 | Guide | What it covers |
