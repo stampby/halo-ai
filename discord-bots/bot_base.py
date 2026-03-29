@@ -6,7 +6,6 @@ Each agent subclasses this with their persona and topic routing.
 
 import os
 import logging
-import asyncio
 from openai import AsyncOpenAI
 import discord
 from discord.ext import commands

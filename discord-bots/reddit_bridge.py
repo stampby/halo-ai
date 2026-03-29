@@ -11,7 +11,6 @@ import asyncio
 import logging
 import os
 import json
-import time
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -322,7 +321,7 @@ async def cli():
             print(f"  [{i}] r/{p['subreddit']} ({p['score']}↑) — {p['title'][:80]}")
             print(f"      match: '{p['keyword_match']}' | {p['num_comments']} comments")
         if posts:
-            print(f"\nDraft a reply? Run: python reddit_bridge.py draft-reply <index>")
+            print("\nDraft a reply? Run: python reddit_bridge.py draft-reply <index>")
 
     elif cmd == "draft-reply" and len(sys.argv) > 2:
         posts = bridge.scan_subreddits()
@@ -361,8 +360,8 @@ async def cli():
                     print(f"      {item['draft'][:100]}...")
                 elif item["type"] == "post":
                     print(f"  [{i}] POST to r/{item['subreddit']}: {item['title'][:80]}")
-            print(f"\nApprove: python reddit_bridge.py approve <n>")
-            print(f"Reject:  python reddit_bridge.py reject <n>")
+            print("\nApprove: python reddit_bridge.py approve <n>")
+            print("Reject:  python reddit_bridge.py reject <n>")
 
     elif cmd == "approve" and len(sys.argv) > 2:
         idx = int(sys.argv[2])

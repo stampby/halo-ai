@@ -15,7 +15,6 @@ import subprocess
 import json
 import time
 import logging
-import os
 import shlex
 import sys
 from pathlib import Path

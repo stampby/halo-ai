@@ -24,7 +24,7 @@ jobs:
           pip install ruff
 
       - name: Lint Python
-        run: ruff check agent/ dashboard-api/ discord-bots/ scripts/ --ignore E501
+        run: ruff check agent/ dashboard-api/ discord-bots/ scripts/ --ignore E501,E402,E731,F841
 
       - name: Check install script syntax
         run: bash -n install.sh

@@ -18,17 +18,12 @@ Usage:
 
 import asyncio
 import json
-import os
-import time
-import threading
 import httpx
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field, asdict
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import uvicorn
 
