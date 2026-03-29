@@ -18,17 +18,17 @@ All agents connect to llama-server (109 tok/s on Qwen3-30B-A3B) for reasoning. E
           |               |               |
          meek            amp          conductor
        (security)      (audio)       (composer)
-          |
-    Reflex Group (9)
-    pulse · ghost · gate
-    shadow · fang · mirror
-    vault · net · shield
-
+          |               |
+    Reflex Group (9)      |
+    pulse · ghost · gate  |
+    shadow · fang · mirror|
+    vault · net · shield  |
+                          |
                     Studio Agents
           sentinel · forge · dealer
          mechanic · interpreter · crypto
               quartermaster
-
+                          |
                     The Downcomers
             piper · axe · rhythm
                 bottom · bones
