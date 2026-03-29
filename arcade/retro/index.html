@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth C-137 Arcade — Retro Games</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.08);
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --accent: #ff6b35;
+            --accent-dim: rgba(255,107,53,0.15);
+            --neon-blue: #4fc3f7;
+            --neon-pink: #f06292;
+            --neon-green: #66bb6a;
+            --neon-yellow: #ffee58;
+            --glass: rgba(15,15,25,0.85);
+            --glass-border: rgba(255,255,255,0.1);
+            --radius: 12px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Scanline overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .header h1 .retro { color: var(--accent); text-shadow: 0 0 10px rgba(255,107,53,0.5); }
+        .header-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-dim);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .main { padding: 24px 32px; }
+
+        /* Console grid */
+        .console-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .console-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .console-card:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+        .console-card.active {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .console-icon { font-size: 32px; margin-bottom: 8px; }
+        .console-name { font-size: 12px; font-weight: 600; }
+        .console-count { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+        /* ROM list */
+        .rom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .rom-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .rom-card:hover {
+            border-color: var(--neon-blue);
+            background: rgba(79,195,247,0.08);
+        }
+        .rom-title { font-size: 14px; font-weight: 600; }
+        .rom-system { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+        /* Emulator container */
+        #emulator-container {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 500;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #emulator-container.active { display: flex; }
+        #emulator-frame {
+            width: 800px;
+            max-width: 90vw;
+            aspect-ratio: 4/3;
+            background: #000;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+        }
+        .emu-controls {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .count {
+            font-size: 12px;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 24px;
+        }
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-dim);
+            font-size: 11px;
+        }
+
+        /* Neon glow text */
+        .neon { text-shadow: 0 0 7px currentColor, 0 0 10px currentColor, 0 0 21px currentColor; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🕹️ <span class="retro">arcade</span> — retro games</h1>
+        <div class="header-nav">
+            <button class="nav-btn active" onclick="showView('library')">Library</button>
+            <button class="nav-btn" onclick="showView('upload')">Upload ROMs</button>
+            <a href="/" class="nav-btn">← Dashboard</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Console selector -->
+        <div class="section-title">Systems</div>
+        <div class="console-grid" id="consoleGrid"></div>
+
+        <!-- Upload zone (hidden by default) -->
+        <div id="uploadView" style="display:none;">
+            <div class="upload-zone" id="dropZone" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+                <div style="font-size:32px;margin-bottom:8px;">📁</div>
+                <div>Drop ROM files here or click to upload</div>
+                <div style="font-size:11px;margin-top:8px;">Supports: .nes .smc .sfc .bin .md .gba .gbc .gb .z64 .n64 .nds .iso .zip .7z</div>
+                <input type="file" id="fileInput" multiple style="display:none" onchange="handleFiles(this.files)">
+            </div>
+        </div>
+
+        <!-- ROM library -->
+        <div id="libraryView">
+            <div class="section-title">
+                Games <span class="count" id="romCount">0 ROMs loaded</span>
+            </div>
+            <div class="rom-grid" id="romGrid">
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-dim);">
+                    Drop ROM files to get started, or use the Upload tab.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emulator overlay -->
+    <div id="emulator-container">
+        <div id="emulator-frame"></div>
+        <div class="emu-controls">
+            <button class="nav-btn" onclick="closeEmulator()">✕ Close</button>
+            <button class="nav-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            <button class="nav-btn" onclick="saveState()">💾 Save</button>
+            <button class="nav-btn" onclick="loadState()">📂 Load</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Designed and built by the architect. &bull; Powered by EmulatorJS + RetroArch &bull; Earth C-137
+    </div>
+
+    <!-- EmulatorJS CDN -->
+    <script>
+        // System definitions
+        const SYSTEMS = [
+            { id: 'nes', name: 'NES', icon: '🎮', core: 'fceumm', ext: ['.nes','.zip'] },
+            { id: 'snes', name: 'SNES', icon: '🎮', core: 'snes9x', ext: ['.smc','.sfc','.zip'] },
+            { id: 'genesis', name: 'Genesis', icon: '🎮', core: 'genesis_plus_gx', ext: ['.bin','.md','.zip'] },
+            { id: 'gb', name: 'Game Boy', icon: '🟢', core: 'gambatte', ext: ['.gb','.zip'] },
+            { id: 'gbc', name: 'Game Boy Color', icon: '🟣', core: 'gambatte', ext: ['.gbc','.zip'] },
+            { id: 'gba', name: 'Game Boy Advance', icon: '🔵', core: 'mgba', ext: ['.gba','.zip'] },
+            { id: 'n64', name: 'Nintendo 64', icon: '🕹️', core: 'mupen64plus_next', ext: ['.z64','.n64','.v64','.zip'] },
+            { id: 'nds', name: 'Nintendo DS', icon: '📱', core: 'melonds', ext: ['.nds','.zip'] },
+            { id: 'psx', name: 'PlayStation', icon: '⚫', core: 'pcsx_rearmed', ext: ['.bin','.iso','.cue','.zip'] },
+            { id: 'arcade', name: 'Arcade', icon: '🕹️', core: 'fbneo', ext: ['.zip'] },
+            { id: 'neogeo', name: 'Neo Geo', icon: '🔴', core: 'fbneo', ext: ['.zip'] },
+            { id: 'sms', name: 'Master System', icon: '🎮', core: 'genesis_plus_gx', ext: ['.sms','.zip'] },
+            { id: 'gg', name: 'Game Gear', icon: '🟡', core: 'genesis_plus_gx', ext: ['.gg','.zip'] },
+            { id: 'atari2600', name: 'Atari 2600', icon: '🕹️', core: 'stella2014', ext: ['.a26','.bin','.zip'] },
+            { id: 'atari7800', name: 'Atari 7800', icon: '🕹️', core: 'prosystem', ext: ['.a78','.bin','.zip'] },
+            { id: 'tg16', name: 'TurboGrafx-16', icon: '🎮', core: 'mednafen_pce', ext: ['.pce','.zip'] },
+            { id: 'wonderswan', name: 'WonderSwan', icon: '📱', core: 'mednafen_wswan', ext: ['.ws','.wsc','.zip'] },
+        ];
+
+        let currentSystem = null;
+        let romDatabase = {}; // system_id -> [{name, blob, ext}]
+
+        function renderConsoles() {
+            document.getElementById('consoleGrid').innerHTML = SYSTEMS.map(s => {
+                const count = (romDatabase[s.id] || []).length;
+                return `
+                    <div class="console-card ${currentSystem === s.id ? 'active' : ''}"
+                         onclick="selectSystem('${s.id}')">
+                        <div class="console-icon">${s.icon}</div>
+                        <div class="console-name">${s.name}</div>
+                        <div class="console-count">${count} ROM${count !== 1 ? 's' : ''}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectSystem(id) {
+            currentSystem = currentSystem === id ? null : id;
+            renderConsoles();
+            renderRoms();
+        }
+
+        function renderRoms() {
+            const grid = document.getElementById('romGrid');
+            let roms = [];
+            let totalCount = 0;
+
+            if (currentSystem) {
+                roms = romDatabase[currentSystem] || [];
+                totalCount = roms.length;
+            } else {
+                for (const [sysId, sysRoms] of Object.entries(romDatabase)) {
+                    roms = roms.concat(sysRoms.map(r => ({...r, system: sysId})));
+                }
+                totalCount = roms.length;
+            }
+
+            document.getElementById('romCount').textContent = `${totalCount} ROM${totalCount !== 1 ? 's' : ''} loaded`;
+
+            if (!roms.length) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-dim);">No ROMs loaded for this system. Drop files to add games.</div>';
+                return;
+            }
+
+            grid.innerHTML = roms.map((r, i) => {
+                const sysName = SYSTEMS.find(s => s.id === (r.system || currentSystem))?.name || '';
+                return `
+                    <div class="rom-card" onclick="launchGame('${r.system || currentSystem}', ${i})">
+                        <div class="rom-title">${r.name}</div>
+                        <div class="rom-system">${sysName}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function detectSystem(filename) {
+            const ext = '.' + filename.split('.').pop().toLowerCase();
+            if (ext === '.zip') {
+                // Try to guess from name
+                return null; // User picks manually
+            }
+            for (const sys of SYSTEMS) {
+                if (sys.ext.includes(ext)) return sys.id;
+            }
+            return null;
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            handleFiles(event.dataTransfer.files);
+        }
+
+        function handleFiles(files) {
+            for (const file of files) {
+                const sysId = detectSystem(file.name);
+                if (sysId) {
+                    if (!romDatabase[sysId]) romDatabase[sysId] = [];
+                    const name = file.name.replace(/\.[^.]+$/, '').replace(/[\[\(].*/g, '').trim();
+                    romDatabase[sysId].push({ name, blob: file, ext: file.name.split('.').pop() });
+                }
+            }
+            renderConsoles();
+            renderRoms();
+        }
+
+        async function launchGame(systemId, romIndex) {
+            const sys = SYSTEMS.find(s => s.id === systemId);
+            const rom = romDatabase[systemId][romIndex];
+            if (!sys || !rom) return;
+
+            const container = document.getElementById('emulator-container');
+            const frame = document.getElementById('emulator-frame');
+            container.classList.add('active');
+
+            // Clear previous
+            frame.innerHTML = '<div id="game"></div>';
+
+            // Create EmulatorJS instance
+            const url = URL.createObjectURL(rom.blob);
+
+            // Load EmulatorJS
+            window.EJS_player = '#game';
+            window.EJS_core = sys.core;
+            window.EJS_gameUrl = url;
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+            window.EJS_color = '#ff6b35';
+            window.EJS_startOnLoaded = true;
+            window.EJS_oldCores = true;
+
+            // Remove old script if exists
+            const oldScript = document.getElementById('ejs-script');
+            if (oldScript) oldScript.remove();
+
+            const script = document.createElement('script');
+            script.id = 'ejs-script';
+            script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+            document.body.appendChild(script);
+        }
+
+        function closeEmulator() {
+            document.getElementById('emulator-container').classList.remove('active');
+            document.getElementById('emulator-frame').innerHTML = '';
+            // Clean up EmulatorJS globals
+            delete window.EJS_player;
+            delete window.EJS_core;
+            delete window.EJS_gameUrl;
+        }
+
+        function toggleFullscreen() {
+            const el = document.getElementById('emulator-frame');
+            if (el.requestFullscreen) el.requestFullscreen();
+        }
+
+        function saveState() {
+            // EmulatorJS handles save states internally
+            if (window.EJS_emulator) window.EJS_emulator.saveState();
+        }
+
+        function loadState() {
+            if (window.EJS_emulator) window.EJS_emulator.loadState();
+        }
+
+        function showView(view) {
+            document.getElementById('libraryView').style.display = view === 'library' ? 'block' : 'none';
+            document.getElementById('uploadView').style.display = view === 'upload' ? 'block' : 'none';
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Drop zone click
+        document.getElementById('dropZone').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        // Global drag and drop
+        document.addEventListener('dragover', e => e.preventDefault());
+        document.addEventListener('drop', e => { e.preventDefault(); handleFiles(e.dataTransfer.files); });
+
+        // Init
+        renderConsoles();
+        renderRoms();
+    </script>
+</body>
+</html>

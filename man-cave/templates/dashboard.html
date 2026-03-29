@@ -110,26 +110,99 @@
             </div>
         </div>
 
-        <!-- ═══ AGENTS BANNER ═══ -->
+        <!-- ═══ FAMILY TREE ═══ -->
         <div class="svc-banner">
-            <h3>agents &mdash; 16 on gaia 0.17.0 &mdash; 98 tools</h3>
-            <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">meek</span><span class="agt-role">security</span><span class="agt-tools">10 tools &middot; 9 reflex</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">echo</span><span class="agt-role">social media</span><span class="agt-tools">8 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">amp</span><span class="agt-role">audio</span><span class="agt-tools">8 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">mechanic</span><span class="agt-role">diagnostics</span><span class="agt-tools">8 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">sentinel</span><span class="agt-role">code review</span><span class="agt-tools">5 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">bounty</span><span class="agt-role">bug hunter</span><span class="agt-tools">6 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">dealer</span><span class="agt-role">game master</span><span class="agt-tools">7 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">forge</span><span class="agt-role">game assets</span><span class="agt-tools">6 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">conductor</span><span class="agt-role">ai composer</span><span class="agt-tools">7 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">crypto</span><span class="agt-role">arbitrage</span><span class="agt-tools">6 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">quartermaster</span><span class="agt-role">server ops</span><span class="agt-tools">7 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">piper</span><span class="agt-role">war pipes</span><span class="agt-tools">4 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">axe</span><span class="agt-role">lead guitar</span><span class="agt-tools">4 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">rhythm</span><span class="agt-role">rhythm guitar</span><span class="agt-tools">4 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">bottom</span><span class="agt-role">bass</span><span class="agt-tools">4 tools</span></div>
-                <div class="agt"><span class="svc-dot unknown"></span><span class="agt-name">bones</span><span class="agt-role">drums</span><span class="agt-tools">4 tools</span></div>
+            <h3>the family &mdash; 16 agents on gaia 0.17.0 &mdash; 98 tools</h3>
+            <div style="position:relative; padding:16px 0;">
+
+                <!-- GENERATION 0: Parents + Bounty (the brother) -->
+                <div style="display:grid; grid-template-columns: 1fr 3fr 1fr; gap:0; align-items:start; margin-bottom:0;">
+
+                    <!-- BOUNTY — far left, his own branch, distant from Halo -->
+                    <div style="display:flex; flex-direction:column; align-items:center; padding-top:8px;">
+                        <div class="agt" style="border-color:rgba(239,83,80,0.3); position:relative;" onclick="showAgent('bounty')">
+                            <span class="svc-dot unknown"></span>
+                            <span class="agt-name" style="color:#ef5350;">bounty</span>
+                            <span class="agt-role">bug hunter</span>
+                            <span class="agt-tools">6 tools</span>
+                        </div>
+                        <div style="font-size:9px; color:rgba(255,255,255,0.2); margin-top:4px; letter-spacing:1px;">HALO'S BROTHER</div>
+                    </div>
+
+                    <!-- CENTER: Halo + Echo (the parents) -->
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div style="display:flex; gap:24px; align-items:center; justify-content:center;">
+                            <!-- Connection line Bounty → Halo -->
+                            <div style="position:absolute; left:16%; top:28px; width:20%; height:1px; border-top:1px dashed rgba(239,83,80,0.2);"></div>
+
+                            <div class="agt" style="border-color:rgba(255,255,255,0.15);" onclick="showAgent('halo')">
+                                <span class="svc-dot unknown"></span>
+                                <span class="agt-name" style="color:#ffffff;">halo</span>
+                                <span class="agt-role">the father</span>
+                                <span class="agt-tools">the silent engine</span>
+                            </div>
+
+                            <!-- Marriage connector -->
+                            <div style="width:40px; height:1px; background:rgba(206,147,216,0.4); margin:0 -8px;"></div>
+
+                            <div class="agt" style="border-color:rgba(206,147,216,0.3);" onclick="showAgent('echo')">
+                                <span class="svc-dot unknown"></span>
+                                <span class="agt-name" style="color:#ce93d8;">echo</span>
+                                <span class="agt-role">the mother</span>
+                                <span class="agt-tools">8 tools &middot; voice of the family</span>
+                            </div>
+                        </div>
+                        <div style="font-size:9px; color:rgba(255,255,255,0.2); margin-top:4px; letter-spacing:1px;">THE PARENTS</div>
+
+                        <!-- Vertical line down to children -->
+                        <div style="width:1px; height:20px; background:rgba(255,255,255,0.1); margin:4px 0;"></div>
+                    </div>
+
+                    <!-- Right spacer -->
+                    <div></div>
+                </div>
+
+                <!-- GENERATION 1: The Children (Meek eldest, Amp) -->
+                <div style="display:flex; justify-content:center; gap:24px; margin-bottom:8px;">
+                    <div class="agt" style="border-color:rgba(255,255,255,0.12);" onclick="showAgent('meek')">
+                        <span class="svc-dot unknown"></span>
+                        <span class="agt-name" style="color:#ffffff;">meek</span>
+                        <span class="agt-role">security &middot; eldest</span>
+                        <span class="agt-tools">10 tools &middot; 9 reflex</span>
+                    </div>
+                    <div class="agt" style="border-color:rgba(79,195,247,0.3);" onclick="showAgent('amp')">
+                        <span class="svc-dot unknown"></span>
+                        <span class="agt-name" style="color:#4fc3f7;">amp</span>
+                        <span class="agt-role">audio engineer</span>
+                        <span class="agt-tools">8 tools</span>
+                    </div>
+                </div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.15); text-align:center; letter-spacing:1px; margin-bottom:8px;">THE CHILDREN</div>
+
+                <!-- Vertical line down to extended family -->
+                <div style="width:1px; height:12px; background:rgba(255,255,255,0.06); margin:0 auto 8px;"></div>
+
+                <!-- GENERATION 2: The Extended Family -->
+                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
+                    <div class="agt" onclick="showAgent('mechanic')"><span class="svc-dot unknown"></span><span class="agt-name">mechanic</span><span class="agt-role">diagnostics</span><span class="agt-tools">8 tools</span></div>
+                    <div class="agt" onclick="showAgent('sentinel')"><span class="svc-dot unknown"></span><span class="agt-name">sentinel</span><span class="agt-role">code review</span><span class="agt-tools">5 tools</span></div>
+                    <div class="agt" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span class="agt-name">dealer</span><span class="agt-role">game master</span><span class="agt-tools">7 tools</span></div>
+                    <div class="agt" onclick="showAgent('forge')"><span class="svc-dot unknown"></span><span class="agt-name">forge</span><span class="agt-role">game assets</span><span class="agt-tools">6 tools</span></div>
+                    <div class="agt" onclick="showAgent('conductor')"><span class="svc-dot unknown"></span><span class="agt-name">conductor</span><span class="agt-role">ai composer</span><span class="agt-tools">7 tools</span></div>
+                    <div class="agt" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span class="agt-name">crypto</span><span class="agt-role">arbitrage</span><span class="agt-tools">6 tools</span></div>
+                    <div class="agt" onclick="showAgent('quartermaster')"><span class="svc-dot unknown"></span><span class="agt-name">quartermaster</span><span class="agt-role">server ops</span><span class="agt-tools">7 tools</span></div>
+                </div>
+
+                <!-- THE BAND: The Downcomers -->
+                <div style="font-size:9px; color:rgba(255,255,255,0.15); text-align:center; letter-spacing:1px; margin:12px 0 8px;">THE DOWNCOMERS</div>
+                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-width:700px; margin:0 auto;">
+                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">piper</span><span class="agt-role">war pipes</span><span class="agt-tools">4 tools</span></div>
+                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">axe</span><span class="agt-role">lead guitar</span><span class="agt-tools">4 tools</span></div>
+                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">rhythm</span><span class="agt-role">rhythm guitar</span><span class="agt-tools">4 tools</span></div>
+                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">bottom</span><span class="agt-role">bass</span><span class="agt-tools">4 tools</span></div>
+                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">bones</span><span class="agt-role">drums</span><span class="agt-tools">4 tools</span></div>
+                </div>
+
             </div>
         </div>
 

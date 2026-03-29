@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth C-137 — Server Screensaver</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        :root {
+            --bg: #060610;
+            --text: rgba(255,255,255,0.85);
+            --text-dim: rgba(255,255,255,0.4);
+            --accent: #4fc3f7;
+            --green: #66bb6a;
+            --red: #ef5350;
+            --orange: #ffa726;
+            --glass: rgba(255,255,255,0.03);
+            --glass-border: rgba(255,255,255,0.06);
+            --glow: rgba(79,195,247,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,195,247,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,195,247,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridScroll 120s linear infinite;
+        }
+        @keyframes gridScroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float linear infinite;
+        }
+        @keyframes float {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+        }
+
+        /* Main layout */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            padding: 40px 60px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+        .title span { color: var(--accent); font-weight: 600; }
+        .clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+        .clock-date {
+            font-size: 14px;
+            color: var(--text-dim);
+            text-align: right;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* Server grid */
+        .servers {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 16px;
+            align-content: center;
+        }
+
+        .server-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s;
+        }
+        .server-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--green);
+            opacity: 0.8;
+            transition: background 0.5s;
+        }
+        .server-card.down::before { background: var(--red); }
+        .server-card.warn::before { background: var(--orange); }
+
+        .server-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .pulse.down { background: var(--red); box-shadow: 0 0 8px var(--red); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .server-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+        .server-port {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Activity bar — fake but beautiful */
+        .activity-bar {
+            height: 24px;
+            margin-top: 12px;
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+        }
+        .activity-bar .bar {
+            flex: 1;
+            background: var(--accent);
+            opacity: 0.3;
+            border-radius: 2px 2px 0 0;
+            animation: barPulse 3s ease-in-out infinite;
+        }
+        @keyframes barPulse {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Footer stats */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 40px;
+        }
+        .stats {
+            display: flex;
+            gap: 48px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+        .tagline {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        /* Network flow lines */
+        .network-lines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .flow-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            animation: flowLine 8s ease-in-out infinite;
+        }
+        @keyframes flowLine {
+            0% { opacity: 0; transform: translateX(-100%); }
+            20% { opacity: 0.3; }
+            80% { opacity: 0.3; }
+            100% { opacity: 0; transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="network-lines" id="networkLines"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="title"><span>earth c-137</span> — server cluster</div>
+            <div>
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="clock-date" id="clockDate"></div>
+            </div>
+        </div>
+
+        <div class="servers" id="servers"></div>
+
+        <div class="footer">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalServers">12</div>
+                    <div class="stat-label">Servers</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalActive">12</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalRAM">121</div>
+                    <div class="stat-label">GB RAM</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalCores">32</div>
+                    <div class="stat-label">Cores</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="uptime">0h</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+            <div class="tagline">designed and built by the architect</div>
+        </div>
+    </div>
+
+    <script>
+        // Server data — will be replaced by live API calls
+        const SERVERS = [
+            { name: "The Island", port: 7777, map: "TheIsland", status: "active" },
+            { name: "The Center", port: 7779, map: "TheCenter", status: "active" },
+            { name: "Scorched Earth", port: 7781, map: "ScorchedEarth", status: "active" },
+            { name: "Ragnarok", port: 7783, map: "Ragnarok", status: "active" },
+            { name: "Aberration", port: 7785, map: "Aberration", status: "active" },
+            { name: "Extinction", port: 7787, map: "Extinction", status: "active" },
+            { name: "Valguero", port: 7789, map: "Valguero", status: "active" },
+            { name: "Genesis 1", port: 7791, map: "Genesis", status: "active" },
+            { name: "Genesis 2", port: 7793, map: "Gen2", status: "active" },
+            { name: "Crystal Isles", port: 7795, map: "CrystalIsles", status: "active" },
+            { name: "Lost Island", port: 7797, map: "LostIsland", status: "active" },
+            { name: "Fjordur", port: 7799, map: "Fjordur", status: "active" },
+        ];
+
+        const DDNS = "1n1.freemyip.com";
+
+        function renderServers() {
+            const grid = document.getElementById('servers');
+            grid.innerHTML = SERVERS.map((s, i) => {
+                const bars = Array.from({length: 12}, (_, j) => {
+                    const h = Math.random() * 100;
+                    const delay = (j * 0.25 + i * 0.1).toFixed(2);
+                    return `<div class="bar" style="height:${h}%;animation-delay:${delay}s"></div>`;
+                }).join('');
+
+                return `
+                    <div class="server-card ${s.status === 'active' ? '' : 'down'}">
+                        <div class="server-name">
+                            <div class="pulse ${s.status === 'active' ? '' : 'down'}"></div>
+                            ${s.name}
+                        </div>
+                        <div class="server-meta">
+                            <span class="server-port">${DDNS}:${s.port}</span><br>
+                            map: ${s.map}<br>
+                            cluster: EarthC137
+                        </div>
+                        <div class="activity-bar">${bars}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('clockDate').textContent =
+                now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = `${Math.random() * 100}%`;
+                p.style.animationDuration = `${8 + Math.random() * 15}s`;
+                p.style.animationDelay = `${Math.random() * 10}s`;
+                p.style.width = `${1 + Math.random() * 2}px`;
+                p.style.height = p.style.width;
+                container.appendChild(p);
+            }
+        }
+
+        // Network flow lines
+        function createFlowLines() {
+            const container = document.getElementById('networkLines');
+            for (let i = 0; i < 6; i++) {
+                const line = document.createElement('div');
+                line.className = 'flow-line';
+                line.style.top = `${15 + Math.random() * 70}%`;
+                line.style.width = `${30 + Math.random() * 40}%`;
+                line.style.left = `${Math.random() * 30}%`;
+                line.style.animationDelay = `${i * 1.3}s`;
+                line.style.animationDuration = `${6 + Math.random() * 4}s`;
+                container.appendChild(line);
+            }
+        }
+
+        // Live API polling (when Arcade API is running)
+        async function fetchLiveData() {
+            try {
+                const res = await fetch('http://localhost:3010/api/servers');
+                const data = await res.json();
+                if (data.servers) {
+                    let active = 0;
+                    data.servers.forEach(s => {
+                        const idx = SERVERS.findIndex(x => x.port === s.game_port);
+                        if (idx >= 0) {
+                            SERVERS[idx].status = s.status === 'active' ? 'active' : 'down';
+                            if (s.status === 'active') active++;
+                        }
+                    });
+                    document.getElementById('totalActive').textContent = active;
+                    renderServers();
+                }
+            } catch(e) {
+                // API not running, use static data
+            }
+
+            try {
+                const res = await fetch('http://localhost:3010/api/resources');
+                const data = await res.json();
+                if (data.ram_available_mb) {
+                    const used = Math.round((124 * 1024 - data.ram_available_mb) / 1024);
+                    document.getElementById('totalRAM').textContent = used;
+                }
+            } catch(e) {}
+        }
+
+        // Uptime counter
+        const startTime = Date.now();
+        function updateUptime() {
+            const hours = Math.floor((Date.now() - startTime) / 3600000);
+            const mins = Math.floor(((Date.now() - startTime) % 3600000) / 60000);
+            document.getElementById('uptime').textContent = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+        }
+
+        // Init
+        renderServers();
+        createParticles();
+        createFlowLines();
+        updateClock();
+
+        setInterval(updateClock, 1000);
+        setInterval(updateUptime, 60000);
+        setInterval(fetchLiveData, 15000);
+        setInterval(() => {
+            // Randomize activity bars for visual effect
+            document.querySelectorAll('.activity-bar .bar').forEach(bar => {
+                bar.style.height = `${10 + Math.random() * 90}%`;
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
