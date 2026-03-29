@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade — Setup</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --accent: #4fc3f7;
+            --accent-dim: rgba(79,195,247,0.15);
+            --green: #66bb6a;
+            --red: #ef5350;
+            --glass: rgba(15,15,25,0.85);
+            --radius: 12px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wizard {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 560px;
+            width: 90%;
+        }
+        .wizard h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        .wizard h1 span { color: var(--accent); }
+        .wizard .subtitle {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-bottom: 32px;
+        }
+
+        /* Steps */
+        .steps {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        .step-dot {
+            width: 32px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+            transition: background 0.3s;
+        }
+        .step-dot.active { background: var(--accent); }
+        .step-dot.done { background: var(--green); }
+
+        /* Step Content */
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        .step-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Detection Results */
+        .detect-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.02);
+        }
+        .detect-label { font-size: 13px; }
+        .detect-value { font-size: 13px; font-weight: 600; }
+        .detect-ok { color: var(--green); }
+        .detect-warn { color: #ffa726; }
+        .detect-fail { color: var(--red); }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 14px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Buttons */
+        .wizard-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 24px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn:hover { background: rgba(255,255,255,0.08); }
+        .btn-primary {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+            flex: 1;
+        }
+        .btn-primary:hover { background: rgba(79,195,247,0.25); }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .tagline {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 11px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard">
+        <h1><span>arcade</span> setup</h1>
+        <p class="subtitle">Let's get your game server panel configured.</p>
+
+        <div class="steps">
+            <div class="step-dot active" data-step="0"></div>
+            <div class="step-dot" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+            <div class="step-dot" data-step="3"></div>
+        </div>
+
+        <!-- Step 1: Detect Hardware -->
+        <div class="step-content active" data-step="0">
+            <div class="step-title">Detecting Your Hardware</div>
+            <div id="detectResults">
+                <div style="text-align:center;padding:20px">
+                    <span class="spinner"></span> Scanning target host...
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Network -->
+        <div class="step-content" data-step="1">
+            <div class="step-title">Network Configuration</div>
+            <div id="networkResults"></div>
+            <div class="form-group">
+                <label>DDNS Hostname</label>
+                <input type="text" id="ddnsHost" value="1n1.freemyip.com" readonly>
+            </div>
+            <div class="form-group">
+                <label>Enable WireGuard VPN for Friends</label>
+                <select id="wgEnabled">
+                    <option value="true" selected>Yes — friends connect via VPN (recommended)</option>
+                    <option value="false">No — use port forwarding only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Step 3: Security -->
+        <div class="step-content" data-step="2">
+            <div class="step-title">Security</div>
+            <div class="form-group">
+                <label>Admin Password (for RCON and web panel)</label>
+                <input type="text" id="adminPass" placeholder="Auto-generated if empty">
+            </div>
+            <div class="form-group">
+                <label>Default Server Access</label>
+                <select id="whitelistDefault">
+                    <option value="true" selected>Whitelist only (recommended)</option>
+                    <option value="false">Password protected</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Step 4: Defaults -->
+        <div class="step-content" data-step="3">
+            <div class="step-title">Server Defaults</div>
+            <div class="form-group">
+                <label>Default Max Players</label>
+                <input type="number" id="maxPlayers" value="20">
+            </div>
+            <div class="form-group">
+                <label>Message of the Day</label>
+                <input type="text" id="motd" value="Welcome to Earth C-137! Designed and built by the architect.">
+            </div>
+            <div id="setupResult" style="display:none;margin-top:16px"></div>
+        </div>
+
+        <div class="wizard-actions">
+            <button class="btn" id="backBtn" onclick="prevStep()" style="display:none">Back</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Next</button>
+        </div>
+
+        <div class="tagline">Designed and built by the architect.</div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 4;
+
+        function showStep(n) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.step-dot').forEach((el, i) => {
+                el.classList.toggle('active', i === n);
+                el.classList.toggle('done', i < n);
+            });
+            document.querySelector(`.step-content[data-step="${n}"]`).classList.add('active');
+            document.getElementById('backBtn').style.display = n > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = n === totalSteps - 1 ? 'Complete Setup' : 'Next';
+        }
+
+        async function nextStep() {
+            if (currentStep === totalSteps - 1) {
+                await completeSetup();
+                return;
+            }
+            currentStep++;
+            showStep(currentStep);
+            if (currentStep === 1) detectNetwork();
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        async function detectHardware() {
+            try {
+                const res = await fetch('/api/setup/detect');
+                const data = await res.json();
+                const el = document.getElementById('detectResults');
+                const hw = data.hardware;
+                const sc = data.steamcmd;
+                const wg = data.wireguard;
+                el.innerHTML = `
+                    <div class="detect-row"><span class="detect-label">Target Host</span><span class="detect-value ${hw.ok?'detect-ok':'detect-fail'}">${hw.hostname || 'unreachable'}</span></div>
+                    <div class="detect-row"><span class="detect-label">CPU</span><span class="detect-value">${hw.cpu || '--'} (${hw.cores} cores)</span></div>
+                    <div class="detect-row"><span class="detect-label">RAM</span><span class="detect-value">${Math.round((hw.total_ram_mb||0)/1024)}GB total, ${Math.round((hw.available_ram_mb||0)/1024)}GB free</span></div>
+                    <div class="detect-row"><span class="detect-label">Disk</span><span class="detect-value">${hw.disk_gb||0}GB free</span></div>
+                    <div class="detect-row"><span class="detect-label">SteamCMD</span><span class="detect-value ${sc.steamcmd?'detect-ok':'detect-fail'}">${sc.steamcmd?'Installed':'Missing'}</span></div>
+                    <div class="detect-row"><span class="detect-label">LinuxGSM</span><span class="detect-value ${sc.linuxgsm?'detect-ok':'detect-fail'}">${sc.linuxgsm?'Installed':'Missing'}</span></div>
+                    <div class="detect-row"><span class="detect-label">WireGuard</span><span class="detect-value ${wg.ok?'detect-ok':'detect-warn'}">${wg.ok?wg.peers+' peers':'Not running'}</span></div>
+                `;
+            } catch(e) {
+                document.getElementById('detectResults').innerHTML = '<div class="detect-fail">Detection failed</div>';
+            }
+        }
+
+        function detectNetwork() {
+            // Pre-filled from detection in step 1
+        }
+
+        async function completeSetup() {
+            const btn = document.getElementById('nextBtn');
+            btn.innerHTML = '<span class="spinner"></span> Setting up...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/setup/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        admin_password: document.getElementById('adminPass').value,
+                        whitelist_only_default: document.getElementById('whitelistDefault').value === 'true',
+                        default_max_players: parseInt(document.getElementById('maxPlayers').value),
+                        motd: document.getElementById('motd').value,
+                        wireguard_enabled: document.getElementById('wgEnabled').value === 'true',
+                    })
+                });
+                const data = await res.json();
+                document.getElementById('setupResult').style.display = 'block';
+                document.getElementById('setupResult').innerHTML = `
+                    <div class="detect-row"><span class="detect-label">Status</span><span class="detect-value detect-ok">Setup Complete</span></div>
+                    <div class="detect-row"><span class="detect-label">API Key</span><span class="detect-value" style="font-size:10px;word-break:break-all">${data.api_key}</span></div>
+                    <div class="detect-row"><span class="detect-label">Admin Password</span><span class="detect-value">${data.admin_password}</span></div>
+                `;
+                btn.textContent = 'Go to Dashboard';
+                btn.disabled = false;
+                btn.onclick = () => window.location.href = '/';
+            } catch(e) {
+                btn.textContent = 'Retry';
+                btn.disabled = false;
+            }
+        }
+
+        // Auto-detect on load
+        detectHardware();
+    </script>
+</body>
+</html>

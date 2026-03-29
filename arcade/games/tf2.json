@@ -1,0 +1,42 @@
+{
+    "game_id": "tf2",
+    "display_name": "Team Fortress 2",
+    "steam_app_id": 232250,
+    "category": "fps",
+    "min_ram_mb": 2048,
+    "recommended_ram_mb": 4096,
+    "min_disk_gb": 15,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "cp_dustbowl", "name": "Dustbowl", "dlc": false},
+        {"id": "cp_badlands", "name": "Badlands", "dlc": false},
+        {"id": "cp_granary", "name": "Granary", "dlc": false},
+        {"id": "pl_upward", "name": "Upward", "dlc": false},
+        {"id": "pl_badwater", "name": "Badwater Basin", "dlc": false},
+        {"id": "pl_goldrush", "name": "Gold Rush", "dlc": false},
+        {"id": "ctf_2fort", "name": "2Fort", "dlc": false},
+        {"id": "ctf_turbine", "name": "Turbine", "dlc": false},
+        {"id": "koth_viaduct", "name": "Viaduct", "dlc": false},
+        {"id": "koth_harvest_final", "name": "Harvest", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "tf/cfg/server.cfg", "template": "tf2/server.cfg.j2"},
+        {"path": "tf/cfg/mapcycle.txt", "template": "tf2/mapcycle.txt.j2"}
+    ],
+    "startup_command": "srcds_run -game tf -port {{game}} +map {{map_id}} +maxplayers {{max_players}} +sv_setsteamaccount {{gslt_token}} +rcon_password {{admin_password}} -tickrate 66",
+    "default_settings": {
+        "max_players": 24,
+        "tick_rate": 66,
+        "round_time_limit": 10,
+        "friendly_fire": false,
+        "respawn_wave_time": 10,
+        "auto_team_balance": true,
+        "allow_random_crits": true,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "tf2server",
+    "query_protocol": "steam",
+    "notes": "Default game port 27015, RCON port 27015, SourceTV port 27020. Requires GSLT token from Steam."
+}

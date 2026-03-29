@@ -1,0 +1,32 @@
+{
+    "game_id": "barotrauma",
+    "display_name": "Barotrauma",
+    "steam_app_id": 1026340,
+    "category": "survival",
+    "min_ram_mb": 2048,
+    "recommended_ram_mb": 4096,
+    "min_disk_gb": 4,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [],
+    "config_files": [
+        {"path": "serversettings.xml", "template": "barotrauma/serversettings.xml.j2"}
+    ],
+    "startup_command": "DedicatedServer -port {{game}} -queryport {{query}}",
+    "default_settings": {
+        "max_players": 10,
+        "gamemode": "sandbox",
+        "sub_selection_mode": "manual",
+        "mode_selection_mode": "manual",
+        "allow_spectating": true,
+        "allow_respawn": true,
+        "respawn_interval": 300,
+        "traitor_enabled": false,
+        "bot_count": 4,
+        "whitelist_only": true
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "",
+    "query_protocol": "steam",
+    "notes": "Default game port 27015, query port 27016. Native Linux server. Settings in serversettings.xml."
+}

@@ -1,0 +1,45 @@
+{
+    "game_id": "insurgency",
+    "display_name": "Insurgency: Sandstorm",
+    "steam_app_id": 581330,
+    "category": "fps",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 30,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "Crossing", "name": "Crossing", "dlc": false},
+        {"id": "Farmhouse", "name": "Farmhouse", "dlc": false},
+        {"id": "Hideout", "name": "Hideout", "dlc": false},
+        {"id": "Ministry", "name": "Ministry", "dlc": false},
+        {"id": "Outskirts", "name": "Outskirts", "dlc": false},
+        {"id": "Precinct", "name": "Precinct", "dlc": false},
+        {"id": "Refinery", "name": "Refinery", "dlc": false},
+        {"id": "Summit", "name": "Summit", "dlc": false},
+        {"id": "Tideway", "name": "Tideway", "dlc": false},
+        {"id": "Tell", "name": "Tell", "dlc": false},
+        {"id": "PowerPlant", "name": "Power Plant", "dlc": false},
+        {"id": "Gap", "name": "Gap", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "Insurgency/Saved/Config/LinuxServer/Game.ini", "template": "insurgency/Game.ini.j2"},
+        {"path": "Insurgency/Saved/Config/LinuxServer/Engine.ini", "template": "insurgency/Engine.ini.j2"},
+        {"path": "Insurgency/Saved/Config/LinuxServer/Admins.txt", "template": "insurgency/Admins.txt.j2"}
+    ],
+    "startup_command": "InsurgencyServer-Linux-Shipping {{map_id}}?Scenario={{scenario}}?MaxPlayers={{max_players}}?Port={{game}}?QueryPort={{query}}?password={{server_password}} -AdminList=Admins -log -hostname=\"{{server_name}}\" -GameStats -GSLTToken={{gslt_token}}",
+    "default_settings": {
+        "max_players": 20,
+        "gamemode": "Checkpoint",
+        "scenario": "Checkpoint_Security",
+        "bot_count": 10,
+        "friendly_fire": 0.5,
+        "round_limit": 2,
+        "tick_rate": 64,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "issserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 27102, query port 27131, RCON port 27015. Gamemodes: Checkpoint, Push, Firefight, Domination, Skirmish."
+}

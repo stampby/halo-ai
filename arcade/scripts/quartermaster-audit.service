@@ -1,0 +1,9 @@
+[Unit]
+Description=Quartermaster Weekly Game Server Audit
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=bcloud
+WorkingDirectory=/home/bcloud/halo-ai/arcade
+ExecStart=/usr/bin/python -m agents.quartermaster_audit

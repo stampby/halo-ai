@@ -1,0 +1,38 @@
+{
+    "game_id": "sdtd",
+    "display_name": "7 Days to Die",
+    "steam_app_id": 294420,
+    "category": "survival",
+    "min_ram_mb": 8192,
+    "recommended_ram_mb": 12288,
+    "min_disk_gb": 12,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "Navezgane", "name": "Navezgane", "dlc": false},
+        {"id": "RWG", "name": "Random World Gen", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "serverconfig.xml", "template": "sdtd/serverconfig.xml.j2"}
+    ],
+    "startup_command": "7DaysToDieServer.x86_64 -configfile=serverconfig.xml -logfile {{log_dir}}/output_log.txt -quit -batchmode -nographics -dedicated",
+    "default_settings": {
+        "max_players": 16,
+        "world_gen_seed": "haloworld",
+        "world_gen_size": 6144,
+        "game_difficulty": 3,
+        "day_night_length": 60,
+        "day_light_length": 18,
+        "loot_abundance": 150,
+        "xp_multiplier": 200,
+        "block_damage_player": 100,
+        "zombie_move_day": 0,
+        "zombie_move_night": 3,
+        "blood_moon_frequency": 7,
+        "whitelist_only": true
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "sdtdserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 26900, query port 26900 (same). Telnet port 8081, web dashboard port 8080. Uses serverconfig.xml for all settings."
+}

@@ -1,0 +1,52 @@
+[ServerSettings]
+{% if whitelist_only is defined and whitelist_only %}EnableExclusiveJoin=True
+{% endif %}ServerPassword={{ server_password | default('') }}
+ServerAdminPassword={{ admin_password }}
+RCONEnabled=True
+RCONPort={{ rcon_port }}
+AllowThirdPersonPlayer=True
+ShowMapPlayerLocation=True
+AllowAnyoneBabyImprintCuddle=True
+DisableImprintDinoBuff=False
+EnablePvPGamma=True
+ServerCrosshair=True
+ServerForceNoHUD=False
+ShowFloatingDamageText=True
+MaxTamedDinos=5000
+MaxPersonalTamedDinos=500
+AutoSavePeriodMinutes=15
+DifficultyOffset=1.0
+OverrideOfficialDifficulty={{ difficulty | default(5.0) }}
+TamingSpeedMultiplier={{ taming_speed | default(3.0) }}
+HarvestAmountMultiplier={{ harvest_amount | default(3.0) }}
+XPMultiplier={{ xp_multiplier | default(2.0) }}
+BabyMatureSpeedMultiplier={{ mature_speed | default(5.0) }}
+EggHatchSpeedMultiplier={{ hatch_speed | default(5.0) }}
+BabyCuddleIntervalMultiplier=0.2
+MatingIntervalMultiplier=0.1
+ResourcesRespawnPeriodMultiplier=0.5
+PlayerCharacterFoodDrainMultiplier=0.5
+PlayerCharacterWaterDrainMultiplier=0.5
+PlayerCharacterStaminaDrainMultiplier=0.5
+DinoCharacterFoodDrainMultiplier=0.5
+NightTimeSpeedScale=2.0
+DayTimeSpeedScale=1.0
+PerPlatformMaxStructuresMultiplier=2.0
+PlatformSaddleBuildAreaBoundsMultiplier=2.0
+StructureResistanceMultiplier=1.0
+MaxStructuresInRange=10500
+bAllowPlatformSaddleMultiFloors=True
+bPassiveDefensesDamageRiderlessDinos=True
+MaxGateFrameOnSaddles=4
+MaxPlayers={{ max_players | default(20) }}
+
+[/Script/ShooterGame.ShooterGameUserSettings]
+MasterAudioVolume=1.0
+MusicAudioVolume=1.0
+
+[SessionSettings]
+SessionName={{ server_name }}
+
+[MessageOfTheDay]
+Message={{ motd | default('Welcome to Earth C-137! Designed and built by the architect.') }}
+Duration=20

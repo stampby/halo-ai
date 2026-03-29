@@ -1,0 +1,42 @@
+{
+    "game_id": "mordhau",
+    "display_name": "Mordhau",
+    "steam_app_id": 629800,
+    "category": "fps",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 20,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "FFA_ThePit", "name": "The Pit", "dlc": false},
+        {"id": "SKM_Contraband", "name": "Contraband", "dlc": false},
+        {"id": "FFA_Tourney", "name": "Tourney", "dlc": false},
+        {"id": "FL_Grad", "name": "Grad", "dlc": false},
+        {"id": "FL_Taiga", "name": "Taiga", "dlc": false},
+        {"id": "FL_Camp", "name": "Camp", "dlc": false},
+        {"id": "FL_MountainPeak", "name": "Mountain Peak", "dlc": false},
+        {"id": "FL_Crossroads", "name": "Crossroads", "dlc": false},
+        {"id": "FL_Feitoria", "name": "Feitoria", "dlc": false},
+        {"id": "INV_Castello", "name": "Castello", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "Mordhau/Saved/Config/LinuxServer/Game.ini", "template": "mordhau/Game.ini.j2"},
+        {"path": "Mordhau/Saved/Config/LinuxServer/Engine.ini", "template": "mordhau/Engine.ini.j2"}
+    ],
+    "startup_command": "MordhauServer.sh -Port={{game}} -QueryPort={{query}} -BeaconPort={{beacon}} -log",
+    "default_settings": {
+        "max_players": 24,
+        "tick_rate": 60,
+        "gamemode": "Frontline",
+        "friendly_fire": 0.5,
+        "bot_fill": 0,
+        "idle_kick_time": 300,
+        "team_damage_offset": 0,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "mhserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 7777, query port 27015, beacon port 15000. Gamemodes: Frontline, Invasion, Skirmish, Deathmatch, TeamDeathmatch, BattleRoyale."
+}

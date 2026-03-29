@@ -1,0 +1,38 @@
+{
+    "game_id": "zomboid",
+    "display_name": "Project Zomboid",
+    "steam_app_id": 380870,
+    "category": "survival",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 5,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "Muldraugh, KY", "name": "Muldraugh", "dlc": false},
+        {"id": "West Point, KY", "name": "West Point", "dlc": false},
+        {"id": "Rosewood, KY", "name": "Rosewood", "dlc": false},
+        {"id": "Riverside, KY", "name": "Riverside", "dlc": false},
+        {"id": "Louisville, KY", "name": "Louisville", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "Server/servertest.ini", "template": "zomboid/servertest.ini.j2"},
+        {"path": "Server/servertest_SandboxVars.lua", "template": "zomboid/SandboxVars.lua.j2"}
+    ],
+    "startup_command": "start-server.sh -servername {{server_name}} -port {{game}} -adminpassword {{admin_password}} -password {{server_password}} -steamport1 {{steam_port1}} -steamport2 {{steam_port2}}",
+    "default_settings": {
+        "max_players": 16,
+        "zombie_count": 3,
+        "zombie_distribution": 1,
+        "survival_multiplier": 1.5,
+        "loot_respawn": 168,
+        "player_damage_multiplier": 0.8,
+        "pvp": false,
+        "sleep_allowed": false,
+        "whitelist_only": true
+    },
+    "whitelist_file": "Server/servertest_whitelist.txt",
+    "linuxgsm_id": "pzserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 16261, steam ports 16262-16263. Config is in Zomboid/Server/ directory. SandboxVars controls world difficulty settings."
+}

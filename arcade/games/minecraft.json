@@ -1,0 +1,39 @@
+{
+    "game_id": "minecraft",
+    "display_name": "Minecraft Java",
+    "steam_app_id": null,
+    "category": "sandbox",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 5,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "overworld", "name": "Overworld", "dlc": false},
+        {"id": "the_nether", "name": "The Nether", "dlc": false},
+        {"id": "the_end", "name": "The End", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "server.properties", "template": "minecraft/server.properties.j2"},
+        {"path": "ops.json", "template": "minecraft/ops.json.j2"},
+        {"path": "whitelist.json", "template": "minecraft/whitelist.json.j2"}
+    ],
+    "startup_command": "java -Xms{{min_ram}}M -Xmx{{max_ram}}M -jar server.jar --port {{game}} nogui",
+    "default_settings": {
+        "max_players": 20,
+        "difficulty": "normal",
+        "gamemode": "survival",
+        "view_distance": 12,
+        "simulation_distance": 10,
+        "spawn_protection": 0,
+        "pvp": false,
+        "enable_command_block": true,
+        "motd": "halo-ai Minecraft Server",
+        "online_mode": true,
+        "whitelist_only": true
+    },
+    "whitelist_file": "whitelist.json",
+    "linuxgsm_id": "",
+    "query_protocol": "minecraft",
+    "notes": "Default game port 25565, RCON port 25575. No Steam required - download server.jar from Mojang. Use Paper/Fabric for modded."
+}

@@ -1,0 +1,35 @@
+{
+    "game_id": "dst",
+    "display_name": "Don't Starve Together",
+    "steam_app_id": 343050,
+    "category": "survival",
+    "min_ram_mb": 2048,
+    "recommended_ram_mb": 4096,
+    "min_disk_gb": 3,
+    "supports_clustering": true,
+    "max_cluster_maps": 2,
+    "maps": [
+        {"id": "forest", "name": "Forest (Overworld)", "dlc": false},
+        {"id": "caves", "name": "Caves", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "Cluster_1/cluster.ini", "template": "dst/cluster.ini.j2"},
+        {"path": "Cluster_1/Master/server.ini", "template": "dst/master_server.ini.j2"},
+        {"path": "Cluster_1/Caves/server.ini", "template": "dst/caves_server.ini.j2"},
+        {"path": "Cluster_1/cluster_token.txt", "template": "dst/cluster_token.txt.j2"}
+    ],
+    "startup_command": "dontstarve_dedicated_server_nullrenderer_x64 -cluster Cluster_1 -shard {{shard}}",
+    "default_settings": {
+        "max_players": 10,
+        "pvp": false,
+        "game_mode": "survival",
+        "enable_caves": true,
+        "pause_when_empty": true,
+        "enable_vote_kick": true,
+        "whitelist_only": true
+    },
+    "whitelist_file": "Cluster_1/whitelist.txt",
+    "linuxgsm_id": "dstserver",
+    "query_protocol": "steam",
+    "notes": "Default master port 10999, caves port 10998. Requires Klei cluster token. Forest and Caves run as separate shards in the same cluster."
+}

@@ -1,0 +1,42 @@
+{
+    "game_id": "kf2",
+    "display_name": "Killing Floor 2",
+    "steam_app_id": 232130,
+    "category": "fps",
+    "min_ram_mb": 2048,
+    "recommended_ram_mb": 4096,
+    "min_disk_gb": 20,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "KF-BurningParis", "name": "Burning Paris", "dlc": false},
+        {"id": "KF-BioticsLab", "name": "Biotics Lab", "dlc": false},
+        {"id": "KF-Outpost", "name": "Outpost", "dlc": false},
+        {"id": "KF-VolterManor", "name": "Volter Manor", "dlc": false},
+        {"id": "KF-Catacombs", "name": "Catacombs", "dlc": false},
+        {"id": "KF-EvacuationPoint", "name": "Evacuation Point", "dlc": false},
+        {"id": "KF-Farmhouse", "name": "Farmhouse", "dlc": false},
+        {"id": "KF-BlackForest", "name": "Black Forest", "dlc": false},
+        {"id": "KF-Prison", "name": "Prison", "dlc": false},
+        {"id": "KF-ZedLanding", "name": "Zed Landing", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "KFGame/Config/LinuxServer-KFGame.ini", "template": "kf2/KFGame.ini.j2"},
+        {"path": "KFGame/Config/LinuxServer-KFEngine.ini", "template": "kf2/KFEngine.ini.j2"}
+    ],
+    "startup_command": "KFGameSteamServer.bin.x86_64 {{map_id}}?Game=KFGameContent.KFGameInfo_Survival?Difficulty={{difficulty}}?MaxPlayers={{max_players}}?AdminPassword={{admin_password}} -Port={{game}} -QueryPort={{query}} -WebAdminPort={{webadmin}} -log",
+    "default_settings": {
+        "max_players": 6,
+        "difficulty": 1,
+        "game_length": 1,
+        "wave_count": 7,
+        "friendly_fire_scale": 0.0,
+        "enable_web_admin": true,
+        "webadmin_port": 8080,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "kf2server",
+    "query_protocol": "steam",
+    "notes": "Default game port 7777, query port 27015, web admin port 8080. Difficulty: 0=Normal, 1=Hard, 2=Suicidal, 3=HellOnEarth. Game length: 0=Short, 1=Medium, 2=Long."
+}

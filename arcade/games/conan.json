@@ -1,0 +1,36 @@
+{
+    "game_id": "conan",
+    "display_name": "Conan Exiles",
+    "steam_app_id": 443030,
+    "category": "survival",
+    "min_ram_mb": 8192,
+    "recommended_ram_mb": 12288,
+    "min_disk_gb": 20,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "game", "name": "Exiled Lands", "dlc": false},
+        {"id": "DLC_Siptah", "name": "Isle of Siptah", "dlc": true}
+    ],
+    "config_files": [
+        {"path": "ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini", "template": "conan/ServerSettings.ini.j2"},
+        {"path": "ConanSandbox/Saved/Config/LinuxServer/Engine.ini", "template": "conan/Engine.ini.j2"}
+    ],
+    "startup_command": "ConanSandboxServer -Port={{game}} -QueryPort={{query}} -RconPort={{rcon}} -RconPassword={{admin_password}} -MaxPlayers={{max_players}} -log",
+    "default_settings": {
+        "max_players": 20,
+        "harvest_amount_multiplier": 2.0,
+        "xp_rate_multiplier": 2.0,
+        "crafting_time_multiplier": 0.5,
+        "thrall_conversion_multiplier": 0.5,
+        "day_cycle_speed": 0.5,
+        "dawn_dusk_speed": 0.5,
+        "pvp_enabled": false,
+        "max_clan_size": 10,
+        "whitelist_only": true
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "conanserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 7777, query port 27015, RCON port 25575. Server settings split across ServerSettings.ini and Engine.ini."
+}

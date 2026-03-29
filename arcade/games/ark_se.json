@@ -1,0 +1,45 @@
+{
+    "game_id": "ark_se",
+    "display_name": "ARK: Survival Evolved",
+    "steam_app_id": 376030,
+    "category": "survival",
+    "min_ram_mb": 6144,
+    "recommended_ram_mb": 10240,
+    "min_disk_gb": 15,
+    "supports_clustering": true,
+    "max_cluster_maps": 12,
+    "maps": [
+        {"id": "TheIsland", "name": "The Island", "dlc": false},
+        {"id": "TheCenter", "name": "The Center", "dlc": false},
+        {"id": "ScorchedEarth_P", "name": "Scorched Earth", "dlc": true},
+        {"id": "Ragnarok", "name": "Ragnarok", "dlc": false},
+        {"id": "Aberration_P", "name": "Aberration", "dlc": true},
+        {"id": "Extinction", "name": "Extinction", "dlc": true},
+        {"id": "Valguero_P", "name": "Valguero", "dlc": false},
+        {"id": "Genesis", "name": "Genesis Part 1", "dlc": true},
+        {"id": "Gen2", "name": "Genesis Part 2", "dlc": true},
+        {"id": "CrystalIsles", "name": "Crystal Isles", "dlc": false},
+        {"id": "LostIsland", "name": "Lost Island", "dlc": false},
+        {"id": "Fjordur", "name": "Fjordur", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "ShooterGame/Saved/Config/LinuxServer/GameUserSettings.ini", "template": "ark_se/GameUserSettings.ini.j2"},
+        {"path": "ShooterGame/Saved/Config/LinuxServer/Game.ini", "template": "ark_se/Game.ini.j2"}
+    ],
+    "startup_command": "ShooterGame/Binaries/Linux/ShooterGameServer {{map_id}}?listen?SessionName={{server_name}}?Port={{game}}?QueryPort={{query}}?RCONPort={{rcon}}?RCONEnabled=True?MaxPlayers=20?ServerAdminPassword={{admin_password}} -server -log -NoBattlEye -crossplay -clusterid={{cluster_id}} -ClusterDirOverride={{cluster_dir}} -nosteamclient",
+    "default_settings": {
+        "taming_speed": 3.0,
+        "harvest_amount": 3.0,
+        "xp_multiplier": 2.0,
+        "breeding_multiplier": 5.0,
+        "mature_speed": 5.0,
+        "hatch_speed": 5.0,
+        "max_players": 20,
+        "difficulty": 5.0,
+        "whitelist_only": true
+    },
+    "whitelist_file": "ShooterGame/Saved/PlayersJoinNoCheckList.txt",
+    "linuxgsm_id": "arkserver",
+    "query_protocol": "steam",
+    "notes": "Each map in a cluster is a separate server instance sharing a cluster directory."
+}

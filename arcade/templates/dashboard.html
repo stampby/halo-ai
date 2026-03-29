@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade — Game Server Management</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.08);
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --accent: #4fc3f7;
+            --accent-dim: rgba(79,195,247,0.15);
+            --green: #66bb6a;
+            --red: #ef5350;
+            --orange: #ffa726;
+            --glass: rgba(15,15,25,0.85);
+            --glass-border: rgba(255,255,255,0.1);
+            --radius: 12px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        .header h1 span { color: var(--accent); }
+        .header-stats {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+        .header-stats .stat-value { color: var(--text); font-weight: 600; }
+
+        /* Main Grid */
+        .main { padding: 24px 32px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 16px;
+        }
+
+        /* Panel Cards */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        .panel:hover {
+            background: var(--surface-hover);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-dim);
+        }
+        .panel-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .badge-active { background: rgba(102,187,106,0.15); color: var(--green); }
+        .badge-stopped { background: rgba(239,83,80,0.15); color: var(--red); }
+        .badge-deploying { background: rgba(255,167,38,0.15); color: var(--orange); }
+
+        /* Server Row */
+        .server-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .server-row:hover { background: rgba(255,255,255,0.06); }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .dot-active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        .dot-stopped { background: var(--red); }
+        .dot-unknown { background: var(--text-dim); }
+        .server-info { flex: 1; }
+        .server-name { font-size: 14px; font-weight: 500; }
+        .server-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+        .server-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn:hover { background: var(--surface-hover); border-color: var(--accent); }
+        .btn-primary {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .btn-primary:hover { background: rgba(79,195,247,0.25); }
+        .btn-danger { border-color: var(--red); color: var(--red); }
+        .btn-danger:hover { background: rgba(239,83,80,0.15); }
+
+        /* Deploy Section */
+        .deploy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .game-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .game-card:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+        .game-card .game-name { font-size: 13px; font-weight: 600; margin-top: 8px; }
+        .game-card .game-category { font-size: 11px; color: var(--text-dim); }
+        .game-card .game-icon { font-size: 28px; }
+
+        /* Port Map */
+        .port-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .port-table th {
+            text-align: left;
+            padding: 8px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+        .port-table td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Whitelist Panel */
+        .whitelist-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .whitelist-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 13px;
+        }
+        .whitelist-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Resource Bar */
+        .resource-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .resource-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .fill-ok { background: var(--green); }
+        .fill-warn { background: var(--orange); }
+        .fill-crit { background: var(--red); }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 32px 0 16px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+        }
+        .modal h2 { margin-bottom: 16px; font-size: 18px; }
+
+        /* Disclaimer banner */
+        .disclaimer {
+            background: rgba(255,167,38,0.1);
+            border: 1px solid rgba(255,167,38,0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--orange);
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><span>arcade</span> — game servers</h1>
+        <div class="header-stats">
+            <div>servers: <span class="stat-value" id="serverCount">0</span></div>
+            <div>players: <span class="stat-value" id="playerCount">0</span></div>
+            <div>host: <span class="stat-value">strix-halo</span></div>
+            <div>ddns: <span class="stat-value">1n1.freemyip.com</span></div>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Active Servers -->
+        <div class="section-header">
+            <div class="section-title">Active Servers</div>
+            <button class="btn btn-primary" onclick="showDeploy()">+ Deploy Server</button>
+        </div>
+        <div class="grid" id="serversGrid">
+            <div class="panel" style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-dim);">
+                Loading servers...
+            </div>
+        </div>
+
+        <!-- Resources -->
+        <div class="section-header">
+            <div class="section-title">Resources</div>
+        </div>
+        <div class="grid">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">RAM</span>
+                    <span id="ramValue" class="stat-value">--</span>
+                </div>
+                <div class="resource-bar"><div class="resource-fill fill-ok" id="ramBar" style="width:0%"></div></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Disk</span>
+                    <span id="diskValue" class="stat-value">--</span>
+                </div>
+                <div class="resource-bar"><div class="resource-fill fill-ok" id="diskBar" style="width:0%"></div></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">CPU Cores</span>
+                    <span id="cpuValue" class="stat-value">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deploy Modal Game Catalog -->
+        <div class="section-header">
+            <div class="section-title">Game Catalog</div>
+            <span style="font-size:12px;color:var(--text-dim)" id="gameCount">0 games</span>
+        </div>
+        <div class="disclaimer">
+            All servers are whitelist-only by default. Players must be added to the whitelist before they can join. You can optionally set a server password, but whitelist is the recommended security model.
+        </div>
+        <div class="deploy-grid" id="gamesGrid">
+        </div>
+    </div>
+
+    <div class="footer">
+        Designed and built by the architect. &bull; Powered by LinuxGSM + SteamCMD &bull; Earth C-137
+    </div>
+
+    <!-- Deploy Modal -->
+    <div class="modal-overlay" id="deployModal">
+        <div class="modal">
+            <h2>Deploy Server</h2>
+            <div id="deployForm">
+                <input type="hidden" id="deployGameId">
+                <div style="margin-bottom:12px">
+                    <label style="font-size:12px;color:var(--text-dim)">Game</label>
+                    <div id="deployGameName" style="font-size:16px;font-weight:600;margin-top:4px"></div>
+                </div>
+                <div style="margin-bottom:12px">
+                    <label style="font-size:12px;color:var(--text-dim)">Server Name</label>
+                    <input type="text" id="deployServerName" placeholder="My Server" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;margin-top:4px">
+                </div>
+                <div style="margin-bottom:12px" id="clusterSection" style="display:none">
+                    <label style="font-size:12px;color:var(--text-dim)">Cluster ID (for multi-map)</label>
+                    <input type="text" id="deployClusterId" placeholder="EarthC137" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;margin-top:4px">
+                </div>
+                <div style="display:flex;gap:8px;margin-top:20px">
+                    <button class="btn btn-primary" onclick="executeDeploy()" style="flex:1">Deploy</button>
+                    <button class="btn" onclick="closeDeploy()">Cancel</button>
+                </div>
+            </div>
+            <div id="deployProgress" style="display:none">
+                <div style="text-align:center;padding:20px">
+                    <div style="font-size:14px;margin-bottom:12px">Deploying...</div>
+                    <div id="deploySteps" style="text-align:left;font-size:12px;font-family:monospace"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '';
+
+        async function fetchServers() {
+            try {
+                const res = await fetch(`${API}/api/servers`);
+                const data = await res.json();
+                renderServers(data.servers);
+                document.getElementById('serverCount').textContent = data.servers.length;
+            } catch(e) {
+                console.error('Failed to fetch servers', e);
+            }
+        }
+
+        async function fetchGames() {
+            try {
+                const res = await fetch(`${API}/api/games`);
+                const data = await res.json();
+                renderGames(data.games);
+                document.getElementById('gameCount').textContent = `${data.games.length} games`;
+            } catch(e) {
+                console.error('Failed to fetch games', e);
+            }
+        }
+
+        async function fetchResources() {
+            try {
+                const res = await fetch(`${API}/api/resources`);
+                const data = await res.json();
+                const ramPct = Math.round((1 - data.ram_available_mb / (data.ram_available_mb + 53000)) * 100);
+                document.getElementById('ramValue').textContent = `${Math.round(data.ram_available_mb/1024)}GB free`;
+                document.getElementById('ramBar').style.width = `${ramPct}%`;
+                document.getElementById('diskValue').textContent = `${data.disk_available_gb}GB free`;
+                document.getElementById('cpuValue').textContent = `${data.cores} cores`;
+            } catch(e) {}
+        }
+
+        function renderServers(servers) {
+            const grid = document.getElementById('serversGrid');
+            if (!servers.length) {
+                grid.innerHTML = '<div class="panel" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-dim)">No servers deployed. Click "+ Deploy Server" to get started.</div>';
+                return;
+            }
+            grid.innerHTML = servers.map(s => `
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">${s.server_name || s.game_id}</span>
+                        <span class="panel-badge ${s.status === 'active' ? 'badge-active' : 'badge-stopped'}">${s.status}</span>
+                    </div>
+                    <div class="server-row">
+                        <div class="status-dot ${s.status === 'active' ? 'dot-active' : 'dot-stopped'}"></div>
+                        <div class="server-info">
+                            <div class="server-name">${s.game_id} #${s.instance}</div>
+                            <div class="server-meta">Port ${s.game_port} &bull; Query ${s.query_port} &bull; RCON ${s.rcon_port}</div>
+                        </div>
+                        <div class="server-actions">
+                            <button class="btn" onclick="serverAction('${s.game_id}',${s.instance},'${s.status === 'active' ? 'stop' : 'start'}')">${s.status === 'active' ? 'Stop' : 'Start'}</button>
+                            <button class="btn btn-danger" onclick="destroyServer('${s.game_id}',${s.instance})">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderGames(games) {
+            const icons = {survival:'🏕️',fps:'🎯',voxel:'🧱',strategy:'🏗️',utility:'🔧'};
+            document.getElementById('gamesGrid').innerHTML = games.map(g => `
+                <div class="game-card" onclick="showDeployModal('${g.game_id}','${g.display_name}',${g.supports_clustering})">
+                    <div class="game-icon">${icons[g.category]||'🎮'}</div>
+                    <div class="game-name">${g.display_name}</div>
+                    <div class="game-category">${g.category} &bull; ${g.min_ram_mb/1024}GB RAM &bull; ${g.min_disk_gb}GB disk</div>
+                </div>
+            `).join('');
+        }
+
+        function showDeployModal(gameId, name, clustering) {
+            document.getElementById('deployGameId').value = gameId;
+            document.getElementById('deployGameName').textContent = name;
+            document.getElementById('clusterSection').style.display = clustering ? 'block' : 'none';
+            document.getElementById('deployForm').style.display = 'block';
+            document.getElementById('deployProgress').style.display = 'none';
+            document.getElementById('deployModal').classList.add('active');
+        }
+
+        function closeDeploy() {
+            document.getElementById('deployModal').classList.remove('active');
+        }
+
+        async function executeDeploy() {
+            const gameId = document.getElementById('deployGameId').value;
+            const serverName = document.getElementById('deployServerName').value;
+            const clusterId = document.getElementById('deployClusterId').value;
+
+            document.getElementById('deployForm').style.display = 'none';
+            document.getElementById('deployProgress').style.display = 'block';
+            document.getElementById('deploySteps').textContent = 'Allocating ports...\n';
+
+            try {
+                const res = await fetch(`${API}/api/servers/deploy`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        game_id: gameId,
+                        server_name: serverName,
+                        cluster_id: clusterId,
+                        whitelist_only: true
+                    })
+                });
+                const data = await res.json();
+                const steps = document.getElementById('deploySteps');
+                if (data.steps) {
+                    data.steps.forEach(s => {
+                        steps.textContent += `${s.ok ? '✓' : '✗'} ${s.step}\n`;
+                    });
+                }
+                if (data.connect_info) {
+                    steps.textContent += `\nConnect: ${data.connect_info.host}:${data.connect_info.game_port}\n`;
+                }
+                setTimeout(() => { closeDeploy(); fetchServers(); }, 3000);
+            } catch(e) {
+                document.getElementById('deploySteps').textContent += `\nError: ${e.message}`;
+            }
+        }
+
+        async function serverAction(gameId, instance, action) {
+            await fetch(`${API}/api/servers/${gameId}/${instance}/action`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action})
+            });
+            fetchServers();
+        }
+
+        async function destroyServer(gameId, instance) {
+            if (!confirm('Remove this server? Game files will be preserved.')) return;
+            await fetch(`${API}/api/servers/${gameId}/${instance}`, {method:'DELETE'});
+            fetchServers();
+        }
+
+        function showDeploy() {
+            // Scroll to game catalog
+            document.getElementById('gamesGrid').scrollIntoView({behavior:'smooth'});
+        }
+
+        // Init
+        fetchServers();
+        fetchGames();
+        fetchResources();
+        setInterval(fetchServers, 15000);
+        setInterval(fetchResources, 30000);
+    </script>
+</body>
+</html>

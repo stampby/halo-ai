@@ -1,0 +1,37 @@
+{
+    "game_id": "gmod",
+    "display_name": "Garry's Mod",
+    "steam_app_id": 4020,
+    "category": "sandbox",
+    "min_ram_mb": 2048,
+    "recommended_ram_mb": 4096,
+    "min_disk_gb": 10,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "gm_construct", "name": "Construct", "dlc": false},
+        {"id": "gm_flatgrass", "name": "Flatgrass", "dlc": false},
+        {"id": "gm_bigcity", "name": "Big City", "dlc": false},
+        {"id": "ttt_minecraft_b5", "name": "Minecraft (TTT)", "dlc": false},
+        {"id": "rp_downtown_v4c_v2", "name": "Downtown (DarkRP)", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "garrysmod/cfg/server.cfg", "template": "gmod/server.cfg.j2"},
+        {"path": "garrysmod/cfg/autoexec.cfg", "template": "gmod/autoexec.cfg.j2"}
+    ],
+    "startup_command": "srcds_run -game garrysmod -port {{game}} +map {{map_id}} +maxplayers {{max_players}} +gamemode {{gamemode}} +host_workshop_collection {{workshop_collection}} +sv_setsteamaccount {{gslt_token}} +rcon_password {{admin_password}}",
+    "default_settings": {
+        "max_players": 16,
+        "gamemode": "sandbox",
+        "tick_rate": 66,
+        "sbox_maxprops": 150,
+        "sbox_noclip": true,
+        "sbox_godmode": false,
+        "workshop_collection": "",
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "gmodserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 27015, RCON port 27015. Requires GSLT token. Gamemodes: sandbox, terrortown (TTT), darkrp, prop_hunt."
+}

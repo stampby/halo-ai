@@ -1,0 +1,29 @@
+{
+    "game_id": "valheim",
+    "display_name": "Valheim",
+    "steam_app_id": 896660,
+    "category": "survival",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 4,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [],
+    "config_files": [
+        {"path": "valheim_server_Data/adminlist.txt", "template": "valheim/adminlist.txt.j2"},
+        {"path": "valheim_server_Data/permittedlist.txt", "template": "valheim/permittedlist.txt.j2"}
+    ],
+    "startup_command": "valheim_server.x86_64 -name \"{{server_name}}\" -port {{game}} -world \"{{world_name}}\" -password \"{{server_password}}\" -savedir {{save_dir}} -public 0 -crossplay",
+    "default_settings": {
+        "max_players": 10,
+        "world_name": "Dedicated",
+        "combat_modifier": "hard",
+        "death_penalty_modifier": "casual",
+        "resource_modifier": "more",
+        "whitelist_only": true
+    },
+    "whitelist_file": "valheim_server_Data/permittedlist.txt",
+    "linuxgsm_id": "vhserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 2456-2457. World is procedurally generated from a seed. Crossplay enabled by default."
+}

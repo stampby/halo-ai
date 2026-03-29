@@ -1,0 +1,29 @@
+{
+    "game_id": "satisfactory",
+    "display_name": "Satisfactory",
+    "steam_app_id": 1690800,
+    "category": "strategy",
+    "min_ram_mb": 8192,
+    "recommended_ram_mb": 16384,
+    "min_disk_gb": 10,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [],
+    "config_files": [
+        {"path": "FactoryGame/Saved/Config/LinuxServer/ServerSettings.ini", "template": "satisfactory/ServerSettings.ini.j2"},
+        {"path": "FactoryGame/Saved/Config/LinuxServer/Game.ini", "template": "satisfactory/Game.ini.j2"}
+    ],
+    "startup_command": "FactoryServer.sh -Port={{game}} -QueryPort={{query}} -BeaconPort={{beacon}} -ServerQueryPort={{query}} -multihome 0.0.0.0 -log -unattended",
+    "default_settings": {
+        "max_players": 8,
+        "auto_pause": true,
+        "auto_save_on_disconnect": true,
+        "autosave_interval": 300,
+        "network_quality": 3,
+        "whitelist_only": true
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "",
+    "query_protocol": "steam",
+    "notes": "Default game port 7777, query port 15777, beacon port 15000. Native Linux server. Initial setup requires claiming via client."
+}

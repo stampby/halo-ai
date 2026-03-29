@@ -1,0 +1,35 @@
+{
+    "game_id": "palworld",
+    "display_name": "Palworld",
+    "steam_app_id": 2394010,
+    "category": "survival",
+    "min_ram_mb": 8192,
+    "recommended_ram_mb": 16384,
+    "min_disk_gb": 8,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [],
+    "config_files": [
+        {"path": "Pal/Saved/Config/LinuxServer/PalWorldSettings.ini", "template": "palworld/PalWorldSettings.ini.j2"}
+    ],
+    "startup_command": "PalServer.sh -port={{game}} -queryport={{query}} -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS",
+    "default_settings": {
+        "max_players": 16,
+        "exp_rate": 2.0,
+        "pal_capture_rate": 1.5,
+        "pal_spawn_num_rate": 1.0,
+        "damage_from_player_rate": 1.0,
+        "damage_to_player_rate": 0.8,
+        "player_stomach_decrease_rate": 0.5,
+        "pal_stomach_decrease_rate": 0.5,
+        "player_stamina_decrease_rate": 0.5,
+        "pal_auto_hp_regen_rate_in_pal_box": 2.0,
+        "death_penalty": "ItemAndEquipment",
+        "enable_pvp": false,
+        "whitelist_only": true
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "",
+    "query_protocol": "steam",
+    "notes": "Default game port 8211, query port 27015. Native Linux server. All settings in PalWorldSettings.ini under OptionSettings."
+}

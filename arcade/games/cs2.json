@@ -1,0 +1,42 @@
+{
+    "game_id": "cs2",
+    "display_name": "Counter-Strike 2",
+    "steam_app_id": 730,
+    "category": "fps",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 40,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "de_dust2", "name": "Dust II", "dlc": false},
+        {"id": "de_mirage", "name": "Mirage", "dlc": false},
+        {"id": "de_inferno", "name": "Inferno", "dlc": false},
+        {"id": "de_nuke", "name": "Nuke", "dlc": false},
+        {"id": "de_overpass", "name": "Overpass", "dlc": false},
+        {"id": "de_ancient", "name": "Ancient", "dlc": false},
+        {"id": "de_anubis", "name": "Anubis", "dlc": false},
+        {"id": "de_vertigo", "name": "Vertigo", "dlc": false},
+        {"id": "cs_office", "name": "Office", "dlc": false},
+        {"id": "cs_italy", "name": "Italy", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "game/csgo/cfg/server.cfg", "template": "cs2/server.cfg.j2"},
+        {"path": "game/csgo/cfg/gamemode_competitive.cfg", "template": "cs2/gamemode_competitive.cfg.j2"}
+    ],
+    "startup_command": "game/bin/linuxsteamrt64/cs2 -dedicated -port {{game}} +map {{map_id}} +game_type 0 +game_mode 1 +mapgroup mg_active +sv_setsteamaccount {{gslt_token}} -maxplayers {{max_players}} +rcon_password {{admin_password}}",
+    "default_settings": {
+        "max_players": 10,
+        "tick_rate": 128,
+        "round_time": 1.92,
+        "freeze_time": 15,
+        "buy_time": 20,
+        "friendly_fire": true,
+        "auto_team_balance": true,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "cs2server",
+    "query_protocol": "steam",
+    "notes": "Default game port 27015, RCON port 27015, TV port 27020. Requires GSLT token from Steam. Uses Source 2 engine."
+}

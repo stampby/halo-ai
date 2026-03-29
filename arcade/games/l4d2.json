@@ -1,0 +1,44 @@
+{
+    "game_id": "l4d2",
+    "display_name": "Left 4 Dead 2",
+    "steam_app_id": 222860,
+    "category": "fps",
+    "min_ram_mb": 2048,
+    "recommended_ram_mb": 4096,
+    "min_disk_gb": 15,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "c1m1_hotel", "name": "Dead Center", "dlc": false},
+        {"id": "c2m1_highway", "name": "Dark Carnival", "dlc": false},
+        {"id": "c3m1_plankcountry", "name": "Swamp Fever", "dlc": false},
+        {"id": "c4m1_milltown_a", "name": "Hard Rain", "dlc": false},
+        {"id": "c5m1_waterfront", "name": "The Parish", "dlc": false},
+        {"id": "c6m1_riverbank", "name": "The Passing", "dlc": false},
+        {"id": "c7m1_docks", "name": "The Sacrifice", "dlc": false},
+        {"id": "c8m1_apartment", "name": "No Mercy", "dlc": false},
+        {"id": "c9m1_alleys", "name": "Crash Course", "dlc": false},
+        {"id": "c10m1_caves", "name": "Death Toll", "dlc": false},
+        {"id": "c11m1_greenhouse", "name": "Dead Air", "dlc": false},
+        {"id": "c12m1_hilltop", "name": "Blood Harvest", "dlc": false},
+        {"id": "c13m1_alpinecreek", "name": "Cold Stream", "dlc": false},
+        {"id": "c14m1_junkyard", "name": "The Last Stand", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "left4dead2/cfg/server.cfg", "template": "l4d2/server.cfg.j2"}
+    ],
+    "startup_command": "srcds_run -game left4dead2 -port {{game}} +map {{map_id}} +maxplayers {{max_players}} +sv_setsteamaccount {{gslt_token}} +rcon_password {{admin_password}} -tickrate 100",
+    "default_settings": {
+        "max_players": 8,
+        "tick_rate": 100,
+        "difficulty": "Advanced",
+        "gamemode": "coop",
+        "friendly_fire": true,
+        "allow_lobby_connect": false,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "l4d2server",
+    "query_protocol": "steam",
+    "notes": "Default game port 27015, RCON port 27015. Gamemodes: coop, versus, survival, scavenge, mutation."
+}

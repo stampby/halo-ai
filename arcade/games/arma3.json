@@ -1,0 +1,40 @@
+{
+    "game_id": "arma3",
+    "display_name": "Arma 3",
+    "steam_app_id": 233780,
+    "category": "fps",
+    "min_ram_mb": 4096,
+    "recommended_ram_mb": 8192,
+    "min_disk_gb": 35,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "Altis", "name": "Altis", "dlc": false},
+        {"id": "Stratis", "name": "Stratis", "dlc": false},
+        {"id": "Malden", "name": "Malden 2035", "dlc": false},
+        {"id": "Tanoa", "name": "Tanoa", "dlc": true},
+        {"id": "Enoch", "name": "Livonia", "dlc": true},
+        {"id": "VR", "name": "Virtual Reality", "dlc": false}
+    ],
+    "config_files": [
+        {"path": "cfg/server.cfg", "template": "arma3/server.cfg.j2"},
+        {"path": "cfg/basic.cfg", "template": "arma3/basic.cfg.j2"},
+        {"path": "Arma3Profile/server.Arma3Profile", "template": "arma3/server.Arma3Profile.j2"}
+    ],
+    "startup_command": "arma3server_x64 -config=cfg/server.cfg -cfg=cfg/basic.cfg -port={{game}} -name=server -profiles=Arma3Profile -mod= -servermod= -world={{map_id}} -noSound -hugePages",
+    "default_settings": {
+        "max_players": 32,
+        "persistent": 1,
+        "difficulty": "custom",
+        "von_enabled": true,
+        "verify_signatures": 2,
+        "max_bandwidth": 1073741824,
+        "min_bandwidth": 131072,
+        "max_packet_size": 1400,
+        "whitelist_only": false
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "arma3server",
+    "query_protocol": "steam",
+    "notes": "Default game port 2302-2306 (5 ports), steam query port 2303. Headless client for AI offloading recommended. BattlEye required for public servers."
+}

@@ -1,0 +1,35 @@
+{
+    "game_id": "dayz",
+    "display_name": "DayZ",
+    "steam_app_id": 223350,
+    "category": "survival",
+    "min_ram_mb": 8192,
+    "recommended_ram_mb": 12288,
+    "min_disk_gb": 20,
+    "supports_clustering": false,
+    "max_cluster_maps": 0,
+    "maps": [
+        {"id": "chernarusplus", "name": "Chernarus", "dlc": false},
+        {"id": "enoch", "name": "Livonia", "dlc": true},
+        {"id": "sakhal", "name": "Sakhal", "dlc": true}
+    ],
+    "config_files": [
+        {"path": "serverDZ.cfg", "template": "dayz/serverDZ.cfg.j2"},
+        {"path": "mpmissions/dayzOffline.chernarusplus/db/types.xml", "template": "dayz/types.xml.j2"}
+    ],
+    "startup_command": "DayZServer -config=serverDZ.cfg -port={{game}} -BEpath=battleye -profiles=profiles -dologs -adminlog -netlog -freezecheck -mod= -servermod=",
+    "default_settings": {
+        "max_players": 20,
+        "disable_third_person": false,
+        "disable_crosshair": false,
+        "respawn_time": 5,
+        "time_acceleration": 6,
+        "night_time_acceleration": 12,
+        "login_queue_max_players": 500,
+        "whitelist_only": true
+    },
+    "whitelist_file": "",
+    "linuxgsm_id": "dayzserver",
+    "query_protocol": "steam",
+    "notes": "Default game port 2302, steam query port 27016. Note: DayZ Linux server support is experimental. BattlEye may need manual config."
+}
