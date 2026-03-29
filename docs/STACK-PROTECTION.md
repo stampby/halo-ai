@@ -126,3 +126,38 @@ sudo systemctl restart halo-comfyui
 
 The system packages power the desktop and the OS. The AI stack at `/srv/ai/`
 and `/opt/` is self-contained. Arch can roll all day long and nothing breaks.
+
+## Weekly Source Compiles
+
+Every week, the entire AI stack is recompiled from source. This isn't a panic
+response — it's scheduled maintenance that keeps the stack current and proves
+stability before anything goes to production.
+
+**What gets compiled weekly:**
+- llama.cpp (latest main)
+- whisper.cpp (latest main)
+- Kokoro TTS
+- ComfyUI + custom nodes
+- Open WebUI
+- Vane (Perplexica)
+- ROCm runtime (when upstream moves)
+- Python (when upstream releases)
+
+**Why this works:**
+- Problems surface in a controlled environment, not in production at 2 AM
+- Every compile is a stability test — if it builds and benchmarks clean, it ships
+- We catch upstream breaking changes before they cascade
+- The frozen snapshot is always from a verified-good compile, never a guess
+
+**The cycle:**
+
+```
+Step 1: Pull latest source for all components
+Step 2: Compile everything from source
+Step 3: Run benchmarks (tok/s, latency, VRAM usage)
+Step 4: If benchmarks match or beat previous — freeze, deploy, restart services
+Step 5: If regression — rollback to last freeze, flag the upstream commit
+```
+
+This is why the stack runs at 109 tok/s and stays there. Weekly compiles aren't
+overhead — they're the reason nothing breaks.
