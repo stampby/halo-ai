@@ -70,23 +70,28 @@ Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](
 
 ## Infrastructure
 
-```
-  4 machines ── SSH mesh ── mixer snapshots ── zero cloud
+4 machines — SSH mesh — mixer snapshots — zero cloud
 
-  ryzen ←──→ strix-halo ←──→ minisforum ←──→ sligar
-  desktop      128GB GPU       windows 11      1080Ti
+| Machine | Role |
+|---------|------|
+| ryzen | desktop — development |
+| strix-halo | 128GB GPU — AI inference |
+| minisforum | Windows 11 — office / testing |
+| sligar | 1080Ti — voice training |
 
-  Browser → Caddy → Lemonade (unified API)
-                  ├─ llama.cpp    LLM inference
-                  ├─ whisper.cpp  speech-to-text
-                  ├─ Kokoro       text-to-speech
-                  ├─ ComfyUI      image generation
-                  ├─ Open WebUI   chat + RAG
-                  ├─ Vane         deep research
-                  ├─ n8n          workflow automation
-                  ├─ Gaia         11 agents, 78 tools
-                  └─ Man Cave     control center
-```
+Browser > Caddy > Lemonade (unified API) > all services:
+
+| Service | What it does |
+|---------|-------------|
+| llama.cpp | LLM inference |
+| whisper.cpp | speech-to-text |
+| Kokoro | text-to-speech |
+| ComfyUI | image generation |
+| Open WebUI | chat + RAG |
+| Vane | deep research |
+| n8n | workflow automation |
+| Gaia | 17 agents, 78 tools |
+| Man Cave | control center |
 
 Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
