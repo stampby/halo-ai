@@ -1,7 +1,7 @@
 <div align="center">
 
 <picture>
-  <img src="https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/assets/avatars/halo-ai.svg" alt="halo ai" width="200">
+  <img src="https://raw.githubusercontent.com/stampby/halo-ai/main/assets/avatars/halo-ai.svg" alt="halo ai" width="200">
 </picture>
 
 # halo-ai
@@ -39,7 +39,7 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 ## Quick Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | bash
 ```
 
 Interactive installer — username, passwords, hostname, which services to enable. Sensible defaults. Default Caddy password is `Caddy` — change it immediately.
@@ -56,26 +56,26 @@ Interactive installer — username, passwords, hostname, which services to enabl
 
 ### Agents — [docs](docs/AGENTS.md)
 - **17 autonomous agents** on [AMD Gaia](https://github.com/amd/gaia) with 78 tools
-- **[Echo](https://github.com/bong-water-water-bong/echo)** — public face, Reddit bridge, Discord, social media
-- **[Meek](https://github.com/bong-water-water-bong/meek)** — security chief, 9 Reflex sub-agents
-- **[Bounty](https://github.com/bong-water-water-bong/bounty)** — bug hunter, code troubleshooter
-- **[Amp](https://github.com/bong-water-water-bong/amp)** — audio/video production, voice cloning, music
-- **[Sentinel](https://github.com/bong-water-water-bong/sentinel)** — auto PR review, code gating
-- **[Forge](https://github.com/bong-water-water-bong/forge)** — game builder, asset pipeline, Steam deploy
-- **[Dealer](https://github.com/bong-water-water-bong/dealer)** — AI game master, every run different
-- **[Conductor](https://github.com/bong-water-water-bong/conductor)** — AI composer, dynamic game music
+- **[Echo](https://github.com/stampby/echo)** — public face, Reddit bridge, Discord, social media
+- **[Meek](https://github.com/stampby/meek)** — security chief, 9 Reflex sub-agents
+- **[Bounty](https://github.com/stampby/bounty)** — bug hunter, code troubleshooter
+- **[Amp](https://github.com/stampby/amp)** — audio/video production, voice cloning, music
+- **[Sentinel](https://github.com/stampby/sentinel)** — auto PR review, code gating
+- **[Forge](https://github.com/stampby/forge)** — game builder, asset pipeline, Steam deploy
+- **[Dealer](https://github.com/stampby/dealer)** — AI game master, every run different
+- **[Conductor](https://github.com/stampby/conductor)** — AI composer, dynamic game music
 
 ### Security — [docs](docs/SECURITY.md)
 - **SSH key-only** — no passwords, single user, fail2ban
 - **nftables default-drop** — LAN only, deny everything else
 - **All services on localhost** — Caddy is the only entry point
 - **Systemd hardening** — ProtectSystem, PrivateTmp, NoNewPrivileges on every service
-- **[Shadow](https://github.com/bong-water-water-bong/shadow)** — file integrity monitoring, SSH mesh watcher
+- **[Shadow](https://github.com/stampby/shadow)** — file integrity monitoring, SSH mesh watcher
 
 ### Stack Protection — [docs](docs/STACK-PROTECTION.md)
 - **Freeze/thaw** — one-click snapshot and rollback of the entire stack
 - **Compile from source** — weekly rebuilds with native gfx1151 optimizations
-- **[Mixer](https://github.com/bong-water-water-bong/mixer)** — distributed mesh snapshots, no NAS, no single point of failure
+- **[Mixer](https://github.com/stampby/mixer)** — distributed mesh snapshots, no NAS, no single point of failure
 - **Man Cave UI** — stack status, update indicators, compile button
 
 ### Automation — [docs](docs/AUTONOMOUS-PIPELINE.md)
@@ -84,23 +84,23 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **Mesh snapshots** — Shadow distributes backups every 6 hours
 - **CI/CD** — GitHub Actions lint, build, release on every tag
 
-### Music — [The Downcomers](https://github.com/bong-water-water-bong/amp)
+### Music — [The Downcomers](https://github.com/stampby/amp)
 - **Voice cloning** — architect's voice via XTTS v2, trained on local GPU
 - **AI instrumentals** — original blues/rock, no covers
 - **Effects chain** — plate reverb, slapback delay, vocal doubling, no autotune
 - **Distribution** — DistroKid to Spotify, Apple Music, all platforms
 
 ### Game Studio — [Autonomous Pipeline](docs/AUTONOMOUS-PIPELINE.md)
-- **[Voxel Extraction](https://github.com/bong-water-water-bong/voxel-extraction)** — PvE co-op extraction game in Godot 4
+- **[Voxel Extraction](https://github.com/stampby/voxel-extraction)** — PvE co-op extraction game in Godot 4
 - **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding
 - **AI game master** — Dealer runs local LLM, every dungeon run is unique
-- **[Undercroft Mini](https://github.com/bong-water-water-bong/undercroft-reddit)** — playable demo on Reddit via Devvit
-- **[Arcade](https://github.com/bong-water-water-bong/arcade)** — game server manager, one-click deploy
+- **[Undercroft Mini](https://github.com/stampby/undercroft-reddit)** — playable demo on Reddit via Devvit
+- **[Arcade](https://github.com/stampby/arcade)** — game server manager, one-click deploy
 
 ### Infrastructure
 - **4-machine SSH mesh** — ryzen, strix-halo, minisforum, sligar
-- **[Mixer](https://github.com/bong-water-water-bong/mixer)** — btrfs ring snapshots over SSH
-- **[Benchmarks](https://bong-water-water-bong.github.io/benchmarks/)** — live performance tracking, history over time
+- **[Mixer](https://github.com/stampby/mixer)** — btrfs ring snapshots over SSH
+- **[Benchmarks](https://stampby.github.io/benchmarks/)** — live performance tracking, history over time
 - **Man Cave** — control center with GPU metrics, service health, agent activity
 - **Zero cloud** — no subscriptions, no APIs, no third-party dependencies
 
@@ -173,7 +173,7 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | [Autonomous Pipeline](docs/AUTONOMOUS-PIPELINE.md) | Zero-human game studio pipeline |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common issues and fixes |
 | [VPN Access](docs/VPN.md) | WireGuard setup |
-| [Mixer](https://github.com/bong-water-water-bong/mixer) | SSH mesh snapshots — distributed backups, no single point of failure |
+| [Mixer](https://github.com/stampby/mixer) | SSH mesh snapshots — distributed backups, no single point of failure |
 | [Changelog](CHANGELOG.md) | Version history |
 
 ## Tutorials
