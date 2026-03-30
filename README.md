@@ -24,18 +24,6 @@
 
 ---
 
-## Screenshots
-
-| Arcade Dashboard | Retro Arcade |
-|:---:|:---:|
-| ![Arcade Dashboard](assets/screenshots/arcade-dashboard.png) | ![Retro Arcade](assets/screenshots/retro-arcade.png) |
-| One-click game server deployment, 25 games | In-browser RetroArch, 17 systems, drop ROMs to play |
-
-| Server Screensaver | Setup Wizard |
-|:---:|:---:|
-| ![Server Screensaver](assets/screenshots/server-screensaver.png) | ![Setup Wizard](assets/screenshots/setup-wizard.png) |
-| Live cluster status, animated, KDE wallpaper plugin | Cosmos-inspired 4-step first-run config |
-
 ## What is this?
 
 A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
@@ -113,9 +101,9 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **[Undercroft Mini](https://github.com/stampby/undercroft-reddit)** — playable demo on Reddit via Devvit
 - **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
 
-### Infrastructure
-- **4-machine SSH mesh** — ryzen, strix-halo, minisforum, sligar
-- **[Mixer](https://github.com/stampby/mixer)** — btrfs ring snapshots over SSH
+### Infrastructure [Kansas City Shuffle]
+- **4-machine SSH mesh [Kansas City Shuffle]** — ryzen, strix-halo, minisforum, sligar
+- **[Mixer](https://github.com/stampby/mixer)** — btrfs ring snapshots over SSH [Kansas City Shuffle]
 - **[Benchmarks](https://stampby.github.io/benchmarks/)** — live performance tracking, history over time
 - **[Man Cave](https://github.com/stampby/man-cave)** — control center with GPU metrics, service health, agent activity
 - **Zero cloud** — no subscriptions, no APIs, no third-party dependencies
@@ -149,9 +137,9 @@ All services bind to `127.0.0.1` — access via Caddy reverse proxy.
 
 Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](BENCHMARKS.md)
 
-## Infrastructure
+## Infrastructure [Kansas City Shuffle]
 
-4 machines — SSH mesh — mixer snapshots — zero cloud
+4 machines — SSH mesh — mixer snapshots — zero cloud [Kansas City Shuffle]
 
 | Machine | Role |
 |---------|------|
@@ -189,7 +177,8 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | [Autonomous Pipeline](docs/AUTONOMOUS-PIPELINE.md) | Zero-human game studio pipeline |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common issues and fixes |
 | [VPN Access](docs/VPN.md) | WireGuard setup |
-| [Mixer](https://github.com/stampby/mixer) | SSH mesh snapshots — distributed backups, no single point of failure |
+| [Kansas City Shuffle](docs/KANSAS-CITY-SHUFFLE.md) | Ring bus, ClusterFS, auto-repair, mesh management |
+| [Mixer](https://github.com/stampby/mixer) | SSH mesh snapshots — distributed backups, no single point of failure [Kansas City Shuffle] |
 | [Changelog](CHANGELOG.md) | Version history |
 
 ## Tutorials
@@ -224,6 +213,18 @@ Video walkthroughs — start to finish, nothing skipped. Unlisted YouTube links.
 | 24 | Full Autonomous Demo — tag → agents → Reddit post | coming soon |
 
 *99% of users don't have Claude. These tutorials make the experience effortless without it.*
+
+## Screenshots
+
+| Arcade Dashboard | Retro Arcade |
+|:---:|:---:|
+| ![Arcade Dashboard](assets/screenshots/arcade-dashboard.png) | ![Retro Arcade](assets/screenshots/retro-arcade.png) |
+| One-click game server deployment, 25 games | In-browser RetroArch, 17 systems, drop ROMs to play |
+
+| Server Screensaver | Setup Wizard |
+|:---:|:---:|
+| ![Server Screensaver](assets/screenshots/server-screensaver.png) | ![Setup Wizard](assets/screenshots/setup-wizard.png) |
+| Live cluster status, animated, KDE wallpaper plugin | Cosmos-inspired 4-step first-run config |
 
 ## Credits
 

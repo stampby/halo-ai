@@ -15,7 +15,7 @@ The Kansas City Shuffle is the SSH mesh management system for halo-ai. It connec
 ```
                     ┌──────────┐
                     │  ryzen   │
-                    │ 10.0.0.185│
+                    │ 10.0.0.61│
                     │ primary  │
                     └────┬─────┘
                    ╱      │      ╲
@@ -23,7 +23,7 @@ The Kansas City Shuffle is the SSH mesh management system for halo-ai. It connec
                 ╱        │          ╲
      ┌──────────────┐   │    ┌──────────┐
      │  strix-halo  │───┼────│  sligar  │
-     │  10.0.0.131  │   │    │ .50.184  │
+     │  10.0.0.131  │   │    │ 10.0.0.x │
      │  GPU / ops   │───┼────│ secondary│
      └──────────────┘   │    └──────────┘
                 ╲        │        ╱
@@ -31,7 +31,7 @@ The Kansas City Shuffle is the SSH mesh management system for halo-ai. It connec
                    ╲     │    ╱
                   ┌──────────────┐
                   │  minisforum  │
-                  │  10.0.0.61   │
+                  │ 10.0.0.185   │
                   │  Windows     │
                   └──────────────┘
 ```
@@ -40,10 +40,10 @@ The Kansas City Shuffle is the SSH mesh management system for halo-ai. It connec
 
 | Machine | IP | Role | Hardware |
 |---------|-----|------|----------|
-| **ryzen** | 10.0.0.185 | Primary workstation | Ryzen 9800X3D, Navi 48 |
+| **ryzen** | 10.0.0.61 | Primary workstation | Ryzen 9800X3D, Navi 48 |
 | **strix-halo** | 10.0.0.131 | GPU server, ops center | Ryzen AI MAX+ 395, 128GB |
-| **sligar** | 192.168.50.184 | Secondary workloads | i7-8700K, GTX 1080Ti |
-| **minisforum** | 10.0.0.61 | Windows workstation | Needs Win11 reinstall |
+| **sligar** | TBD | Secondary workloads | i7-8700K, GTX 1080Ti |
+| **minisforum** | 10.0.0.185 | Windows workstation | Needs Win11 reinstall |
 
 ### Connections (12 bidirectional links — full mesh)
 
@@ -69,18 +69,18 @@ Distributed filesystem across all three machines. Zero configuration required �
 
 ```bash
 # On each machine (automated):
-gluster peer probe 192.168.50.185  # ryzen
-gluster peer probe 192.168.50.69   # strix-halo
-gluster peer probe 192.168.50.184  # sligar
+gluster peer probe 10.0.0.61   # ryzen
+gluster peer probe 10.0.0.131  # strix-halo
+gluster peer probe <sligar-ip> # sligar
 
 # Create replicated volume:
-gluster volume create shared replica 3 \
-    192.168.50.185:/data/gluster/brick \
-    192.168.50.69:/data/gluster/brick \
-    192.168.50.184:/data/gluster/brick
+gluster volume create pool replica 3 \
+    10.0.0.61:/gluster/brick1/data \
+    10.0.0.131:/gluster/brick1/data \
+    <sligar-ip>:/gluster/brick1/data
 
-gluster volume start shared
-mount -t glusterfs localhost:/shared /shared
+gluster volume start pool
+mount -t glusterfs localhost:pool /pool
 ```
 
 ## Man Cave Panel
@@ -151,7 +151,7 @@ The halo-agent (autonomous service guardian) monitors the ring bus every 60 seco
 ### Connection shows red (SSH down)
 
 1. Check if the machine is powered on and connected to the network
-2. Try manual SSH: `ssh bcloud@192.168.50.185`
+2. Try manual SSH: `ssh bcloud@10.0.0.61`
 3. Check SSH key: `ssh-add -l` (should show ed25519 key)
 4. Check firewall on target: `sudo nft list ruleset | grep ssh`
 5. Check sshd is running: `systemctl status sshd`
@@ -194,9 +194,9 @@ All machines use the same ed25519 key for `bcloud` user:
 ssh-keygen -t ed25519
 
 # Copy to each machine:
-ssh-copy-id bcloud@192.168.50.185  # ryzen
-ssh-copy-id bcloud@192.168.50.69   # strix-halo
-ssh-copy-id bcloud@192.168.50.184  # sligar
+ssh-copy-id bcloud@10.0.0.61   # ryzen
+ssh-copy-id bcloud@10.0.0.131  # strix-halo
+ssh-copy-id bcloud@<sligar-ip> # sligar
 ```
 
 ## Files
