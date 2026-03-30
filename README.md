@@ -32,10 +32,10 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 
 ## Why Bare Metal?
 
-- **Containers add 15-20% overhead** on GPU workloads. When you have 115GB of unified memory on a single chip, every watt and every byte should go to inference, not orchestration.
+- **Containers add 15-20% overhead** on GPU workloads. When you have 115GB of unified memory on a single chip, every watt and every byte should go to inference, not orchestration. *"Do not try and bend the spoon. Instead, only try to realize the truth: there is no container."*
 - **Compiled from source** means native gfx1151 optimizations that pre-built binaries miss. That's where 109 tok/s comes from.
 - **No timers. No cron. Total AI.** Agents don't check on a schedule — they watch conditions and act when something changes. Service goes down? Detected and repaired before you notice. GPU overheats? Reported the moment it happens. Not every 30 seconds. *The moment.* I'm sorry Dave, but this stack doesn't sleep.
-- **Survives Arch rolling release.** Freeze the stack, let pacman update, agents detect if anything broke, thaw to rollback in 30 seconds. This is why halo-ai runs on Arch without fear.
+- **Survives Arch rolling release.** Freeze the stack, let pacman update, agents detect if anything broke, thaw to rollback in 30 seconds. This is why halo-ai runs on Arch without fear. *"It's just a flesh wound."*
 - **You own the whole stack.** No package manager decides when your AI server goes down. *"My precious."*
 
 ## Quick Install
@@ -79,7 +79,7 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **The Downcomers** — [Piper](https://github.com/stampby/piper), [Axe](https://github.com/stampby/axe), [Rhythm](https://github.com/stampby/rhythm), [Bottom](https://github.com/stampby/bottom), [Bones](https://github.com/stampby/bones)
 
 ### Security — [docs](docs/SECURITY.md)
-- **SSH key-only** — no passwords, single user, fail2ban
+- **SSH key-only** — no passwords, single user, fail2ban. *"You shall not pass."*
 - **nftables default-drop** — LAN only, deny everything else
 - **All services on localhost** — Caddy is the only entry point
 - **Systemd hardening** — ProtectSystem, PrivateTmp, NoNewPrivileges on every service
@@ -102,7 +102,7 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
 - **AI game master** — Dealer runs local LLM, every dungeon run is unique. *"You wanna get nuts? Let's get nuts."*
 - **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding. *"You have to ask yourself one question: Do I feel lucky?"*
-- **Full pipeline** — design → build → test → deploy, agents handle everything
+- **Full pipeline** — design → build → test → deploy, agents handle everything. *"Life, uh, finds a way."*
 
 ### Autonomous Music Production — [The Downcomers](https://github.com/stampby/amp)
 - **Voice cloning** — architect's voice via XTTS v2, milestone releases
@@ -242,7 +242,7 @@ Video walkthroughs — start to finish, nothing skipped. Unlisted YouTube links.
 | 23 | CI/CD — GitHub Actions, releases, packaging | coming soon |
 | 24 | Full Autonomous Demo — tag → agents → Reddit post | coming soon |
 
-*99% of users don't have Claude. These tutorials make the experience effortless without it.*
+*99% of users don't have Claude. These tutorials make the experience effortless without it. "Where we're going, we don't need roads."*
 
 ## Credits
 

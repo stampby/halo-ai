@@ -1,6 +1,6 @@
 # Contributing to halo-ai
 
-Thanks for wanting to contribute. Here's how.
+Thanks for wanting to contribute. Here's how. *"You have my sword." — and my SSH key.*
 
 ## Getting started
 
@@ -25,7 +25,7 @@ Thanks for wanting to contribute. Here's how.
 - Keep it clean and simple
 - Test your changes before submitting
 - One PR per feature or fix
-- No AI-generated spam PRs — we'll know
+- No AI-generated spam PRs — we'll know. *"I've seen things you people wouldn't believe."*
 - Build from source, not prebuilt binaries
 - Follow existing code style
 
@@ -35,7 +35,7 @@ Want to build a new agent? Subclass `HaloAgent`, write a `check()` method, and s
 
 ## Security
 
-Found a vulnerability? Do NOT open a public issue. Email the details privately. See [SECURITY.md](SECURITY.md).
+Found a vulnerability? Do NOT open a public issue. Email the details privately. See [SECURITY.md](SECURITY.md). *"The first rule of security bugs is: you do not talk about security bugs."*
 
 ## License
 

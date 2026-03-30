@@ -1,5 +1,7 @@
 # Halo AI Troubleshooting Guide
 
+*"Have you tried turning it off and on again?" — yes, and if that doesn't work, read on.*
+
 This guide covers common issues with the halo-ai bare-metal AI stack for AMD Strix Halo and how to resolve them.
 
 ---
@@ -91,7 +93,7 @@ If missing, rebuild the service. See `/srv/ai/scripts/build-llama-cpp.sh` or `bu
 
 The `WorkingDirectory=` in the service file does not exist. Create it or check that the application was cloned/installed properly.
 
-**Service keeps restarting (crash loop)**
+**Service keeps restarting (crash loop)** *— "Dormammu, I've come to bargain."*
 
 All halo-ai services use `Restart=on-failure` with `RestartSec=5`. If a service is crash-looping:
 
@@ -175,6 +177,8 @@ sudo kill $(sudo ss -tlnp | grep :<PORT> | awk '{print $NF}' | grep -oP '\d+')
 ---
 
 ## GPU Not Detected
+
+*"Look how they massacured my boy." — you, when rocminfo returns nothing.*
 
 ### ROCm verification
 
@@ -530,7 +534,7 @@ rocm-smi --showmeminfo vram
 
 **Common causes of slow inference:**
 
-1. **CPU fallback** -- If the GPU is not detected, llama.cpp will fall back to CPU inference, which is dramatically slower. Check logs for "offloaded 0 layers" or similar warnings:
+1. **CPU fallback** -- If the GPU is not detected, llama.cpp will fall back to CPU inference, which is dramatically slower. *"We have a Hulk." Use it.* Check logs for "offloaded 0 layers" or similar warnings:
    ```bash
    journalctl -u halo-llama-server | grep -i "offload\|layer\|gpu\|hip"
    ```
@@ -600,7 +604,7 @@ sudo nano /srv/ai/configs/system/nftables.conf
 sudo nft -f /srv/ai/configs/system/nftables.conf
 ```
 
-**Temporarily disable the firewall** (for debugging only):
+**Temporarily disable the firewall** (for debugging only — *"hold on to your butts"*):
 
 ```bash
 sudo nft flush ruleset

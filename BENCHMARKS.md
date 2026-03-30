@@ -14,7 +14,7 @@
 | **Vulkan (RADV) + Flash Attention** | **109 tok/s** | **109 tok/s** | 58-172 tok/s |
 | HIP (ROCm) + rocWMMA FA | 70.2 tok/s | 68.4 tok/s | 217-302 tok/s |
 
-**Vulkan wins for generation** (~55% faster). HIP wins for prompt processing. Default backend is now Vulkan + Flash Attention.
+**Vulkan wins for generation** (~55% faster). HIP wins for prompt processing. Default backend is now Vulkan + Flash Attention. *"These go to eleven."*
 
 ## Inference Performance (Vulkan + FA, default)
 
@@ -35,7 +35,7 @@
 
 Qwen3-30B-A3B is a Mixture of Experts model — 30B total parameters but only ~3B active per token. This is ideal for Strix Halo because memory bandwidth (~215 GB/s) is the bottleneck, not compute. MoE activates fewer parameters per token = less data moved = faster generation.
 
-Dense 70B models achieve ~15-20 tok/s on the same hardware — usable but significantly slower.
+Dense 70B models achieve ~15-20 tok/s on the same hardware — usable but significantly slower. *"Clever girl."*
 
 ## GPU & Memory Profile
 
@@ -109,7 +109,7 @@ Or use the unified CLI: `halo fan quiet`
 | Heavy GPU + all 25 services | 65-75°C | ~800 rpm | ~800 rpm | ~500 rpm | Barely audible |
 | Stress test (120W sustained) | 85-90°C | ~2000 rpm | ~2000 rpm | ~1500 rpm | Noticeable |
 
-**Key takeaway**: At 109 tok/s sustained inference, the GPU stays under 70°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance.
+**Key takeaway**: At 109 tok/s sustained inference, the GPU stays under 70°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance. *The silence of the fans.*
 
 ### Persist Across Reboots
 
@@ -233,11 +233,13 @@ sudo systemctl enable halo-fancontrol
 | **GPU VRAM available** | **115 GB** |
 | **Boot to ready** | **19.3s** |
 | **Machines in mesh** | **4** |
-| **Cloud dependencies** | **0** |
+| **Cloud dependencies** | **0** | *"I'm not even supposed to be here today."* |
 
 *Built by CLI — stamped by the architect.*
 
 ## Boot Performance
+
+*"Ludicrous speed — GO!"*
 
 | Phase | Time |
 |-------|------|

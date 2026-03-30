@@ -1,5 +1,7 @@
 # Security Guide
 
+*"I know what you're thinking: did he open six ports or only two? Well, to tell you the truth, in all this excitement, I've kinda lost track myself."*
+
 This document covers the full security posture of a halo-ai deployment: what is locked down by default, how each layer works, and how to modify it.
 
 
@@ -14,7 +16,7 @@ Out of the box, halo-ai follows a deny-all, allow-by-exception model:
 - **Systemd units are hardened** with `ProtectSystem=strict`, `PrivateTmp=yes`, `NoNewPrivileges=yes`, and `ProtectHome=read-only`.
 - **GPU devices use restrictive permissions** (`0660`, group `render`). Only users in the `render` group can access the GPU.
 
-The result: even if someone is on your LAN, they cannot reach any AI service without authenticating through Caddy or establishing an SSH tunnel.
+The result: even if someone is on your LAN, they cannot reach any AI service without authenticating through Caddy or establishing an SSH tunnel. *"You didn't say the magic word."*
 
 
 ## Firewall (nftables)
@@ -50,7 +52,7 @@ table inet filter {
 ```
 
 Key design decisions:
-- **Default policy is `drop`** --- anything not explicitly allowed is silently rejected.
+- **Default policy is `drop`** --- anything not explicitly allowed is silently rejected. *"Hasta la vista, baby."*
 - **SSH and Caddy are LAN-only** (`xxx.xxx.xxx.0/24` — replace with your LAN subnet). Adjust this to match your subnet.
 - **WireGuard accepts from anywhere** because VPN clients may connect from external networks.
 - **Loopback is fully open** because all inter-service communication happens on localhost.
@@ -154,7 +156,7 @@ bantime = 3600
 findtime = 600
 ```
 
-This bans an IP for 1 hour after 3 failed attempts within 10 minutes.
+This bans an IP for 1 hour after 3 failed attempts within 10 minutes. *Three strikes. "You're terminated."*
 
 Check ban status:
 
@@ -196,7 +198,7 @@ The `basicauth *` directive means every request to every path must authenticate.
 
 ### Changing the password
 
-**The default password is `Caddy`. You MUST change this immediately after installation.**
+**The default password is `Caddy`. You MUST change this immediately after installation.** *"The code is 1-2-3-4-5." "That's the stupidest combination I've ever heard."*
 
 1. Generate a new bcrypt hash:
 
@@ -438,7 +440,7 @@ No service-to-service communication crosses the network boundary. For example:
 - Vane talks to SearXNG at `127.0.0.1:8888`
 - n8n talks to the LLM API at `127.0.0.1:8080`
 
-All of this happens over loopback. An attacker on the network sees only ports 22, 443, 8443, and 51820 --- and all of those require authentication.
+All of this happens over loopback. An attacker on the network sees only ports 22, 443, 8443, and 51820 --- and all of those require authentication. *"It's a trap!" — but for them, not you.*
 
 To verify that no service is accidentally exposed:
 
@@ -486,4 +488,4 @@ Machine dies completely:
 2. `mixer restore <neighbor>` — pulls the latest snapshot from the next machine in the ring
 3. Stack is back
 
-The ring means the data is always somewhere else. Shadow moves it in silence.
+The ring means the data is always somewhere else. Shadow moves it in silence. *"I am no man." — Shadow, probably.*

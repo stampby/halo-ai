@@ -1,13 +1,13 @@
 # halo-ai Security Model
 
 
-> **No service in halo-ai is directly accessible from the network. This is by design.**
+> **No service in halo-ai is directly accessible from the network. This is by design.** *"None shall pass."*
 
 Every service binds to `127.0.0.1` (localhost only). There is no way to reach Open WebUI, Vane, n8n, the LLM API, or any other service by connecting to the machine's IP address. This is critical because:
 
 - **AI services have no built-in authentication** — Open WebUI, ComfyUI, llama.cpp server, and most AI tools were designed for local use. They have no concept of user authentication, rate limiting, or access control. Exposing them on `0.0.0.0` means anyone on your network can use your GPU, read your conversations, modify your workflows, and consume your resources.
 - **LLM APIs accept arbitrary prompts** — An exposed OpenAI-compatible endpoint lets anyone on the network run inference against your models. On a 128GB machine running a 70B model, a single bad actor can saturate GPU compute and deny service to legitimate users.
-- **Workflow engines are remote code execution** — n8n executes arbitrary workflows including shell commands, HTTP requests, and database queries. An exposed n8n instance is functionally equivalent to an open SSH session.
+- **Workflow engines are remote code execution** — n8n executes arbitrary workflows including shell commands, HTTP requests, and database queries. An exposed n8n instance is functionally equivalent to an open SSH session. *"Game over, man! Game over!"*
 
 ### How to Access Services
 
@@ -84,6 +84,8 @@ Caddy provides:
 
 The SSH daemon on strix-halo is locked down:
 
+*"You want to get into this machine? You need to know the secret handshake." — Morpheus, probably*
+
 ```
 PasswordAuthentication no       # Keys only — no brute force
 ChallengeResponseAuthentication no
@@ -116,7 +118,7 @@ table inet filter {
         tcp dport 443 accept       # Caddy (TLS + auth)
         tcp dport 8443 accept      # Caddy alt port
         ip protocol icmp accept    # ping
-        counter drop               # everything else
+        counter drop               # everything else — "Shall we play a game?" No.
     }
 }
 ```

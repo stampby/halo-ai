@@ -8,7 +8,7 @@
 
 The Kansas City Shuffle is the SSH mesh management system for halo-ai. It connects all machines in a full-mesh topology (Ring Bus), monitors connectivity, auto-repairs broken links, and provides a distributed filesystem (ClusterFS via GlusterFS) across the entire fleet.
 
-**No cloud. No monthly bills. No single point of failure. Just your hard drives.**
+**No cloud. No monthly bills. No single point of failure. Just your hard drives.** *"You look to the left, they fall to the right."*
 
 ## Ring Bus Topology
 
@@ -62,7 +62,7 @@ Distributed filesystem across all three machines. Zero configuration required �
 
 - Pools available disk space from all machines into a shared `/shared/` mount
 - Replicated volume — data exists on multiple machines simultaneously
-- No single point of failure — if one machine goes down, files are still accessible
+- No single point of failure — if one machine goes down, files are still accessible. *"I'm not dead yet!"*
 - Auto-heals when machines reconnect
 
 ### Peer setup (handled by agent)
@@ -135,7 +135,7 @@ The halo-agent (autonomous service guardian) monitors the ring bus every 60 seco
 1. SSH probe to each machine fails
 2. Agent clears stale `known_hosts` entry
 3. Retries SSH connection
-4. If restored → reports `ringbus_repaired` to activity feed
+4. If restored → reports `ringbus_repaired` to activity feed. *"I got better."*
 5. If still down → reports `ringbus_repair_failed` as critical
 6. On natural recovery → reports `ringbus_recovered`
 

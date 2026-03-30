@@ -1,6 +1,6 @@
 # Halo AI — Blueprints
 
-Implementation plans for the next evolution of halo-ai. Each blueprint is a standalone deliverable.
+Implementation plans for the next evolution of halo-ai. Each blueprint is a standalone deliverable. *"Roads? Where we're going, we don't need roads."*
 
 ---
 
@@ -10,7 +10,7 @@ Implementation plans for the next evolution of halo-ai. Each blueprint is a stan
 **Effort:** 1 session
 **Files:** `scripts/halo` (single entry point)
 
-One command. Tab-completable. Replaces all standalone scripts.
+One command. Tab-completable. Replaces all standalone scripts. *"One ring to rule them all."*
 
 ```
 halo status                    # full system overview
@@ -121,7 +121,7 @@ When a fresh install opens `https://strixhalo` for the first time:
 **Step 4 — First Conversation**
 - Embedded chat widget
 - "Ask me anything. I'm running at 109 tok/s on your hardware."
-- User sees it work. That's the moment.
+- User sees it work. That's the moment. *"Whoa."*
 
 **Step 5 — Meet the Family**
 - Show the family SVG
@@ -233,4 +233,4 @@ Phase 3 (polish):
 
 ---
 
-*These blueprints are the path from "impressive stack" to "product people fight over."*
+*These blueprints are the path from "impressive stack" to "product people fight over." "Inconceivable!" No — just not built yet.*

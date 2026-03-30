@@ -1,6 +1,6 @@
 # halo-ai studios — Autonomous Pipeline
 
-17 agents. Zero human interaction with the outside world. The architect builds agents. Agents run the business.
+17 agents. Zero human interaction with the outside world. The architect builds agents. Agents run the business. *"I love it when a plan comes together."*
 
 *stamped by the architect*
 
@@ -44,7 +44,7 @@ code → sentinel → meek → bounty → forge → amp → echo → revenue
 
 ### In-Game Runtime
 
-- **dealer** — local LLM on player's machine, every run is different, never scripted, dynamic enemies/loot/events/narration
+- **dealer** — local LLM on player's machine, every run is different, never scripted, dynamic enemies/loot/events/narration. *"The only winning move is to play."*
 
 ### Infrastructure (always on)
 
@@ -61,7 +61,7 @@ code → sentinel → meek → bounty → forge → amp → echo → revenue
 
 ## Revenue
 
-All revenue streams managed by the autonomous pipeline. Agents handle production, distribution, and promotion. One person. Zero employees.
+All revenue streams managed by the autonomous pipeline. Agents handle production, distribution, and promotion. One person. Zero employees. *"Say hello to my little friends."*
 
 ### Games
 

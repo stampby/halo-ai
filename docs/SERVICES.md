@@ -1,12 +1,12 @@
 # Halo AI Services Reference
 
-Detailed documentation for every service in the halo-ai stack. All services bind to `127.0.0.1` and are managed via systemd.
+Detailed documentation for every service in the halo-ai stack. All services bind to `127.0.0.1` and are managed via systemd. *"I'm not locked in here with you. You're locked in here with me." — every service on localhost.*
 
 ---
 
 ## llama-server
 
-LLM inference engine. The core of the stack -- all text generation flows through this service.
+LLM inference engine. The core of the stack -- all text generation flows through this service. *"The spice must flow."*
 
 | Property | Value |
 |----------|-------|
@@ -435,7 +435,7 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3003/
 
 ## Caddy
 
-Reverse proxy with automatic TLS. The only service that listens on a network-facing port (443). Protects all web services with basic authentication.
+Reverse proxy with automatic TLS. The only service that listens on a network-facing port (443). Protects all web services with basic authentication. *"I am the keymaster. Are you the gatekeeper?"*
 
 | Property | Value |
 |----------|-------|
@@ -535,7 +535,7 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3001/
 
 ## Kokoro
 
-High-quality text-to-speech API. Converts text responses to spoken audio.
+High-quality text-to-speech API. Converts text responses to spoken audio. *54 voices — "These go to eleven."*
 
 | Property | Value |
 |----------|-------|
@@ -580,7 +580,7 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8083/
 
 ## Agent
 
-Autonomous service guardian. Runs continuously, monitors all services every 30 seconds, auto-restarts failures, monitors GPU health and thermals, and tracks inference performance. Takes Btrfs snapshots before any repair action.
+Autonomous service guardian. Runs continuously, monitors all services every 30 seconds, auto-restarts failures, monitors GPU health and thermals, and tracks inference performance. Takes Btrfs snapshots before any repair action. *"I am always watching, Wazowski. Always watching."*
 
 | Property | Value |
 |----------|-------|

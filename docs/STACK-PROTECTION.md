@@ -4,7 +4,7 @@ halo-ai runs on Arch Linux, a rolling release distro. That means system packages
 update constantly — and those updates can break your AI stack if you're not careful.
 
 **We solved this.** The AI stack is completely isolated from the system. Arch can
-update Python, ROCm, the kernel — nothing breaks.
+update Python, ROCm, the kernel — nothing breaks. *"You can't kill me. I'm already dead." — the stack, to pacman.*
 
 ## The Problem
 
@@ -15,7 +15,7 @@ Arch Linux rolling updates can:
 - Update the kernel (breaks GPU driver modules)
 
 Any one of these kills your AI inference. On a server that's supposed to run 24/7,
-that's not acceptable.
+that's not acceptable. *"You break it, you buy it." — except we have a receipt.*
 
 ## The Solution: Total Isolation
 
@@ -88,7 +88,7 @@ halo-thaw.sh 20260326_133905    # restore specific snapshot
 ```
 
 This rebuilds the entire AI venv from cached wheels — no network needed.
-Takes about 60 seconds.
+Takes about 60 seconds. *"Great Scott!" — that fast.*
 
 ## What to Do Before a System Update
 
@@ -160,4 +160,4 @@ Step 5: If regression — rollback to last freeze, flag the upstream commit
 ```
 
 This is why the stack runs at 109 tok/s and stays there. Weekly compiles aren't
-overhead — they're the reason nothing breaks.
+overhead — they're the reason nothing breaks. *"The way is shut. It was made by those who are compiled, and the compiled keep it."*

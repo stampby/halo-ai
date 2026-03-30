@@ -1,10 +1,10 @@
 # VPN Access
 
-Remote access to your Halo AI server without exposing services to the internet.
+Remote access to your Halo AI server without exposing services to the internet. *"Fly, you fools!" — directly into the tunnel.*
 
 ## WireGuard (Built-in)
 
-WireGuard is the recommended way to access your Halo AI server remotely. It's already in the Linux kernel, has zero dependencies, and port 51820 is open in the default firewall config.
+WireGuard is the recommended way to access your Halo AI server remotely. It's already in the Linux kernel, has zero dependencies, and port 51820 is open in the default firewall config. *"I'm in." — every 90s hacker movie, but this time for real.*
 
 ### Quick Setup
 
@@ -94,7 +94,7 @@ PersistentKeepalive = 25
 
 Notes on `AllowedIPs`:
 - `10.100.0.0/24` -- only route VPN subnet traffic through the tunnel (split tunnel). Recommended for Halo AI: access AI services through the VPN while other internet traffic takes your normal route.
-- `0.0.0.0/0` -- route all traffic through the tunnel (full tunnel). Use this on untrusted networks.
+- `0.0.0.0/0` -- route all traffic through the tunnel (full tunnel). Use this on untrusted networks. *"Trust no one." — Mulder was right.*
 
 **Display a QR code for mobile:**
 
@@ -167,7 +167,7 @@ sudo tailscale up
 
 Follow the printed URL to authenticate. Your server appears in your Tailscale network immediately and is reachable from any device on your Tailscale account. No port forwarding, no key management.
 
-The free tier supports up to 100 devices. If you want to self-host the coordination server, look into [Headscale](https://github.com/juanfont/headscale).
+The free tier supports up to 100 devices. If you want to self-host the coordination server, look into [Headscale](https://github.com/juanfont/headscale). *"There is no cloud. There is only Zuul." — you know the drill.*
 
 ## Alternative: Nebula
 

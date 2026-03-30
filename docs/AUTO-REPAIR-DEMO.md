@@ -4,7 +4,7 @@
 
 ## What This Shows
 
-halo-ai's autonomous service guardian detects service failures and repairs them **without human intervention**. The agent watches all 12 services every 5 seconds, detects state changes, and takes action.
+halo-ai's autonomous service guardian detects service failures and repairs them **without human intervention**. The agent watches all 12 services every 5 seconds, detects state changes, and takes action. *"I'm sorry, Dave. I'm afraid I can't let that stay down."*
 
 ## Demo: Kill a Service, Watch It Come Back
 
@@ -72,7 +72,7 @@ STEP 3: MESSAGE BUS
 | 14:19:46 | Service confirmed back online (5 seconds total) |
 | 14:19:51 | Recovery reported to activity feed |
 
-**Total recovery time: 5 seconds. Zero human interaction.**
+**Total recovery time: 5 seconds. Zero human interaction.** *"That'll do, pig. That'll do."*
 
 ## How It Works
 
@@ -99,3 +99,5 @@ STEP 3: MESSAGE BUS
 - 128GB unified memory
 - Arch Linux, bare metal, zero containers
 - 12 services, 17 agents, 25+ systemd units
+
+*"It can't be bargained with. It can't be reasoned with. It doesn't feel pity, or remorse, or fear. And it absolutely will not stop, ever, until your service is back online."*

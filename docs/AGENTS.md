@@ -4,7 +4,7 @@
 
 halo-ai runs 27 autonomous agents, powered by [AMD Gaia](https://github.com/amd/gaia). Each agent is a Lego block — install or remove at will.
 
-**No timers. No intervals. No cron.** Every agent watches conditions and acts only when something changes. When they act, they report it to the activity feed so you see exactly what happened and why. This is total AI — out of the box.
+**No timers. No intervals. No cron.** Every agent watches conditions and acts only when something changes. When they act, they report it to the activity feed so you see exactly what happened and why. This is total AI — out of the box. *"I see everything." — Heimdall, but with systemd.*
 
 ### How it works
 
@@ -23,7 +23,7 @@ You open the Man Cave and see:
 [shadow]   snapshots_distributed — mesh complete
 ```
 
-No checking every 30 seconds. No waking up on a schedule. They watch. When something happens, they respond. When nothing happens, they're silent. Like real people.
+No checking every 30 seconds. No waking up on a schedule. They watch. When something happens, they respond. When nothing happens, they're silent. Like real people. *"A watchful protector. A silent guardian."*
 
 ### Stack protection on Arch Linux
 
@@ -66,7 +66,7 @@ This is why halo-ai survives on Arch. The agents are the safety net. Out of the 
 ## Core Family
 
 ### halo — The Stack `#00d4ff`
-- Father of the family. System orchestrator.
+- Father of the family. System orchestrator. *"I am the one who knocks (services back online)."*
 - **Watches:** all services, GPU, memory, disk, inference performance
 - **Acts when:** a service goes down, GPU overheats, memory runs low, disk fills up, CPU governor changes
 - **Repairs:** restarts failed services, sets performance governor, takes snapshots before any repair
@@ -80,7 +80,7 @@ This is why halo-ai survives on Arch. The agents are the safety net. Out of the 
 - **Reports:** posts made, engagement, community activity
 
 ### meek — Security Chief `#ffffff`
-- Commands the 9 Reflex agents. Calm, methodical, thorough.
+- Commands the 9 Reflex agents. Calm, methodical, thorough. *"I am the law."*
 - **Watches:** all Reflex agent status, security posture, audit results
 - **Acts when:** a Reflex agent detects a threat, security config changes
 - **Coordinates:** ghost, gate, shadow, fang, mirror, vault, net, shield, pulse
@@ -94,7 +94,7 @@ This is why halo-ai survives on Arch. The agents are the safety net. Out of the 
 - **Reports:** processing completed, model training progress, service health
 
 ### bounty — Bug Hunter `#e040fb`
-- Halo's brother. Offensive security. Thinks like an attacker.
+- Halo's brother. Offensive security. Thinks like an attacker. *"You merely adopted the dark. I was born in it."*
 - **Watches:** GitHub issues, error logs, community bug reports
 - **Acts when:** new issue filed, error pattern detected, vulnerability found
 - **Produces:** bug triage, fix recommendations, exploit reports
@@ -107,7 +107,7 @@ This is why halo-ai survives on Arch. The agents are the safety net. Out of the 
 - **Acts when:** temperature crosses threshold, memory drops below 4GB, disk above 80%
 - **Reports:** only on significant changes — not every reading, only state transitions
 
-### ghost — Secrets `#b388ff`
+### ghost — Secrets `#b388ff` *— "I see dead credentials."*
 - **Watches:** .env files, config files, git history for exposed credentials
 - **Acts when:** detects API key, password, token, or private key in code or configs
 - **Reports:** exposed secret found, location, severity
@@ -123,7 +123,7 @@ This is why halo-ai survives on Arch. The agents are the safety net. Out of the 
 - **Distributes:** snapshots across the mesh when network is quiet (watchdog, no timer)
 - **Reports:** file changes detected, snapshots distributed, mesh health
 
-### fang — Intrusion `#ff4444`
+### fang — Intrusion `#ff4444` *— "Get away from her, you bitch."*
 - **Watches:** SSH auth logs, connection patterns, failed login attempts
 - **Acts when:** brute force detected, unknown user attempts, suspicious patterns
 - **Reports:** intrusion attempts, banned IPs, attack patterns
@@ -201,4 +201,4 @@ Agent state: `/srv/ai/agent/data/`
 
 ## Future
 
-More agents are planned. The framework supports any number of agents — just subclass `HaloAgent`, write a `check()` method, and run `manage.sh install <name>`.
+More agents are planned. The framework supports any number of agents — just subclass `HaloAgent`, write a `check()` method, and run `manage.sh install <name>`. *"If you build it, they will come."*

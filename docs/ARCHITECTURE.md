@@ -2,7 +2,7 @@
 
 ## Overview
 
-Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 109 tok/s on Qwen3-30B-A3B.
+Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 109 tok/s on Qwen3-30B-A3B. *"Welcome to the real world."*
 
 The stack provides LLM inference, chat UI, deep research, speech-to-text, text-to-speech, image generation, RAG pipelines, workflow automation, private search, and autonomous monitoring -- all integrated, all on localhost.
 
@@ -18,7 +18,7 @@ The stack provides LLM inference, chat UI, deep research, speech-to-text, text-t
 | Filesystem | Btrfs with subvolumes and Snapper snapshots |
 | OS | Arch Linux (bleeding-edge kernel and Mesa) |
 
-The 115GB GPU memory is what makes this platform viable. Models up to 70B parameters (quantized) can be loaded entirely into GPU memory on a single chip, with no PCIe bottleneck since CPU and GPU share the same memory bus.
+The 115GB GPU memory is what makes this platform viable. Models up to 70B parameters (quantized) can be loaded entirely into GPU memory on a single chip, with no PCIe bottleneck since CPU and GPU share the same memory bus. *"One chip to rule them all."*
 
 ## Service Map
 
@@ -40,7 +40,7 @@ Port    Service             Role
 8888    SearXNG             Privacy-respecting meta-search engine
 ```
 
-All services bind to `127.0.0.1`. None are directly reachable from the network.
+All services bind to `127.0.0.1`. None are directly reachable from the network. *"You have no power here."*
 
 ## Request Flow
 
@@ -354,7 +354,7 @@ network.target
     `-- halo-agent (Wants llama-server + lemonade)
 ```
 
-All services use `Restart=on-failure` with `RestartSec=5` (agent uses `Restart=always` with `RestartSec=10` and `WatchdogSec=120`).
+All services use `Restart=on-failure` with `RestartSec=5` (agent uses `Restart=always` with `RestartSec=10` and `WatchdogSec=120`). *"I'll be back." — every service, 5 seconds later.*
 
 ### Management Commands
 
@@ -413,4 +413,4 @@ halo-driver-swap.sh status    # Show current backend + speed
 halo-driver-swap.sh bench     # Quick benchmark on current backend
 ```
 
-Each swap takes a Btrfs snapshot before modifying the systemd unit, stops the service, updates the `ExecStart` line, reloads systemd, and restarts. Total downtime is approximately 10 seconds.
+Each swap takes a Btrfs snapshot before modifying the systemd unit, stops the service, updates the `ExecStart` line, reloads systemd, and restarts. Total downtime is approximately 10 seconds. *"Choose the form of the destructor." — Vulkan or HIP, your call.*
