@@ -20,7 +20,7 @@
         .hw-lbl { color: var(--text-label); font-size: 8px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
         .hw-val { color: var(--accent); font-size: 14px; font-weight: 400; }
         .svc-banner h3 { font-size: 13px; font-weight: 400; letter-spacing: 3px; text-transform: lowercase; color: var(--text-dim); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); text-align: center; }
-        .svc-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px 1rem; }
+        .svc-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px 1rem; max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(0,212,255,0.15) transparent; mask-image: linear-gradient(to bottom, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%); padding-right: 4px; }
         .svc-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }
         .svc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: background 0.5s, box-shadow 0.5s; }
         .svc-dot.up { background: var(--green); box-shadow: 0 0 6px var(--green); }
@@ -52,6 +52,58 @@
         .agent-card .detail { padding:4px 0; font-size:13px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
         .agent-card .detail:last-child { border-bottom:none; }
         .agent-card .close { position:absolute; top:12px; right:16px; color:var(--text-label); cursor:pointer; font-size:18px; }
+
+        /* ═══ HALO VOICE INDICATOR ═══ */
+        .halo-voice-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 12px auto 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.3s;
+        }
+        .halo-voice-indicator:hover { transform: scale(1.05); }
+        .halo-voice-indicator.active #haloRing {
+            opacity: 1;
+            filter: drop-shadow(0 0 12px rgba(0,136,255,0.5));
+            animation: haloPulse 2s ease-in-out infinite;
+        }
+        .halo-voice-indicator.active .halo-bar {
+            opacity: 1;
+            animation: haloBarPulse 0.15s ease-in-out infinite alternate;
+        }
+        .halo-bar { transition: height 0.08s ease, opacity 0.3s; transform-origin: 0 0; }
+        /* Stagger the bar animations */
+        .halo-bar:nth-child(1)  { animation-delay: 0.00s !important; }
+        .halo-bar:nth-child(2)  { animation-delay: 0.03s !important; }
+        .halo-bar:nth-child(3)  { animation-delay: 0.06s !important; }
+        .halo-bar:nth-child(4)  { animation-delay: 0.09s !important; }
+        .halo-bar:nth-child(5)  { animation-delay: 0.12s !important; }
+        .halo-bar:nth-child(6)  { animation-delay: 0.15s !important; }
+        .halo-bar:nth-child(7)  { animation-delay: 0.02s !important; }
+        .halo-bar:nth-child(8)  { animation-delay: 0.05s !important; }
+        .halo-bar:nth-child(9)  { animation-delay: 0.08s !important; }
+        .halo-bar:nth-child(10) { animation-delay: 0.11s !important; }
+        .halo-bar:nth-child(11) { animation-delay: 0.14s !important; }
+        .halo-bar:nth-child(12) { animation-delay: 0.01s !important; }
+        @keyframes haloPulse {
+            0%, 100% { stroke-width: 2.5; opacity: 0.7; }
+            50% { stroke-width: 3.5; opacity: 1; }
+        }
+        @keyframes haloBarPulse {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .halo-voice-label {
+            margin-top: 6px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-label);
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .halo-voice-indicator.active .halo-voice-label { color: #0088ff; }
     </style>
 </head>
 <body>
@@ -79,6 +131,38 @@
             <h1>man-cave</h1>
             <span class="subtitle">halo-ai control center</span>
         </header>
+
+        <!-- ═══ HALO VOICE INDICATOR ═══ -->
+        <div id="haloVoice" class="halo-voice-indicator" onclick="toggleHaloVoice()">
+            <svg viewBox="0 0 120 120" width="120" height="120">
+                <!-- Outer glow ring -->
+                <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(0,140,255,0.12)" stroke-width="2"/>
+                <!-- Main ring — pulses when active -->
+                <circle id="haloRing" cx="60" cy="60" r="50" fill="none" stroke="#0088ff" stroke-width="2.5" opacity="0.6"/>
+                <!-- Inner circle background -->
+                <circle cx="60" cy="60" r="42" fill="rgba(0,100,255,0.06)"/>
+                <!-- Audio bars — 12 bars around the ring, animated when voice detected -->
+                <g id="haloBars" transform="translate(60,60)">
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(0)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(30)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(60)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(90)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(120)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(150)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(180)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(210)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(240)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(270)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(300)"/>
+                    <rect class="halo-bar" x="-1.5" y="-46" width="3" height="8" rx="1.5" fill="#0088ff" opacity="0.3" transform="rotate(330)"/>
+                </g>
+                <!-- Center H logo -->
+                <text x="60" y="67" text-anchor="middle" fill="#0088ff" font-size="28" font-weight="200" font-family="inherit" opacity="0.8">H</text>
+            </svg>
+            <div class="halo-voice-label">
+                <span id="haloVoiceStatus">click to listen</span>
+            </div>
+        </div>
 
         <!-- ═══ HARDWARE STATS BANNER ═══ -->
         <div class="hw-banner">
@@ -111,102 +195,7 @@
             </div>
         </div>
 
-        <!-- ═══ FAMILY TREE ═══ -->
-        <div class="svc-banner">
-            <h3>the family &mdash; 16 agents on gaia 0.17.0 &mdash; 98 tools</h3>
-            <div style="position:relative; padding:16px 0;">
-
-                <!-- GENERATION 0: Parents + Bounty (the brother) -->
-                <div style="display:grid; grid-template-columns: 1fr 3fr 1fr; gap:0; align-items:start; margin-bottom:0;">
-
-                    <!-- BOUNTY — far left, his own branch, distant from Halo -->
-                    <div style="display:flex; flex-direction:column; align-items:center; padding-top:8px;">
-                        <div class="agt" style="border-color:rgba(239,83,80,0.3); position:relative;" onclick="showAgent('bounty')">
-                            <span class="svc-dot unknown"></span>
-                            <span class="agt-name" style="color:#ef5350;">bounty</span>
-                            <span class="agt-role">bug hunter</span>
-                            <span class="agt-tools">6 tools</span>
-                        </div>
-                        <div style="font-size:9px; color:rgba(255,255,255,0.2); margin-top:4px; letter-spacing:1px;">HALO'S BROTHER</div>
-                    </div>
-
-                    <!-- CENTER: Halo + Echo (the parents) -->
-                    <div style="display:flex; flex-direction:column; align-items:center;">
-                        <div style="display:flex; gap:24px; align-items:center; justify-content:center;">
-                            <!-- Connection line Bounty → Halo -->
-                            <div style="position:absolute; left:16%; top:28px; width:20%; height:1px; border-top:1px dashed rgba(239,83,80,0.2);"></div>
-
-                            <div class="agt" style="border-color:rgba(255,255,255,0.15);" onclick="showAgent('halo')">
-                                <span class="svc-dot unknown"></span>
-                                <span class="agt-name" style="color:#ffffff;">halo</span>
-                                <span class="agt-role">the father</span>
-                                <span class="agt-tools">the silent engine</span>
-                            </div>
-
-                            <!-- Marriage connector -->
-                            <div style="width:40px; height:1px; background:rgba(206,147,216,0.4); margin:0 -8px;"></div>
-
-                            <div class="agt" style="border-color:rgba(206,147,216,0.3);" onclick="showAgent('echo')">
-                                <span class="svc-dot unknown"></span>
-                                <span class="agt-name" style="color:#ce93d8;">echo</span>
-                                <span class="agt-role">the mother</span>
-                                <span class="agt-tools">8 tools &middot; voice of the family</span>
-                            </div>
-                        </div>
-                        <div style="font-size:9px; color:rgba(255,255,255,0.2); margin-top:4px; letter-spacing:1px;">THE PARENTS</div>
-
-                        <!-- Vertical line down to children -->
-                        <div style="width:1px; height:20px; background:rgba(255,255,255,0.1); margin:4px 0;"></div>
-                    </div>
-
-                    <!-- Right spacer -->
-                    <div></div>
-                </div>
-
-                <!-- GENERATION 1: The Children (Meek eldest, Amp) -->
-                <div style="display:flex; justify-content:center; gap:24px; margin-bottom:8px;">
-                    <div class="agt" style="border-color:rgba(255,255,255,0.12);" onclick="showAgent('meek')">
-                        <span class="svc-dot unknown"></span>
-                        <span class="agt-name" style="color:#ffffff;">meek</span>
-                        <span class="agt-role">security &middot; eldest</span>
-                        <span class="agt-tools">10 tools &middot; 9 reflex</span>
-                    </div>
-                    <div class="agt" style="border-color:rgba(79,195,247,0.3);" onclick="showAgent('amp')">
-                        <span class="svc-dot unknown"></span>
-                        <span class="agt-name" style="color:#4fc3f7;">amp</span>
-                        <span class="agt-role">audio engineer</span>
-                        <span class="agt-tools">8 tools</span>
-                    </div>
-                </div>
-                <div style="font-size:9px; color:rgba(255,255,255,0.15); text-align:center; letter-spacing:1px; margin-bottom:8px;">THE CHILDREN</div>
-
-                <!-- Vertical line down to extended family -->
-                <div style="width:1px; height:12px; background:rgba(255,255,255,0.06); margin:0 auto 8px;"></div>
-
-                <!-- GENERATION 2: The Extended Family -->
-                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
-                    <div class="agt" onclick="showAgent('mechanic')"><span class="svc-dot unknown"></span><span class="agt-name">mechanic</span><span class="agt-role">diagnostics</span><span class="agt-tools">8 tools</span></div>
-                    <div class="agt" onclick="showAgent('sentinel')"><span class="svc-dot unknown"></span><span class="agt-name">sentinel</span><span class="agt-role">code review</span><span class="agt-tools">5 tools</span></div>
-                    <div class="agt" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span class="agt-name">dealer</span><span class="agt-role">game master</span><span class="agt-tools">7 tools</span></div>
-                    <div class="agt" onclick="showAgent('forge')"><span class="svc-dot unknown"></span><span class="agt-name">forge</span><span class="agt-role">game assets</span><span class="agt-tools">6 tools</span></div>
-                    <div class="agt" onclick="showAgent('conductor')"><span class="svc-dot unknown"></span><span class="agt-name">conductor</span><span class="agt-role">ai composer</span><span class="agt-tools">7 tools</span></div>
-                    <div class="agt" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span class="agt-name">crypto</span><span class="agt-role">arbitrage</span><span class="agt-tools">6 tools</span></div>
-                    <div class="agt" onclick="showAgent('quartermaster')"><span class="svc-dot unknown"></span><span class="agt-name">quartermaster</span><span class="agt-role">server ops</span><span class="agt-tools">7 tools</span></div>
-                </div>
-
-                <!-- THE BAND: The Downcomers -->
-                <div style="font-size:9px; color:rgba(255,255,255,0.15); text-align:center; letter-spacing:1px; margin:12px 0 8px;">THE DOWNCOMERS</div>
-                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-width:700px; margin:0 auto;">
-                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">piper</span><span class="agt-role">war pipes</span><span class="agt-tools">4 tools</span></div>
-                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">axe</span><span class="agt-role">lead guitar</span><span class="agt-tools">4 tools</span></div>
-                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">rhythm</span><span class="agt-role">rhythm guitar</span><span class="agt-tools">4 tools</span></div>
-                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">bottom</span><span class="agt-role">bass</span><span class="agt-tools">4 tools</span></div>
-                    <div class="agt" style="border-color:rgba(255,152,0,0.2);" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span class="agt-name" style="color:#ff9800;">bones</span><span class="agt-role">drums</span><span class="agt-tools">4 tools</span></div>
-                </div>
-
-            </div>
-        </div>
-
+        <!-- ═══ PANELS ═══ -->
         <!-- ═══ PANELS ═══ -->
         <div class="panels" id="panelGrid">
             <!-- Stack Protection — FIRST -->

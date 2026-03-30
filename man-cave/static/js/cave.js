@@ -493,3 +493,85 @@ async function kcsGlusterRefresh() {
 
 kcsGlusterRefresh();
 setInterval(kcsGlusterRefresh, 30000);
+
+
+// ── Halo Voice Indicator — Web Audio API ────────────
+(function() {
+    let audioCtx = null;
+    let analyser = null;
+    let stream = null;
+    let animFrame = null;
+    let active = false;
+
+    const bars = document.querySelectorAll('.halo-bar');
+    const indicator = document.getElementById('haloVoice');
+    const statusLabel = document.getElementById('haloVoiceStatus');
+
+    window.toggleHaloVoice = async function() {
+        if (active) {
+            // Stop listening
+            active = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            if (audioCtx) audioCtx.close();
+            audioCtx = null;
+            analyser = null;
+            stream = null;
+            indicator.classList.remove('active');
+            statusLabel.textContent = 'click to listen';
+            // Reset bars
+            bars.forEach(bar => {
+                bar.setAttribute('height', '8');
+                bar.setAttribute('y', '-46');
+                bar.style.opacity = '0.3';
+            });
+            return;
+        }
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioCtx = new AudioContext();
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 64;
+            analyser.smoothingTimeConstant = 0.7;
+            source.connect(analyser);
+
+            active = true;
+            indicator.classList.add('active');
+            statusLabel.textContent = 'listening';
+            animateVoice();
+        } catch(e) {
+            statusLabel.textContent = 'mic denied';
+            setTimeout(() => { statusLabel.textContent = 'click to listen'; }, 2000);
+        }
+    };
+
+    function animateVoice() {
+        if (!active || !analyser) return;
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(data);
+
+        // Map frequency bins to 12 bars
+        const binCount = data.length;
+        const step = Math.floor(binCount / 12);
+
+        bars.forEach((bar, i) => {
+            // Get average of a frequency range for this bar
+            const start = i * step;
+            let sum = 0;
+            for (let j = start; j < start + step && j < binCount; j++) sum += data[j];
+            const avg = sum / step;
+
+            // Map 0-255 to bar height 4-22
+            const h = 4 + (avg / 255) * 18;
+            const y = -42 - h;
+
+            bar.setAttribute('height', h.toFixed(1));
+            bar.setAttribute('y', y.toFixed(1));
+            bar.style.opacity = (0.3 + (avg / 255) * 0.7).toFixed(2);
+        });
+
+        animFrame = requestAnimationFrame(animateVoice);
+    }
+})();
