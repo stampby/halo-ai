@@ -26,7 +26,7 @@
 
 ## What is this?
 
-A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
+A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. Autonomous pipelines for game development, music production, and video production. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
 
 ## Why Bare Metal?
 
@@ -182,7 +182,7 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | [Stack Protection](docs/STACK-PROTECTION.md) | Why Arch updates won't break your stack |
 | [Benchmarks](BENCHMARKS.md) | Full performance data |
 | [Blueprints](docs/BLUEPRINTS.md) | Roadmap and planned features |
-| [Autonomous Pipeline](docs/AUTONOMOUS-PIPELINE.md) | Zero-human game studio pipeline |
+| [Autonomous Pipeline](docs/AUTONOMOUS-PIPELINE.md) | Zero-human game, music, and video production pipeline |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common issues and fixes |
 | [VPN Access](docs/VPN.md) | WireGuard setup |
 | [Kansas City Shuffle](docs/KANSAS-CITY-SHUFFLE.md) | Ring bus, ClusterFS, auto-repair, mesh management |
