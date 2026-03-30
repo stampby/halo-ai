@@ -88,38 +88,26 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **Mesh snapshots** — Shadow distributes backups every 6 hours
 - **CI/CD** — GitHub Actions lint, build, release on every tag
 
-### Music — [The Downcomers](https://github.com/stampby/amp)
-- **Voice cloning** — architect's voice via XTTS v2, trained on local GPU
-- **AI instrumentals** — original blues/rock, no covers
-- **Effects chain** — plate reverb, slapback delay, vocal doubling, no autotune
+### Autonomous Game Development — [Pipeline](docs/AUTONOMOUS-PIPELINE.md)
+- **[Voxel Extraction](https://github.com/stampby/voxel-extraction)** — PvE co-op extraction game in Godot 4
+- **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
+- **AI game master** — Dealer runs local LLM, every dungeon run is unique
+- **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding
+- **Full pipeline** — design → build → test → deploy, agents handle everything
+
+### Autonomous Music Production — [The Downcomers](https://github.com/stampby/amp)
+- **Voice cloning** — architect's voice via XTTS v2, milestone releases
+- **AI instrumentals** — original blues/rock, full band, no covers
+- **Audiobooks** — public domain classics, 1984 first release
+- **Voice API** — TTS-as-a-Service, zero data retention
+- **Memorial voice** — capture loved ones' speech, build AI clone after death
 - **Distribution** — DistroKid to Spotify, Apple Music, all platforms
 
-### Game Studio — [Autonomous Pipeline](docs/AUTONOMOUS-PIPELINE.md)
-- **[Voxel Extraction](https://github.com/stampby/voxel-extraction)** — PvE co-op extraction game in Godot 4
-- **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding
-- **AI game master** — Dealer runs local LLM, every dungeon run is unique
-- **[Undercroft Mini](https://github.com/stampby/undercroft-reddit)** — playable demo on Reddit via Devvit
-- **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
-
-### Movies & TV — [halo-ai Studios](docs/AUTONOMOUS-PIPELINE.md)
-- **Voxel drama** — 10-episode series, cinematic lighting, PBR shaders
-- **120 voxel characters** — full backstories, motion capture, voice acting
-- **Actor performance transfer** — motion, voice, dialog from real actors to voxel characters
-- **AI writing** — Sorkin-style dialog, Breaking Bad pacing
-- **Full pipeline** — script → voice → animation → render, all autonomous
-
-### Video Production
-- **Voice tutorials** — architect narrates, SM7B, full video walkthroughs
-- **Face swap** — AI face replacement for video content
+### Autonomous Video Production — [halo-ai Studios](docs/AUTONOMOUS-PIPELINE.md)
+- **Voxel drama** — 10-episode series, script → voice → animation → render
+- **Voice tutorials** — architect narrates, full walkthroughs
 - **Streaming co-host** — architect's voice as live AI commentator for Twitch/YouTube
-
-### Audio Production
-- **Voice cloning** — XTTS v2 trained on architect's voice, milestone releases
-- **Audiobooks** — public domain classics, 1984 first release, buy-to-own
-- **[The Downcomers](https://github.com/stampby/amp)** — AI blues/rock band, Spotify distribution
-- **Voice API** — TTS-as-a-Service, drop text get audio, zero data retention
-- **Memorial voice** — capture loved ones' speech, build AI voice clone after death
-- **Virtual radio DJ** — 24/7 broadcast-quality AI voice, scripts in audio out
+- **Full pipeline** — writing → acting → rendering → distribution, all autonomous
 
 ### Infrastructure [Kansas City Shuffle]
 - **4-machine SSH mesh [Kansas City Shuffle]** — ryzen, strix-halo, minisforum, sligar
