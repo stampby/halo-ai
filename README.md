@@ -10,7 +10,7 @@
 
 **109 tok/s. Zero containers. 115GB GPU memory. Compiled from source. I know kung fu.**
 
-*stamped by the architect*
+*built by CLI — stamped by the architect*
 
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=archlinux&logoColor=white)](https://archlinux.org)
 [![ROCm](https://img.shields.io/badge/ROCm_7.13-ED1C24?style=flat&logo=amd&logoColor=white)](https://rocm.docs.amd.com)
@@ -27,6 +27,8 @@
 ## What is this?
 
 A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. Autonomous pipelines for game development, music production, and video production. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
+
+**Talk to it.** Speak to Halo, see the text, hear the response. Every tool, every agent, every feature — controlled by your voice. Vibe coding at home, out of the box, on your own hardware. *"Open the pod bay doors, HAL."*
 
 ## Why Bare Metal?
 
