@@ -24,6 +24,18 @@
 
 ---
 
+## Screenshots
+
+| Arcade Dashboard | Retro Arcade |
+|:---:|:---:|
+| ![Arcade Dashboard](assets/screenshots/arcade-dashboard.png) | ![Retro Arcade](assets/screenshots/retro-arcade.png) |
+| One-click game server deployment, 25 games | In-browser RetroArch, 17 systems, drop ROMs to play |
+
+| Server Screensaver | Setup Wizard |
+|:---:|:---:|
+| ![Server Screensaver](assets/screenshots/server-screensaver.png) | ![Setup Wizard](assets/screenshots/setup-wizard.png) |
+| Live cluster status, animated, KDE wallpaper plugin | Cosmos-inspired 4-step first-run config |
+
 ## What is this?
 
 A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
@@ -55,15 +67,19 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **Unified API** — [Lemonade](https://github.com/lemonade-sdk/lemonade) v10.0.1, OpenAI/Ollama/Anthropic compatible
 
 ### Agents — [docs](docs/AGENTS.md)
-- **17 autonomous agents** on [AMD Gaia](https://github.com/amd/gaia) with 78 tools
+- **17 autonomous agents** on [AMD Gaia](https://github.com/amd/gaia) with 98 tools
 - **[Echo](https://github.com/stampby/echo)** — public face, Reddit bridge, Discord, social media
-- **[Meek](https://github.com/stampby/meek)** — security chief, 9 Reflex sub-agents
-- **[Bounty](https://github.com/stampby/bounty)** — bug hunter, code troubleshooter
-- **[Amp](https://github.com/stampby/amp)** — audio/video production, voice cloning, music
+- **[Meek](https://github.com/stampby/meek)** — security chief, 9 Reflex sub-agents ([Pulse](https://github.com/stampby/pulse), [Ghost](https://github.com/stampby/ghost), [Gate](https://github.com/stampby/gate), [Shadow](https://github.com/stampby/shadow), [Fang](https://github.com/stampby/fang), [Mirror](https://github.com/stampby/mirror), [Vault](https://github.com/stampby/vault), [Net](https://github.com/stampby/net), [Shield](https://github.com/stampby/shield))
+- **[Bounty](https://github.com/stampby/bounty)** — bug hunter, offensive security, Halo's brother
+- **[Amp](https://github.com/stampby/amp)** — audio engineer, voice cloning, music production
 - **[Sentinel](https://github.com/stampby/sentinel)** — auto PR review, code gating
+- **[Mechanic](https://github.com/stampby/mechanic)** — hardware diagnostics, system monitoring
 - **[Forge](https://github.com/stampby/forge)** — game builder, asset pipeline, Steam deploy
 - **[Dealer](https://github.com/stampby/dealer)** — AI game master, every run different
-- **[Conductor](https://github.com/stampby/conductor)** — AI composer, dynamic game music
+- **[Conductor](https://github.com/stampby/conductor)** — AI composer, dynamic game scoring
+- **[Quartermaster](https://github.com/stampby/quartermaster)** — game server ops, weekly Steam audit
+- **[Crypto](https://github.com/stampby/crypto)** — arbitrage, market monitoring
+- **The Downcomers** — [Piper](https://github.com/stampby/piper), [Axe](https://github.com/stampby/axe), [Rhythm](https://github.com/stampby/rhythm), [Bottom](https://github.com/stampby/bottom), [Bones](https://github.com/stampby/bones)
 
 ### Security — [docs](docs/SECURITY.md)
 - **SSH key-only** — no passwords, single user, fail2ban
@@ -95,13 +111,13 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding
 - **AI game master** — Dealer runs local LLM, every dungeon run is unique
 - **[Undercroft Mini](https://github.com/stampby/undercroft-reddit)** — playable demo on Reddit via Devvit
-- **[Arcade](https://github.com/stampby/arcade)** — game server manager, one-click deploy
+- **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
 
 ### Infrastructure
 - **4-machine SSH mesh** — ryzen, strix-halo, minisforum, sligar
 - **[Mixer](https://github.com/stampby/mixer)** — btrfs ring snapshots over SSH
 - **[Benchmarks](https://stampby.github.io/benchmarks/)** — live performance tracking, history over time
-- **Man Cave** — control center with GPU metrics, service health, agent activity
+- **[Man Cave](https://github.com/stampby/man-cave)** — control center with GPU metrics, service health, agent activity
 - **Zero cloud** — no subscriptions, no APIs, no third-party dependencies
 
 ## Services
