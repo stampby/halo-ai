@@ -1,0 +1,13 @@
+[Unit]
+Description=halo-ai Prometheus Monitoring
+After=network.target
+
+[Service]
+Type=simple
+User=bcloud
+ExecStart=/home/bcloud/claude/projects/prometheus/prometheus --config.file=/home/bcloud/halo-ai/configs/prometheus.yml --web.listen-address=127.0.0.1:9090 --storage.tsdb.path=/home/bcloud/claude/projects/prometheus/data
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

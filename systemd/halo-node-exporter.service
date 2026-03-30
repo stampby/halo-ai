@@ -1,0 +1,13 @@
+[Unit]
+Description=halo-ai Node Exporter
+After=network.target
+
+[Service]
+Type=simple
+User=bcloud
+ExecStart=/home/bcloud/claude/projects/node_exporter/node_exporter --web.listen-address=127.0.0.1:9100
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

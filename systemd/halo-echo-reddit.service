@@ -1,0 +1,15 @@
+[Unit]
+Description=halo-ai Echo Reddit Monitor
+After=network.target halo-automation-server.service
+
+[Service]
+Type=simple
+User=bcloud
+WorkingDirectory=/home/bcloud/halo-ai/discord-bots
+ExecStart=/home/bcloud/halo-ai/discord-bots/venv/bin/python reddit_bridge.py monitor
+Restart=always
+RestartSec=30
+EnvironmentFile=/home/bcloud/halo-ai/discord-bots/.env
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=halo-ai Automation Server (Echo Reddit Bridge)
+After=network.target halo-llama-server.service
+
+[Service]
+Type=simple
+User=bcloud
+WorkingDirectory=/home/bcloud/halo-ai/workflows
+ExecStart=/home/bcloud/halo-ai/discord-bots/venv/bin/uvicorn automation-server:app --host 127.0.0.1 --port 5679
+Restart=always
+RestartSec=5
+Environment=PYTHONPATH=/home/bcloud/halo-ai/discord-bots
+
+[Install]
+WantedBy=multi-user.target
