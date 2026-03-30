@@ -1,0 +1,16 @@
+[Unit]
+Description=halo-ai Agent Message Bus
+After=network.target
+
+[Service]
+Type=simple
+User=bcloud
+ExecStart=/srv/ai/man-cave/.venv/bin/python /srv/ai/agent/message_bus.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=halo-message-bus
+
+[Install]
+WantedBy=multi-user.target

@@ -16,6 +16,7 @@ import logging
 import shlex
 import sys
 import os
+import urllib.request
 from pathlib import Path
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
@@ -48,7 +49,7 @@ SERVICES = {
     "halo-llama-server": {"port": 8081, "health": "/health", "critical": True, "gpu": True},
     "halo-lemonade": {"port": 8080, "health": "/health", "critical": True, "gpu": False},
     "halo-open-webui": {"port": 3000, "health": "/health", "critical": True, "gpu": False},
-    "halo-vane": {"port": 3001, "health": "/", "critical": False, "gpu": False},
+    "halo-vane": {"port": 3001, "health": None, "critical": False, "gpu": False},
     "halo-searxng": {"port": 8888, "health": "/", "critical": False, "gpu": False},
     "halo-qdrant": {"port": 6333, "health": "/", "critical": False, "gpu": False},
     "halo-n8n": {"port": 5678, "health": "/healthz", "critical": False, "gpu": False},
@@ -98,7 +99,36 @@ def report(agent: str, action: str, detail: str, level: str = "info"):
         feed = feed[-MAX_FEED_ENTRIES:]
     FEED_FILE.write_text(json.dumps(feed, indent=2))
 
+    # Publish to message bus (fire-and-forget)
+    _publish_to_bus(agent, action, detail, level)
+
     return entry
+
+
+def _publish_to_bus(agent: str, action: str, detail: str, level: str = "info"):
+    """Fire-and-forget publish to the halo-ai message bus."""
+    topic = "monitoring"
+    if "security" in action or "scan" in action:
+        topic = "security"
+    elif "build" in action or "compile" in action:
+        topic = "builds"
+    elif "ringbus" in action:
+        topic = "monitoring"
+    try:
+        data = json.dumps({
+            "from_agent": agent,
+            "topic": topic,
+            "event_type": action,
+            "payload": {"detail": detail, "level": level},
+        }).encode()
+        req = urllib.request.Request(
+            "http://127.0.0.1:8100/publish",
+            data=data,
+            headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=3)
+    except Exception:
+        pass  # best-effort — don't block the watchdog
 
 
 # ── State ─────────────────────────────────────────────
@@ -369,6 +399,84 @@ def repair_service(name, config, state: AgentState):
         return False
 
 
+# ── Ring Bus Watcher ─────────────────────────────────
+RING_BUS_MACHINES = {
+    "ryzen": "10.0.0.185",
+    "strix-halo": "10.0.0.131",
+    "sligar": "192.168.50.184",
+    "minisforum": "10.0.0.61",
+}
+
+def watch_ring_bus(state: AgentState):
+    """Watch SSH ring bus connectivity. Attempt repair on failure."""
+    for name, ip in RING_BUS_MACHINES.items():
+        code, out, err = run([
+            "ssh", "-o", "ConnectTimeout=5", "-o", "BatchMode=yes",
+            "-o", "StrictHostKeyChecking=no",
+            f"bcloud@{ip}", "echo ok",
+        ], timeout=10)
+        current = "up" if code == 0 and "ok" in out else "down"
+        previous = state.last_known.get(f"ringbus_{name}", "unknown")
+
+        if current != previous:
+            if current == "down" and previous != "unknown":
+                report("halo", "ringbus_down", f"SSH to {name} ({ip}) failed: {err[:80]}", "warning")
+                # Attempt repair: clear known_hosts and retry
+                run(["ssh-keygen", "-R", ip])
+                code2, out2, _ = run([
+                    "ssh", "-o", "ConnectTimeout=10", "-o", "StrictHostKeyChecking=no",
+                    "-o", "BatchMode=yes", f"bcloud@{ip}", "echo ok",
+                ], timeout=15)
+                if code2 == 0 and "ok" in out2:
+                    report("halo", "ringbus_repaired", f"SSH to {name} restored", "info")
+                    current = "up"
+                else:
+                    report("halo", "ringbus_repair_failed", f"{name} still unreachable", "critical")
+            elif current == "up" and previous == "down":
+                report("halo", "ringbus_recovered", f"SSH to {name} is back", "info")
+            state.last_known[f"ringbus_{name}"] = current
+
+
+# ── GlusterFS Watcher ────────────────────────────────
+def watch_glusterfs(state: AgentState):
+    """Watch GlusterFS volume health. Report on changes."""
+    code, out, _ = run(["gluster", "volume", "status", "all"], timeout=15)
+    if code != 0:
+        current = "down"
+    else:
+        current = "healthy" if "Started" in out else "degraded"
+
+    previous = state.last_known.get("glusterfs", "unknown")
+    if current != previous:
+        if current == "down" and previous != "unknown":
+            report("halo", "glusterfs_down", "GlusterFS volume offline", "critical")
+            # Attempt restart
+            run(["systemctl", "restart", "glusterd"], timeout=30)
+            time.sleep(5)
+            code2, out2, _ = run(["gluster", "volume", "status", "all"], timeout=15)
+            if code2 == 0 and "Started" in out2:
+                report("halo", "glusterfs_repaired", "GlusterFS restored after restart", "info")
+                current = "healthy"
+            else:
+                report("halo", "glusterfs_repair_failed", "GlusterFS still down", "critical")
+        elif current == "healthy" and previous == "down":
+            report("halo", "glusterfs_recovered", "GlusterFS is back", "info")
+        state.last_known["glusterfs"] = current
+
+    # Check peer status
+    code, out, _ = run(["gluster", "peer", "status"], timeout=10)
+    if code == 0:
+        connected = out.count("Peer in Cluster (Connected)")
+        disconnected = out.count("Peer in Cluster (Disconnected)")
+        if disconnected > 0:
+            prev_disc = state.last_known.get("gluster_disconnected", 0)
+            if disconnected != prev_disc:
+                report("halo", "gluster_peer_issue", f"{disconnected} peer(s) disconnected, {connected} connected", "warning")
+            state.last_known["gluster_disconnected"] = disconnected
+        else:
+            state.last_known["gluster_disconnected"] = 0
+
+
 # ── Log Rotation ──────────────────────────────────────
 def rotate_logs():
     if LOG_FILE.exists() and LOG_FILE.stat().st_size > 10 * 1024 * 1024:
@@ -399,6 +507,16 @@ def main():
         # GPU + System — watch continuously, act on change
         watch_gpu(state)
         watch_system(state)
+
+        # Ring Bus — SSH mesh health, every 60 seconds
+        if now - state.__dict__.get("_last_ringbus_watch", 0) >= 60:
+            watch_ring_bus(state)
+            state.__dict__["_last_ringbus_watch"] = now
+
+        # GlusterFS — distributed filesystem, every 120 seconds
+        if now - state.__dict__.get("_last_gluster_watch", 0) >= 120:
+            watch_glusterfs(state)
+            state.__dict__["_last_gluster_watch"] = now
 
         # Updates — only when network is quiet, no more than every 2 hours
         if now - last_update_watch >= 7200:

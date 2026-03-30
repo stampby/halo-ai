@@ -348,3 +348,148 @@ async function checkForUpdates() {
 // Check for updates on load and every 5 minutes
 checkForUpdates();
 setInterval(checkForUpdates, 300000);
+
+
+// ── Agent Status — live dots from activity feed ─────
+function updateAgentDots(data) {
+    const lastAct = data.last_activity || {};
+    const now = Date.now();
+    document.querySelectorAll('.agent-row[data-agent]').forEach(row => {
+        const name = row.dataset.agent;
+        const dot = row.querySelector('.svc-dot');
+        if (!dot) return;
+        const lastTime = lastAct[name];
+        if (!lastTime) { dot.className = 'svc-dot unknown'; return; }
+        const age = now - new Date(lastTime).getTime();
+        const tenMin = 10 * 60 * 1000;
+        const oneHour = 60 * 60 * 1000;
+        dot.className = 'svc-dot ' + (age < tenMin ? 'up' : age < oneHour ? 'unknown' : 'down');
+    });
+    // Also update the family tree agt dots
+    document.querySelectorAll('.agt').forEach(agt => {
+        const nameEl = agt.querySelector('.agt-name');
+        if (!nameEl) return;
+        const name = nameEl.textContent.trim();
+        const dot = agt.querySelector('.svc-dot');
+        if (!dot) return;
+        const lastTime = lastAct[name];
+        if (!lastTime) { dot.className = 'svc-dot unknown'; return; }
+        const age = now - new Date(lastTime).getTime();
+        const tenMin = 10 * 60 * 1000;
+        const oneHour = 60 * 60 * 1000;
+        dot.className = 'svc-dot ' + (age < tenMin ? 'up' : age < oneHour ? 'unknown' : 'down');
+    });
+}
+
+// Poll agent status every 10 seconds
+setInterval(() => {
+    fetch('/cave/api/agents/status')
+        .then(r => r.json())
+        .then(data => updateAgentDots(data))
+        .catch(() => {});
+}, 10000);
+// Initial fetch
+fetch('/cave/api/agents/status').then(r => r.json()).then(data => updateAgentDots(data)).catch(() => {});
+
+
+// ── Kansas City Shuffle — Ring Bus ──────────────────
+async function kcsRefresh() {
+    try {
+        const r = await fetch('/cave/api/kcs/status');
+        const d = await r.json();
+
+        // Update machine dots + latency
+        for (const [name, m] of Object.entries(d.machines)) {
+            const dot = document.getElementById('kcs-dot-' + name);
+            const lat = document.getElementById('kcs-latency-' + name);
+            if (dot) {
+                dot.className = 'svc-dot ' + (m.status === 'up' ? 'up' : m.status === 'degraded' ? 'unknown' : 'down');
+            }
+            if (lat && m.ssh) {
+                lat.textContent = m.ssh.reachable ? m.ssh.latency_ms + 'ms' : (m.ping && m.ping.reachable ? 'ping ok / ssh down' : 'down');
+            }
+        }
+
+        // Update connection lines
+        const lineMap = {
+            'ryzen-strix-halo': 'kcs-line-ryzen-strix-halo',
+            'ryzen-sligar': 'kcs-line-ryzen-sligar',
+            'ryzen-minisforum': 'kcs-line-ryzen-minisforum',
+            'strix-halo-sligar': 'kcs-line-strix-halo-sligar',
+            'strix-halo-minisforum': 'kcs-line-strix-halo-minisforum',
+            'sligar-minisforum': 'kcs-line-sligar-minisforum',
+        };
+        for (const conn of d.connections) {
+            const key = conn.source + '-' + conn.target;
+            const lineId = lineMap[key];
+            if (lineId) {
+                const line = document.getElementById(lineId);
+                if (line) {
+                    const up = conn.forward === 'up' && conn.reverse === 'up';
+                    const partial = conn.forward === 'up' || conn.reverse === 'up';
+                    line.setAttribute('stroke', up ? 'var(--green)' : partial ? 'var(--orange)' : 'var(--red)');
+                    line.setAttribute('stroke-width', up ? '2' : '1');
+                    line.setAttribute('stroke-dasharray', up ? '' : '4');
+                }
+            }
+        }
+
+        // Ring health summary
+        const ringDot = document.getElementById('kcs-ring-dot');
+        const ringLabel = document.getElementById('kcs-ring-label');
+        const connCount = document.getElementById('kcs-conn-count');
+        if (ringDot) ringDot.className = 'svc-dot ' + (d.ring_health === 'healthy' ? 'up' : d.ring_health === 'degraded' ? 'unknown' : 'down');
+        if (ringLabel) ringLabel.textContent = d.ring_health;
+        if (connCount) connCount.textContent = d.connections_up + '/' + d.connections_total + ' connections';
+    } catch(e) {}
+}
+
+async function kcsTestAll() {
+    const btn = event.target;
+    btn.textContent = 'testing...';
+    btn.disabled = true;
+    try {
+        await fetch('/cave/api/kcs/test-all', {method:'POST'});
+        await kcsRefresh();
+    } catch(e) {}
+    btn.textContent = 'test all connections';
+    btn.disabled = false;
+}
+
+async function kcsRepair(machine) {
+    if (!confirm('Attempt SSH repair to ' + machine + '?')) return;
+    try {
+        const r = await fetch('/cave/api/kcs/repair/' + machine, {method:'POST'});
+        const d = await r.json();
+        alert(d.result.reachable ? machine + ' is back!' : 'Repair failed: ' + d.result.error);
+        kcsRefresh();
+    } catch(e) { alert('Error: ' + e); }
+}
+
+// Poll ring bus every 30s
+kcsRefresh();
+setInterval(kcsRefresh, 30000);
+
+
+// ── ClusterFS — GlusterFS Status ────────────────────
+async function kcsGlusterRefresh() {
+    try {
+        const r = await fetch('/cave/api/kcs/gluster');
+        const d = await r.json();
+        const dot = document.getElementById('kcs-fs-dot');
+        const label = document.getElementById('kcs-fs-label');
+        const pool = document.getElementById('kcs-fs-pool');
+
+        if (dot) dot.className = 'svc-dot ' + (d.status === 'healthy' ? 'up' : d.status === 'degraded' ? 'unknown' : 'down');
+        if (label) label.textContent = d.status;
+
+        if (pool && d.pool_size && d.pool_size.total) {
+            pool.textContent = d.pool_size.avail + ' free / ' + d.pool_size.total + ' total';
+        } else if (pool) {
+            pool.textContent = d.status === 'not installed' ? 'not installed' : '--';
+        }
+    } catch(e) {}
+}
+
+kcsGlusterRefresh();
+setInterval(kcsGlusterRefresh, 30000);

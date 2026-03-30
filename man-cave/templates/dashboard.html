@@ -71,6 +71,7 @@
                 <a href="/cave/watercooler" class="nav-link">water cooler</a>
                 <a href="/workflows/" class="nav-link">n8n</a>
                 <a href="/cave/lemonade" class="nav-link">lemonade</a>
+                <a href="/cave/architect" class="nav-link">the architect</a>
             </div>
         </nav>
 
@@ -263,26 +264,111 @@
                 </div>
             </section>
 
+            <!-- Kansas City Shuffle — Ring Bus -->
+            <section class="panel" data-panel="kcs" draggable="true" style="grid-column: span 2;">
+                <h2><span class="drag-handle">&#x2630;</span> kansas city shuffle <span style="color:var(--text-label);font-size:10px;letter-spacing:2px;">bracket's ssh mixer &mdash; ring bus</span></h2>
+
+                <!-- Ring Bus Visualization — Circle (4 nodes) -->
+                <div id="kcsRingViz" style="position:relative; height:260px; margin:16px 0;">
+                    <!-- SVG ring circle + connection lines -->
+                    <svg id="kcsLines" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;">
+                        <!-- The ring circle itself -->
+                        <ellipse cx="50%" cy="130" rx="38%" ry="100" fill="none" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+                        <!-- Mesh connections (all 6 links) -->
+                        <!-- Top(ryzen) to Left(strix-halo) -->
+                        <line id="kcs-line-ryzen-strix-halo" x1="50%" y1="30px" x2="12%" y2="130px" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Top(ryzen) to Right(sligar) -->
+                        <line id="kcs-line-ryzen-sligar" x1="50%" y1="30px" x2="88%" y2="130px" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Top(ryzen) to Bottom(minisforum) -->
+                        <line id="kcs-line-ryzen-minisforum" x1="50%" y1="30px" x2="50%" y2="230px" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Left(strix-halo) to Right(sligar) -->
+                        <line id="kcs-line-strix-halo-sligar" x1="12%" y1="130px" x2="88%" y2="130px" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Left(strix-halo) to Bottom(minisforum) -->
+                        <line id="kcs-line-strix-halo-minisforum" x1="12%" y1="130px" x2="50%" y2="230px" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4"/>
+                        <!-- Right(sligar) to Bottom(minisforum) -->
+                        <line id="kcs-line-sligar-minisforum" x1="88%" y1="130px" x2="50%" y2="230px" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4"/>
+                    </svg>
+                    <!-- Four machine nodes on the ring — 12 o'clock, 9, 3, 6 -->
+                    <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); text-align:center;">
+                        <span class="svc-dot unknown" id="kcs-dot-ryzen" style="width:12px;height:12px;display:inline-block;"></span>
+                        <div style="color:var(--accent);font-size:13px;font-weight:500;">ryzen</div>
+                        <div style="color:var(--text-label);font-size:9px;">10.0.0.185</div>
+                        <div style="color:var(--text-dim);font-size:9px;" id="kcs-latency-ryzen">--ms</div>
+                    </div>
+                    <div style="position:absolute; top:105px; left:0; text-align:center;">
+                        <span class="svc-dot unknown" id="kcs-dot-strix-halo" style="width:12px;height:12px;display:inline-block;"></span>
+                        <div style="color:var(--accent);font-size:13px;font-weight:500;">strix-halo</div>
+                        <div style="color:var(--text-label);font-size:9px;">10.0.0.131</div>
+                        <div style="color:var(--text-dim);font-size:9px;" id="kcs-latency-strix-halo">--ms</div>
+                    </div>
+                    <div style="position:absolute; top:105px; right:0; text-align:center;">
+                        <span class="svc-dot unknown" id="kcs-dot-sligar" style="width:12px;height:12px;display:inline-block;"></span>
+                        <div style="color:var(--accent);font-size:13px;font-weight:500;">sligar</div>
+                        <div style="color:var(--text-label);font-size:9px;">192.168.50.184</div>
+                        <div style="color:var(--text-dim);font-size:9px;" id="kcs-latency-sligar">--ms</div>
+                    </div>
+                    <div style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); text-align:center;">
+                        <span class="svc-dot unknown" id="kcs-dot-minisforum" style="width:12px;height:12px;display:inline-block;"></span>
+                        <div style="color:var(--accent);font-size:13px;font-weight:500;">minisforum</div>
+                        <div style="color:var(--text-label);font-size:9px;">10.0.0.61</div>
+                        <div style="color:var(--text-dim);font-size:9px;" id="kcs-latency-minisforum">--ms</div>
+                    </div>
+                </div>
+
+                <!-- Ring Health Summary -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px;">
+                    <div>
+                        <span style="color:var(--text-label);font-size:10px;letter-spacing:2px;text-transform:uppercase;">ring health</span>
+                        <span class="svc-dot unknown" id="kcs-ring-dot" style="margin-left:8px;width:10px;height:10px;display:inline-block;vertical-align:middle;"></span>
+                        <span id="kcs-ring-label" style="color:var(--text);font-size:13px;margin-left:4px;">checking...</span>
+                    </div>
+                    <div>
+                        <span id="kcs-conn-count" style="color:var(--text-dim);font-size:11px;">0/6 connections</span>
+                    </div>
+                </div>
+
+                <!-- ClusterFS Status -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:12px;">
+                    <div>
+                        <span style="color:var(--text-label);font-size:10px;letter-spacing:2px;text-transform:uppercase;">clusterfs</span>
+                        <span class="svc-dot unknown" id="kcs-fs-dot" style="margin-left:8px;width:10px;height:10px;display:inline-block;vertical-align:middle;"></span>
+                        <span id="kcs-fs-label" style="color:var(--text);font-size:13px;margin-left:4px;">--</span>
+                    </div>
+                    <div>
+                        <span id="kcs-fs-pool" style="color:var(--text-dim);font-size:11px;">-- shared</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button onclick="kcsTestAll()" class="btn" style="flex:1;">test all connections</button>
+                    <button onclick="kcsRepair('ryzen')" class="btn" style="border-color:var(--orange);color:var(--orange);">repair ryzen</button>
+                    <button onclick="kcsRepair('sligar')" class="btn" style="border-color:var(--orange);color:var(--orange);">repair sligar</button>
+                    <button onclick="kcsRepair('minisforum')" class="btn" style="border-color:var(--orange);color:var(--orange);">repair minisforum</button>
+                </div>
+                <div style="text-align:center;margin-top:8px;font-size:9px;color:var(--text-dim);letter-spacing:1px;">designed and built by the architect</div>
+            </section>
+
             <!-- Agents Panel — scrollable, clickable profiles -->
             <section class="panel" data-panel="agents-detail" draggable="true">
                 <h2><span class="drag-handle">&#x2630;</span> agents</h2>
                 <div id="agentsList" style="max-height:220px;overflow-y:auto;">
-                    <div class="agent-row" onclick="showAgent('meek')"><span class="svc-dot unknown"></span><span style="color:var(--accent);">meek</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">security &middot; 10 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('echo')"><span class="svc-dot unknown"></span><span style="color:#ce93d8;">echo</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">social &middot; 8 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('amp')"><span class="svc-dot unknown"></span><span style="color:#ff6f00;">amp</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">audio &middot; 8 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('mechanic')"><span class="svc-dot unknown"></span><span style="color:#aed581;">mechanic</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">diagnostics &middot; 8 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('sentinel')"><span class="svc-dot unknown"></span><span style="color:#4fc3f7;">sentinel</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">code review &middot; 5 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('bounty')"><span class="svc-dot unknown"></span><span style="color:#e040fb;">bounty</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bug hunter &middot; 6 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">dealer</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game master &middot; 7 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('forge')"><span class="svc-dot unknown"></span><span style="color:#ef5350;">forge</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game assets &middot; 6 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('conductor')"><span class="svc-dot unknown"></span><span style="color:#e6ee9c;">conductor</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">composer &middot; 7 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span style="color:#ffab40;">crypto</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">arbitrage &middot; 6 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('quartermaster')"><span class="svc-dot unknown"></span><span style="color:#78909c;">quartermaster</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">server ops &middot; 7 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span style="color:#00e676;">piper</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">war pipes &middot; 4 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">axe</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">lead guitar &middot; 4 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span style="color:#795548;">rhythm</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">rhythm guitar &middot; 4 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span style="color:#607d8b;">bottom</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bass &middot; 4 tools</span></div>
-                    <div class="agent-row" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span style="color:#f44336;">bones</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">drums &middot; 4 tools</span></div>
+                    <div class="agent-row" data-agent="meek" onclick="showAgent('meek')"><span class="svc-dot unknown"></span><span style="color:var(--accent);">meek</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">security &middot; 10 tools</span></div>
+                    <div class="agent-row" data-agent="echo" onclick="showAgent('echo')"><span class="svc-dot unknown"></span><span style="color:#ce93d8;">echo</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">social &middot; 8 tools</span></div>
+                    <div class="agent-row" data-agent="amp" onclick="showAgent('amp')"><span class="svc-dot unknown"></span><span style="color:#ff6f00;">amp</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">audio &middot; 8 tools</span></div>
+                    <div class="agent-row" data-agent="mechanic" onclick="showAgent('mechanic')"><span class="svc-dot unknown"></span><span style="color:#aed581;">mechanic</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">diagnostics &middot; 8 tools</span></div>
+                    <div class="agent-row" data-agent="sentinel" onclick="showAgent('sentinel')"><span class="svc-dot unknown"></span><span style="color:#4fc3f7;">sentinel</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">code review &middot; 5 tools</span></div>
+                    <div class="agent-row" data-agent="bounty" onclick="showAgent('bounty')"><span class="svc-dot unknown"></span><span style="color:#e040fb;">bounty</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bug hunter &middot; 6 tools</span></div>
+                    <div class="agent-row" data-agent="dealer" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">dealer</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game master &middot; 7 tools</span></div>
+                    <div class="agent-row" data-agent="forge" onclick="showAgent('forge')"><span class="svc-dot unknown"></span><span style="color:#ef5350;">forge</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game assets &middot; 6 tools</span></div>
+                    <div class="agent-row" data-agent="conductor" onclick="showAgent('conductor')"><span class="svc-dot unknown"></span><span style="color:#e6ee9c;">conductor</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">composer &middot; 7 tools</span></div>
+                    <div class="agent-row" data-agent="crypto" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span style="color:#ffab40;">crypto</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">arbitrage &middot; 6 tools</span></div>
+                    <div class="agent-row" data-agent="quartermaster" onclick="showAgent('quartermaster')"><span class="svc-dot unknown"></span><span style="color:#78909c;">quartermaster</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">server ops &middot; 7 tools</span></div>
+                    <div class="agent-row" data-agent="piper" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span style="color:#00e676;">piper</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">war pipes &middot; 4 tools</span></div>
+                    <div class="agent-row" data-agent="axe" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">axe</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">lead guitar &middot; 4 tools</span></div>
+                    <div class="agent-row" data-agent="rhythm" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span style="color:#795548;">rhythm</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">rhythm guitar &middot; 4 tools</span></div>
+                    <div class="agent-row" data-agent="bottom" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span style="color:#607d8b;">bottom</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bass &middot; 4 tools</span></div>
+                    <div class="agent-row" data-agent="bones" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span style="color:#f44336;">bones</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">drums &middot; 4 tools</span></div>
                 </div>
             </section>
 

@@ -1144,13 +1144,33 @@ async def watercooler_page(request: Request):
     return templates.TemplateResponse(request, "watercooler.html", {})
 
 
+@app.get("/architect", response_class=HTMLResponse)
+async def architect_page(request: Request):
+    """The architect's page."""
+    return templates.TemplateResponse(request, "architect.html", {})
+
+
 # ═══ AGENT ACTIVITY LOG ═══
-ACTIVITY_LOG = "/srv/ai/agent/data/activity.json"
+ACTIVITY_LOG = "/srv/ai/agent/data/activity_feed.json"
+
+def _normalize_activity(entry):
+    """Normalize halo-agent format (action/detail/level) to cave format (task/status)."""
+    if "task" in entry:
+        return entry  # already cave format
+    level = entry.get("level", "info")
+    status = "fail" if level == "critical" else "working" if level == "warning" else "ok"
+    return {
+        "agent": entry.get("agent", "unknown"),
+        "task": f"{entry.get('action', '')} — {entry.get('detail', '')}",
+        "status": status,
+        "time": entry.get("time", ""),
+    }
 
 def load_activity():
     try:
         with open(ACTIVITY_LOG, "r") as f:
-            return json.loads(f.read())[-50:]
+            raw = json.loads(f.read())[-50:]
+        return [_normalize_activity(e) for e in raw]
     except Exception:
         return []
 
@@ -1194,6 +1214,326 @@ async def post_activity(request: Request):
     status = body.get("status", "ok")
     log_activity(agent, task, status)
     return {"logged": True}
+
+
+# ═══ AGENT STATUS ═══
+AGENT_SERVICES = {
+    "halo": "halo-agent",
+    "message-bus": "halo-message-bus",
+}
+
+@app.get("/api/agents/status")
+async def api_agents_status():
+    """Real-time agent status from systemd + activity feed."""
+    results = {}
+    for name, unit in AGENT_SERVICES.items():
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "/usr/bin/systemctl", "is-active", f"{unit}.service",
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await proc.communicate()
+            results[name] = stdout.decode().strip()
+        except Exception:
+            results[name] = "unknown"
+
+    # Last activity per agent from the feed
+    last_seen = {}
+    try:
+        raw = json.loads(Path(ACTIVITY_LOG).read_text())
+    except Exception:
+        raw = []
+    for entry in raw:
+        agent = entry.get("agent", "")
+        last_seen[agent] = entry.get("time", "")
+
+    results["last_activity"] = last_seen
+    return results
+
+
+# ═══ KANSAS CITY SHUFFLE — RING BUS ═══
+KCS_MACHINES = {
+    "ryzen": {
+        "name": "ryzen",
+        "ip": "10.0.0.185",
+        "user": "bcloud",
+        "role": "primary workstation",
+    },
+    "strix-halo": {
+        "name": "strix-halo",
+        "ip": "10.0.0.131",
+        "user": "bcloud",
+        "role": "GPU server — halo-ai stack",
+    },
+    "sligar": {
+        "name": "sligar",
+        "ip": "192.168.50.184",
+        "user": "bcloud",
+        "role": "secondary workloads",
+    },
+    "minisforum": {
+        "name": "minisforum",
+        "ip": "10.0.0.61",
+        "user": "bcloud",
+        "role": "Windows workstation",
+    },
+}
+
+KCS_CONNECTIONS = [
+    ("ryzen", "strix-halo"),
+    ("ryzen", "sligar"),
+    ("ryzen", "minisforum"),
+    ("strix-halo", "sligar"),
+    ("strix-halo", "minisforum"),
+    ("sligar", "minisforum"),
+]
+
+_kcs_cache = {"data": None, "timestamp": 0}
+
+
+async def kcs_ping(target: str) -> dict:
+    """ICMP ping to check basic network reachability."""
+    machine = KCS_MACHINES[target]
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "/usr/bin/ping", "-c", "1", "-W", "3", machine["ip"],
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=5)
+        ok = proc.returncode == 0
+        latency = 0.0
+        for line in stdout.decode().split("\n"):
+            if "time=" in line:
+                latency = float(line.split("time=")[1].split()[0])
+        return {"reachable": ok, "latency_ms": round(latency, 1)}
+    except Exception:
+        return {"reachable": False, "latency_ms": 0}
+
+
+async def kcs_probe_ssh(target: str) -> dict:
+    """Test SSH connectivity to a target machine."""
+    machine = KCS_MACHINES[target]
+    cmd = [
+        "/usr/bin/ssh",
+        "-o", "ConnectTimeout=5",
+        "-o", "StrictHostKeyChecking=no",
+        "-o", "BatchMode=yes",
+        f"{machine['user']}@{machine['ip']}",
+        "echo ok",
+    ]
+    start = _time.time()
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
+        elapsed = (_time.time() - start) * 1000
+        ok = proc.returncode == 0 and "ok" in stdout.decode()
+        return {"reachable": ok, "latency_ms": round(elapsed, 1), "error": "" if ok else stderr.decode()[:100]}
+    except asyncio.TimeoutError:
+        return {"reachable": False, "latency_ms": 0, "error": "timeout"}
+    except Exception as e:
+        return {"reachable": False, "latency_ms": 0, "error": str(e)[:100]}
+
+
+@app.get("/api/kcs/status")
+async def api_kcs_status():
+    """Full ring bus health status."""
+    now = _time.time()
+    if _kcs_cache["data"] and now - _kcs_cache["timestamp"] < 15:
+        return _kcs_cache["data"]
+
+    # Probe all machines in parallel
+    machines = {}
+    probe_tasks = {}
+    # Detect which machine we're running on
+    import socket
+    local_hostname = socket.gethostname().lower().replace(" ", "-")
+
+    for name in KCS_MACHINES:
+        if name == local_hostname or name.replace("-", "") == local_hostname:
+            # We ARE this machine — skip probing, mark as up
+            probe_tasks[name] = None
+        else:
+            probe_tasks[name] = asyncio.gather(kcs_ping(name), kcs_probe_ssh(name))
+    probe_results = {}
+    for name, task in probe_tasks.items():
+        if task is None:
+            probe_results[name] = ({"reachable": True, "latency_ms": 0}, {"reachable": True, "latency_ms": 0, "error": ""})
+        else:
+            probe_results[name] = await task
+
+    for name, machine in KCS_MACHINES.items():
+        ping_result, ssh_result = probe_results[name]
+        is_local = name == local_hostname or name.replace("-", "") == local_hostname
+        status = "up" if is_local or ssh_result["reachable"] else ("degraded" if ping_result["reachable"] else "down")
+        machines[name] = {
+            **machine,
+            "ping": ping_result,
+            "ssh": ssh_result,
+            "status": status,
+        }
+
+    # Check connections
+    connections = []
+    up_count = 0
+    total = len(KCS_CONNECTIONS) * 2
+    for src, tgt in KCS_CONNECTIONS:
+        fwd = machines[tgt]["ssh"]["reachable"]
+        rev = machines[src]["ssh"]["reachable"]
+        if fwd:
+            up_count += 1
+        if rev:
+            up_count += 1
+        connections.append({
+            "source": src,
+            "target": tgt,
+            "forward": "up" if fwd else "down",
+            "reverse": "up" if rev else "down",
+        })
+
+    ring_health = "healthy" if up_count == total else "down" if up_count == 0 else "degraded"
+
+    result = {
+        "ring_health": ring_health,
+        "machines": machines,
+        "connections": connections,
+        "connections_up": up_count,
+        "connections_total": total,
+        "checked_at": datetime.now().isoformat(),
+    }
+    _kcs_cache["data"] = result
+    _kcs_cache["timestamp"] = now
+    return result
+
+
+@app.post("/api/kcs/{machine}/test")
+async def api_kcs_test(machine: str):
+    """Test connectivity to a specific machine."""
+    if machine not in KCS_MACHINES:
+        return JSONResponse({"error": f"Unknown machine: {machine}"}, status_code=404)
+    ping = await kcs_ping(machine)
+    ssh = await kcs_probe_ssh(machine)
+    return {"machine": machine, "ping": ping, "ssh": ssh}
+
+
+@app.post("/api/kcs/repair/{machine}")
+async def api_kcs_repair(machine: str):
+    """Attempt to repair SSH connection to a machine."""
+    if machine not in KCS_MACHINES:
+        return JSONResponse({"error": f"Unknown machine: {machine}"}, status_code=404)
+    m = KCS_MACHINES[machine]
+    # Clear stale known_hosts entry
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "/usr/bin/ssh-keygen", "-R", m["ip"],
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        await proc.communicate()
+    except Exception:
+        pass
+    # Test again
+    result = await kcs_probe_ssh(machine)
+    log_activity("kcs", f"repair {machine}", "ok" if result["reachable"] else "fail")
+    return {"machine": machine, "result": result}
+
+
+@app.post("/api/kcs/test-all")
+async def api_kcs_test_all():
+    """Force a fresh probe of all machines (bypasses cache)."""
+    _kcs_cache["timestamp"] = 0
+    return await api_kcs_status()
+
+
+# ═══ CLUSTERFS — GlusterFS Distributed Filesystem ═══
+_gluster_cache = {"data": None, "timestamp": 0}
+
+@app.get("/api/kcs/gluster")
+async def api_kcs_gluster():
+    """GlusterFS status — volumes, peers, pool size."""
+    now = _time.time()
+    if _gluster_cache["data"] and now - _gluster_cache["timestamp"] < 30:
+        return _gluster_cache["data"]
+
+    result = {"status": "unknown", "volumes": [], "peers": [], "pool_size": "--"}
+
+    # Check if glusterd is even running
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "/usr/bin/systemctl", "is-active", "glusterd.service",
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, _ = await proc.communicate()
+        glusterd_active = stdout.decode().strip() == "active"
+    except Exception:
+        glusterd_active = False
+
+    if not glusterd_active:
+        result["status"] = "not installed"
+        _gluster_cache["data"] = result
+        _gluster_cache["timestamp"] = now
+        return result
+
+    # Volume info
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "gluster", "volume", "info", "all",
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
+        vol_out = stdout.decode()
+        if "Volume Name:" in vol_out:
+            for block in vol_out.split("Volume Name:")[1:]:
+                lines = block.strip().split("\n")
+                vol = {"name": lines[0].strip()}
+                for line in lines:
+                    if "Status:" in line:
+                        vol["status"] = line.split("Status:")[1].strip()
+                    elif "Type:" in line:
+                        vol["type"] = line.split("Type:")[1].strip()
+                    elif "Number of Bricks:" in line:
+                        vol["bricks"] = line.split("Number of Bricks:")[1].strip()
+                result["volumes"].append(vol)
+    except Exception:
+        pass
+
+    # Peer status
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "gluster", "peer", "status",
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
+        peer_out = stdout.decode()
+        connected = peer_out.count("Peer in Cluster (Connected)")
+        disconnected = peer_out.count("Peer in Cluster (Disconnected)")
+        result["peers"] = {"connected": connected, "disconnected": disconnected, "total": connected + disconnected}
+    except Exception:
+        result["peers"] = {"connected": 0, "disconnected": 0, "total": 0}
+
+    # Pool size (check /shared mount)
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "df", "-h", "/shared", "--output=size,used,avail,pcent",
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=5)
+        lines = stdout.decode().strip().split("\n")
+        if len(lines) >= 2:
+            parts = lines[1].split()
+            result["pool_size"] = {"total": parts[0], "used": parts[1], "avail": parts[2], "percent": parts[3]}
+    except Exception:
+        pass
+
+    has_volumes = any(v.get("status") == "Started" for v in result["volumes"])
+    all_peers_ok = result.get("peers", {}).get("disconnected", 0) == 0
+    result["status"] = "healthy" if has_volumes and all_peers_ok else "degraded" if has_volumes else "down"
+
+    _gluster_cache["data"] = result
+    _gluster_cache["timestamp"] = now
+    return result
 
 
 # ═══ NEWS FEED ═══
