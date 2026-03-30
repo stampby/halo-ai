@@ -52,8 +52,15 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **LLM chat** — [Open WebUI](https://github.com/open-webui/open-webui) with RAG, multi-model, document upload
 - **Deep research** — [Vane](https://github.com/ItzCrazyKns/Vane) with cited sources and private search
 - **Image generation** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) on 115GB GPU, SDXL, Flux
+- **Video generation** — [Wan2.1](https://github.com/Wan-Video/Wan2.1) on ROCm 6.3
+- **Music generation** — [MusicGen](https://github.com/facebookresearch/audiocraft) by Meta, local GPU inference
 - **Speech-to-text** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp) compiled for gfx1151
 - **Text-to-speech** — [Kokoro](https://github.com/remsky/Kokoro-FastAPI) with 54 natural voices
+- **Code assistant** — Qwen2.5 Coder 7B on llama.cpp, 48.6 tok/s
+- **Object detection** — [YOLO](https://github.com/ultralytics/ultralytics) v8, real-time inference
+- **OCR** — [Tesseract](https://github.com/tesseract-ocr/tesseract) v5.5.2, compiled from source
+- **Translation** — [Argos Translate](https://github.com/argosopentech/argos-translate), offline multi-language
+- **Fine-tuning** — [Axolotl](https://github.com/axolotl-ai-cloud/axolotl), train your own models locally
 - **Unified API** — [Lemonade](https://github.com/lemonade-sdk/lemonade) v10.0.1, OpenAI/Ollama/Anthropic compatible
 
 ### Agents — [docs](docs/AGENTS.md)
@@ -132,6 +139,17 @@ Interactive installer — username, passwords, hostname, which services to enabl
 | whisper.cpp | 8082 | Speech-to-text |
 | Kokoro | 8083 | Text-to-speech (54 voices) |
 | ComfyUI | 8188 | Image generation |
+| Wan2.1 | — | Video generation (Strix Halo GPU) |
+| MusicGen | — | Music generation (Strix Halo GPU) |
+| YOLO | — | Object detection (Strix Halo) |
+| Tesseract | — | OCR — document scanning |
+| Argos | — | Offline translation |
+| Axolotl | — | Model fine-tuning (Strix Halo GPU) |
+| Prometheus | 9090 | Metrics collection |
+| Grafana | 3030 | Monitoring dashboards |
+| Node Exporter | 9100 | System metrics |
+| Home Assistant | 8123 | Home automation |
+| Borg | — | Encrypted backups to GlusterFS |
 | Dashboard | 3003 | GPU metrics + service health |
 | Gaia API | 8090 | Agent framework server |
 | Gaia MCP | 8765 | Model Context Protocol bridge |

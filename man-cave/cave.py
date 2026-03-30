@@ -85,6 +85,10 @@ SERVICES = [
     {"name": "caddy", "unit": "halo-caddy", "port": 80, "health": None},
     {"name": "gaia", "unit": "halo-gaia-api", "port": 8090, "health": "http://127.0.0.1:8090/health"},
     {"name": "opencl", "unit": "halo-opencl", "port": None, "health": None},
+    {"name": "prometheus", "unit": "prometheus", "port": 9090, "health": "http://127.0.0.1:9090/-/healthy"},
+    {"name": "grafana", "unit": "grafana-server", "port": 3030, "health": "http://127.0.0.1:3030/api/health"},
+    {"name": "node-exporter", "unit": "node_exporter", "port": 9100, "health": None},
+    {"name": "home-assistant", "unit": "home-assistant", "port": 8123, "health": None},
 ]
 
 
