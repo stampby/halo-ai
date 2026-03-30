@@ -122,6 +122,55 @@ echo "ec_su_axb35" | sudo tee /etc/modules-load.d/ec-su-axb35.conf
 sudo systemctl enable halo-fancontrol
 ```
 
+## New Services (2026-03-30)
+
+Complete homelab AI stack — all built from source.
+
+### Ryzen (local)
+
+| Service | Version | Built From | Status |
+|---------|---------|-----------|--------|
+| Prometheus | 3.11.0-rc.0 | Go source | Monitoring — :9090 |
+| Node Exporter | 1.10.2 | Go source | System metrics — :9100 |
+| Grafana | latest | Go source | Dashboards — :3030 |
+| Tesseract OCR | 5.5.2 | C++ source | Document scanning |
+| Borg Backup | 2.0.0b22 | Python/C source | Encrypted backups |
+| Argos Translate | 1.11.0 | Python source | Offline translation |
+| Home Assistant | latest | Python source | Home automation — :8123 |
+
+### Strix Halo (GPU)
+
+| Service | Version | Framework | Status |
+|---------|---------|-----------|--------|
+| Wan2.1 | latest | PyTorch 2.9.1+ROCm6.3 | Video generation |
+| MusicGen | audiocraft 1.4.0a2 | PyTorch+ROCm | Music generation |
+| YOLO | v8.4.32 | PyTorch+ROCm | Object detection |
+| Axolotl | latest | PyTorch+ROCm | Model fine-tuning |
+| Qwen2.5-Coder-7B | Q4_K_M (4.4GB) | llama.cpp HIP | Code assistant — 48.6 tok/s gen, 515 tok/s prompt |
+| pyannote-audio | v4.0.4 | PyTorch+ROCm | Speaker identification |
+| Python 3.12 | 3.12.10 | Built from source | For MusicGen compatibility |
+
+### Code Assistant Performance
+
+| Metric | Speed |
+|--------|-------|
+| Prompt processing | **515.7 tok/s** |
+| Generation | **48.6 tok/s** |
+| Model | Qwen2.5-Coder-7B-Instruct Q4_K_M |
+| VRAM | 4.1 GB |
+
+### Service Count
+
+| Category | Count |
+|----------|-------|
+| AI & Inference | 13 |
+| Monitoring | 3 |
+| Automation | 2 |
+| Security | 1 |
+| Backup | 1 |
+| Home | 1 |
+| **Total services** | **25** |
+
 ## Boot Performance
 
 | Phase | Time |
