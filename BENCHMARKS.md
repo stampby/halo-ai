@@ -1,6 +1,6 @@
 # halo-ai Benchmark Results
 
-**Date**: 2026-03-27 (updated)
+**Date**: 2026-03-30 (updated)
 **Hardware**: AMD Ryzen AI MAX+ 395 (Strix Halo), 128GB LPDDR5x-8000
 **Kernel**: 6.19.9-arch1-1
 **ROCm**: 7.13 (TheRock nightly, gfx1151)
@@ -122,54 +122,120 @@ echo "ec_su_axb35" | sudo tee /etc/modules-load.d/ec-su-axb35.conf
 sudo systemctl enable halo-fancontrol
 ```
 
-## New Services (2026-03-30)
+## Complete Homelab AI Stack (2026-03-30)
 
-Complete homelab AI stack — all built from source.
+25 services — all built from source — zero cloud. *"I know kung fu."*
 
-### Ryzen (local)
+### LLM Inference
 
-| Service | Version | Built From | Status |
-|---------|---------|-----------|--------|
-| Prometheus | 3.11.0-rc.0 | Go source | Monitoring — :9090 |
-| Node Exporter | 1.10.2 | Go source | System metrics — :9100 |
-| Grafana | latest | Go source | Dashboards — :3030 |
-| Tesseract OCR | 5.5.2 | C++ source | Document scanning |
-| Borg Backup | 2.0.0b22 | Python/C source | Encrypted backups |
-| Argos Translate | 1.11.0 | Python source | Offline translation |
-| Home Assistant | latest | Python source | Home automation — :8123 |
+| Model | Prompt Speed | Gen Speed | VRAM | Backend |
+|-------|-------------|-----------|------|---------|
+| **Qwen3-30B-A3B** (MoE) | 58-172 tok/s | **109 tok/s** | 18 GB | Vulkan + FA |
+| **Qwen2.5-Coder-7B** | **515.7 tok/s** | **48.6 tok/s** | 4.1 GB | llama.cpp HIP |
+| Llama 3 70B (dense) | — | ~18 tok/s | 40 GB | Vulkan |
 
-### Strix Halo (GPU)
+### Video Generation
 
-| Service | Version | Framework | Status |
-|---------|---------|-----------|--------|
-| Wan2.1 | latest | PyTorch 2.9.1+ROCm6.3 | Video generation |
-| MusicGen | audiocraft 1.4.0a2 | PyTorch+ROCm | Music generation |
-| YOLO | v8.4.32 | PyTorch+ROCm | Object detection |
-| Axolotl | latest | PyTorch+ROCm | Model fine-tuning |
-| Qwen2.5-Coder-7B | Q4_K_M (4.4GB) | llama.cpp HIP | Code assistant — 48.6 tok/s gen, 515 tok/s prompt |
-| pyannote-audio | v4.0.4 | PyTorch+ROCm | Speaker identification |
-| Python 3.12 | 3.12.10 | Built from source | For MusicGen compatibility |
+| Component | Model | Size | Resolution | GPU Memory | Status |
+|-----------|-------|------|-----------|------------|--------|
+| **Wan2.1** | T2V-1.3B | 17 GB | 832×480 | 5.8 GB | Working — text-to-video |
+| **ComfyUI + SDXL** | Various | — | Up to 4K | 115 GB available | Working — image + AnimateDiff |
 
-### Code Assistant Performance
+### Music Generation
 
-| Metric | Speed |
-|--------|-------|
+| Component | Model | Size | Sample Rate | Status |
+|-----------|-------|------|-------------|--------|
+| **MusicGen** | facebook/musicgen-small | 1.1 GB | 32 kHz | Working — end-to-end tested, audio generated |
+
+### Voice & Speaker ID
+
+| Component | Version | Purpose | Status |
+|-----------|---------|---------|--------|
+| **whisper.cpp** | compiled gfx1151 | Speech-to-text | Working |
+| **Kokoro** | 54 voices | Text-to-speech | Working |
+| **pyannote-audio** | v4.0.4 | Speaker identification | Working — voice is identity |
+| **XTTS v2** | — | Voice cloning | Working — architect's voice |
+
+### Object Detection
+
+| Component | Version | Speed | Status |
+|-----------|---------|-------|--------|
+| **YOLO** | v8.4.32 | CPU inference | Working — GPU pending ROCm gfx1151 stable |
+
+### Code Assistant
+
+| Metric | Result |
+|--------|--------|
+| Model | Qwen2.5-Coder-7B-Instruct Q4_K_M |
 | Prompt processing | **515.7 tok/s** |
 | Generation | **48.6 tok/s** |
-| Model | Qwen2.5-Coder-7B-Instruct Q4_K_M |
 | VRAM | 4.1 GB |
+| Helper | `~/llama.cpp/code-assist.sh` |
 
-### Service Count
+### OCR & Translation
 
-| Category | Count |
-|----------|-------|
-| AI & Inference | 13 |
-| Monitoring | 3 |
-| Automation | 2 |
-| Security | 1 |
-| Backup | 1 |
-| Home | 1 |
+| Component | Version | Built From | Status |
+|-----------|---------|-----------|--------|
+| **Tesseract** | 5.5.2 | C++ source | AVX512, OpenMP, SSE4.1 |
+| **Argos Translate** | 1.11.0 | Python source | Offline multi-language |
+
+### Fine-Tuning
+
+| Component | Version | Framework | Status |
+|-----------|---------|-----------|--------|
+| **Axolotl** | 0.16.0 | PyTorch+ROCm | QLoRA, LoRA, full fine-tune |
+
+### Monitoring & Ops
+
+| Component | Version | Built From | Port |
+|-----------|---------|-----------|------|
+| **Prometheus** | 3.11.0-rc.0 | Go source | :9090 |
+| **Node Exporter** | 1.10.2 | Go source | :9100 |
+| **Grafana** | latest | Go source | :3030 |
+| **Borg Backup** | 2.0.0b22 | Python/C source | — |
+| **Home Assistant** | latest | Python source | :8123 |
+
+### Halo Memory & Intelligence
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| **Halo Memory** | Working | User profiles, conversations, preferences, voice enrollment |
+| **Speaker ID** | Ready | pyannote voice profiles — your voice is your login |
+| **Agent routing** | Working | 17 agents, each owns their services, Halo routes |
+
+### Disk Usage (Strix Halo)
+
+| Component | Size |
+|-----------|------|
+| Wan2.1 (venv + model) | 30 GB |
+| MusicGen (venv + model) | 16 GB |
+| YOLO (venv + model) | ~8 GB |
+| Axolotl (venv) | ~24 GB |
+| pyannote (venv) | ~8 GB |
+| Qwen2.5-Coder-7B model | 4.4 GB |
+| Python 3.12 (/opt) | ~200 MB |
+| **Total new services** | **~91 GB** |
+
+### ROCm Compatibility Notes
+
+- **LD_PRELOAD fix**: System ROCm 7.13 vs PyTorch bundled ROCm 7.0 — `LD_PRELOAD=/opt/rocm/lib/libamdhip64.so` resolves segfaults
+- **gfx1151**: Bleeding edge GPU arch — Vulkan backend outperforms HIP for generation
+- **Python 3.14**: Too new for some packages — Python 3.12 built from source for MusicGen
+- **xformers**: Patched out of MusicGen, replaced with native torch attention
+
+### Stack Totals
+
+| Metric | Count |
+|--------|-------|
 | **Total services** | **25** |
+| **Autonomous agents** | **17** |
+| **Total tools** | **98+** |
+| **GPU VRAM available** | **115 GB** |
+| **Boot to ready** | **19.3s** |
+| **Machines in mesh** | **4** |
+| **Cloud dependencies** | **0** |
+
+*Built by CLI — stamped by the architect.*
 
 ## Boot Performance
 
