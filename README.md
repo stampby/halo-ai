@@ -101,6 +101,26 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **[Undercroft Mini](https://github.com/stampby/undercroft-reddit)** — playable demo on Reddit via Devvit
 - **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
 
+### Movies & TV — [halo-ai Studios](docs/AUTONOMOUS-PIPELINE.md)
+- **Voxel drama** — 10-episode series, cinematic lighting, PBR shaders
+- **120 voxel characters** — full backstories, motion capture, voice acting
+- **Actor performance transfer** — motion, voice, dialog from real actors to voxel characters
+- **AI writing** — Sorkin-style dialog, Breaking Bad pacing
+- **Full pipeline** — script → voice → animation → render, all autonomous
+
+### Video Production
+- **Voice tutorials** — architect narrates, SM7B, full video walkthroughs
+- **Face swap** — AI face replacement for video content
+- **Streaming co-host** — architect's voice as live AI commentator for Twitch/YouTube
+
+### Audio Production
+- **Voice cloning** — XTTS v2 trained on architect's voice, milestone releases
+- **Audiobooks** — public domain classics, 1984 first release, buy-to-own
+- **[The Downcomers](https://github.com/stampby/amp)** — AI blues/rock band, Spotify distribution
+- **Voice API** — TTS-as-a-Service, drop text get audio, zero data retention
+- **Memorial voice** — capture loved ones' speech, build AI voice clone after death
+- **Virtual radio DJ** — 24/7 broadcast-quality AI voice, scripts in audio out
+
 ### Infrastructure [Kansas City Shuffle]
 - **4-machine SSH mesh [Kansas City Shuffle]** — ryzen, strix-halo, minisforum, sligar
 - **[Mixer](https://github.com/stampby/mixer)** — btrfs ring snapshots over SSH [Kansas City Shuffle]
