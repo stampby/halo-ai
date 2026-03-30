@@ -8,7 +8,7 @@
 
 ### The bare-metal AI stack for AMD Strix Halo
 
-**109 tok/s. Zero containers. 115GB GPU memory. Compiled from source.**
+**109 tok/s. Zero containers. 115GB GPU memory. Compiled from source. I know kung fu.**
 
 *stamped by the architect*
 
@@ -32,9 +32,9 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 
 - **Containers add 15-20% overhead** on GPU workloads. When you have 115GB of unified memory on a single chip, every watt and every byte should go to inference, not orchestration.
 - **Compiled from source** means native gfx1151 optimizations that pre-built binaries miss. That's where 109 tok/s comes from.
-- **No timers. No cron. Total AI.** Agents don't check on a schedule — they watch conditions and act when something changes. Service goes down? Detected and repaired before you notice. GPU overheats? Reported the moment it happens. Not every 30 seconds. The moment.
+- **No timers. No cron. Total AI.** Agents don't check on a schedule — they watch conditions and act when something changes. Service goes down? Detected and repaired before you notice. GPU overheats? Reported the moment it happens. Not every 30 seconds. *The moment.* I'm sorry Dave, but this stack doesn't sleep.
 - **Survives Arch rolling release.** Freeze the stack, let pacman update, agents detect if anything broke, thaw to rollback in 30 seconds. This is why halo-ai runs on Arch without fear.
-- **You own the whole stack.** No package manager decides when your AI server goes down.
+- **You own the whole stack.** No package manager decides when your AI server goes down. *"My precious."*
 
 ## Quick Install
 
@@ -42,7 +42,7 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | bash
 ```
 
-Interactive installer — username, passwords, hostname, which services to enable. Sensible defaults. Default Caddy password is `Caddy` — change it immediately.
+Interactive installer — username, passwords, hostname, which services to enable. Sensible defaults. Default Caddy password is `Caddy` — change it immediately. *"Choose wisely."*
 
 ## Features
 
@@ -77,7 +77,7 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **[Shadow](https://github.com/stampby/shadow)** — file integrity monitoring, SSH mesh watcher
 
 ### Stack Protection — [docs](docs/STACK-PROTECTION.md)
-- **Freeze/thaw** — one-click snapshot and rollback of the entire stack
+- **Freeze/thaw** — one-click snapshot and rollback of the entire stack. *"I'll be back."*
 - **Compile from source** — weekly rebuilds with native gfx1151 optimizations
 - **[Mixer](https://github.com/stampby/mixer)** — distributed mesh snapshots, no NAS, no single point of failure
 - **Man Cave UI** — stack status, update indicators, compile button
@@ -91,8 +91,8 @@ Interactive installer — username, passwords, hostname, which services to enabl
 ### Autonomous Game Development — [Pipeline](docs/AUTONOMOUS-PIPELINE.md)
 - **[Voxel Extraction](https://github.com/stampby/voxel-extraction)** — PvE co-op extraction game in Godot 4
 - **[Arcade](https://github.com/stampby/halo-arcade)** — game server manager, one-click deploy, retro emulation
-- **AI game master** — Dealer runs local LLM, every dungeon run is unique
-- **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding
+- **AI game master** — Dealer runs local LLM, every dungeon run is unique. *"You wanna get nuts? Let's get nuts."*
+- **Anti-cheat** — encrypted RAM, runtime monitoring, permanent cheater branding. *"You have to ask yourself one question: Do I feel lucky?"*
 - **Full pipeline** — design → build → test → deploy, agents handle everything
 
 ### Autonomous Music Production — [The Downcomers](https://github.com/stampby/amp)
@@ -100,21 +100,21 @@ Interactive installer — username, passwords, hostname, which services to enabl
 - **AI instrumentals** — original blues/rock, full band, no covers
 - **Audiobooks** — public domain classics, 1984 first release
 - **Voice API** — TTS-as-a-Service, zero data retention
-- **Memorial voice** — capture loved ones' speech, build AI clone after death
+- **Memorial voice** — capture loved ones' speech, build AI clone after death. *"After all this time? Always."*
 - **Distribution** — DistroKid to Spotify, Apple Music, all platforms
 
 ### Autonomous Video Production — [halo-ai Studios](docs/AUTONOMOUS-PIPELINE.md)
 - **Voxel drama** — 10-episode series, script → voice → animation → render
 - **Voice tutorials** — architect narrates, full walkthroughs
 - **Streaming co-host** — architect's voice as live AI commentator for Twitch/YouTube
-- **Full pipeline** — writing → acting → rendering → distribution, all autonomous
+- **Full pipeline** — writing → acting → rendering → distribution, all autonomous. *"Lights, camera, action."*
 
 ### Infrastructure [Kansas City Shuffle]
 - **4-machine SSH mesh [Kansas City Shuffle]** — ryzen, strix-halo, minisforum, sligar
 - **[Mixer](https://github.com/stampby/mixer)** — btrfs ring snapshots over SSH [Kansas City Shuffle]
 - **[Benchmarks](https://stampby.github.io/benchmarks/)** — live performance tracking, history over time
 - **[Man Cave](https://github.com/stampby/man-cave)** — control center with GPU metrics, service health, agent activity
-- **Zero cloud** — no subscriptions, no APIs, no third-party dependencies
+- **Zero cloud** — no subscriptions, no APIs, no third-party dependencies. *"There is no cloud. There is only Zuul."*
 
 ## Services
 
@@ -226,7 +226,7 @@ Video walkthroughs — start to finish, nothing skipped. Unlisted YouTube links.
 
 ## Credits
 
-**Designed and built by the architect** — every script, every service, every agent. From source. No shortcuts.
+**Designed and built by the architect** — every script, every service, every agent. From source. No shortcuts. *"I am inevitable."*
 
 Built on [DreamServer](https://github.com/Light-Heart-Labs/DreamServer) by Light-Heart-Labs. Powered by [AMD Gaia](https://github.com/amd/gaia), [Lemonade](https://github.com/lemonade-sdk/lemonade), [llama.cpp](https://github.com/ggml-org/llama.cpp), [Open WebUI](https://github.com/open-webui/open-webui), [Vane](https://github.com/ItzCrazyKns/Vane), [whisper.cpp](https://github.com/ggerganov/whisper.cpp), [Kokoro](https://github.com/remsky/Kokoro-FastAPI), [ComfyUI](https://github.com/comfyanonymous/ComfyUI), [SearXNG](https://github.com/searxng/searxng), [Qdrant](https://github.com/qdrant/qdrant), [n8n](https://github.com/n8n-io/n8n), [Caddy](https://github.com/caddyserver/caddy), [ROCm](https://github.com/ROCm/TheRock).
 
