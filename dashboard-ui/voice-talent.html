@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>halo-ai — Voice Talent</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f; --card: rgba(16, 16, 24, 0.85); --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.15); --text: #e0e0e0; --dim: #888;
+    --label: #666; --cyan: #00d4ff; --green: #00ff88; --gold: #ffd740;
+    --red: #ff4444; --radius: 16px; --glass: blur(20px);
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+    min-height: 100vh;
+  }
+
+  .header { text-align: center; padding: 3rem 1rem 1rem; }
+  .logo { color: var(--cyan); font-size: 2rem; font-weight: 800; letter-spacing: 0.15em; }
+  .logo span { color: #fff; }
+  .tagline { color: var(--label); font-size: 1rem; margin-top: 0.3rem; }
+
+  .hero {
+    max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; text-align: center;
+  }
+  .hero h2 {
+    font-size: 1.8rem; color: #fff; font-weight: 300; line-height: 1.4;
+    margin-bottom: 1rem;
+  }
+  .hero h2 em { color: var(--cyan); font-style: normal; font-weight: 600; }
+  .hero p { color: var(--dim); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
+
+  .lang-grid {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+    max-width: 600px; margin: 2rem auto;
+  }
+  .lang-chip {
+    background: var(--card); backdrop-filter: var(--glass); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 16px; font-size: 0.8rem; color: var(--dim);
+    transition: all 0.3s;
+  }
+  .lang-chip.needed { border-color: var(--gold); color: var(--gold); }
+  .lang-chip.open { border-color: var(--cyan); color: var(--cyan); }
+
+  .card {
+    background: var(--card); backdrop-filter: var(--glass); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem; max-width: 640px; margin: 2rem auto;
+  }
+  .card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .card .subtitle { color: var(--dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+
+  .how-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 2rem auto; max-width: 720px; padding: 0 1.5rem; }
+  .how-step {
+    background: var(--card); backdrop-filter: var(--glass); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem; text-align: center;
+  }
+  .how-step .num { color: var(--cyan); font-size: 2rem; font-weight: 800; }
+  .how-step h4 { margin: 0.5rem 0 0.3rem; font-size: 0.9rem; }
+  .how-step p { color: var(--dim); font-size: 0.78rem; line-height: 1.4; }
+
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; color: var(--dim); font-size: 0.8rem; margin-bottom: 4px; text-transform: lowercase; letter-spacing: 1px; }
+  input, select, textarea {
+    width: 100%; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.9rem; font-family: inherit;
+    outline: none; transition: border 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--cyan); }
+  select { cursor: pointer; }
+  select option { background: var(--bg); color: var(--text); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .btn {
+    display: inline-block; padding: 14px 36px; border-radius: 8px; font-size: 1rem;
+    cursor: pointer; border: none; font-weight: 600; transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--cyan); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .terms { color: var(--dim); font-size: 0.75rem; margin: 1rem 0; line-height: 1.5; }
+  .terms a { color: var(--cyan); text-decoration: none; }
+
+  .revenue-box {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem; margin: 1.5rem 0; text-align: center;
+  }
+  .revenue-box .big { color: var(--green); font-size: 2rem; font-weight: 800; }
+  .revenue-box p { color: var(--dim); font-size: 0.85rem; margin-top: 0.3rem; }
+
+  .faq { max-width: 640px; margin: 2rem auto; padding: 0 1.5rem; }
+  .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
+  .faq-item summary { cursor: pointer; color: var(--text); font-size: 0.9rem; font-weight: 500; }
+  .faq-item summary:hover { color: var(--cyan); }
+  .faq-item p { color: var(--dim); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.5; }
+
+  .footer { text-align: center; padding: 3rem; color: var(--label); font-size: 0.75rem; }
+  .footer a { color: var(--dim); text-decoration: none; }
+  .footer a:hover { color: var(--cyan); }
+
+  .success-msg { display: none; text-align: center; padding: 2rem; }
+  .success-msg .icon { font-size: 3rem; }
+  .success-msg h3 { color: var(--green); margin: 1rem 0 0.5rem; }
+  .success-msg p { color: var(--dim); }
+
+  @media (max-width: 600px) {
+    .how-grid { grid-template-columns: 1fr; }
+    .hero h2 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/" style="text-decoration:none"><div class="logo">&gt;&gt; <span>HALO</span> AI</div></a>
+  <p class="tagline">be heard in any language</p>
+</div>
+
+<div class="hero">
+  <h2>Your voice. <em>Your revenue.</em><br>Every language on Earth.</h2>
+  <p>halo-ai is building the world's first community-powered voice platform. We need voice talent from every country, every language. Your voice stays yours. You get paid when it works.</p>
+  <p style="color:var(--gold);font-size:0.85rem;">Be the first voice for your country.</p>
+</div>
+
+<!-- Languages needed -->
+<div class="lang-grid">
+  <span class="lang-chip open">English</span>
+  <span class="lang-chip open">Fran&ccedil;ais</span>
+  <span class="lang-chip open">Espa&ntilde;ol</span>
+  <span class="lang-chip open">Deutsch</span>
+  <span class="lang-chip open">Portugu&ecirc;s</span>
+  <span class="lang-chip needed">&#20013;&#25991;</span>
+  <span class="lang-chip needed">&#26085;&#26412;&#35486;</span>
+  <span class="lang-chip needed">&#54620;&#44397;&#50612;</span>
+  <span class="lang-chip needed">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</span>
+  <span class="lang-chip needed">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</span>
+  <span class="lang-chip needed">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</span>
+  <span class="lang-chip needed">Italiano</span>
+  <span class="lang-chip needed">Nederlands</span>
+  <span class="lang-chip needed">Polski</span>
+  <span class="lang-chip needed">T&uuml;rk&ccedil;e</span>
+  <span class="lang-chip needed">Ti&#7871;ng Vi&#7879;t</span>
+  <span class="lang-chip needed">&#3616;&#3634;&#3625;&#3634;&#3652;&#3607;&#3618;</span>
+  <span class="lang-chip needed">Bahasa</span>
+  <span class="lang-chip needed">Svenska</span>
+  <span class="lang-chip needed">Suomi</span>
+</div>
+<p style="text-align:center;color:var(--label);font-size:0.75rem;margin-top:0.5rem;">
+  <span style="color:var(--cyan);">&#9679;</span> active &nbsp;
+  <span style="color:var(--gold);">&#9679;</span> seeking first voice
+</p>
+
+<!-- How it works -->
+<div class="how-grid">
+  <div class="how-step">
+    <div class="num">1</div>
+    <h4>Submit</h4>
+    <p>Record a 30-second sample in your language. Upload it here or mail us an SD card.</p>
+  </div>
+  <div class="how-step">
+    <div class="num">2</div>
+    <h4>Train</h4>
+    <p>We build your voice model locally. Your data never leaves our servers. You approve before launch.</p>
+  </div>
+  <div class="how-step">
+    <div class="num">3</div>
+    <h4>Earn</h4>
+    <p>Every time your voice is used &mdash; audiobooks, tutorials, apps &mdash; you get paid.</p>
+  </div>
+</div>
+
+<!-- Revenue -->
+<div style="max-width:640px;margin:0 auto;padding:0 1.5rem;">
+  <div class="revenue-box">
+    <div class="big">50/50</div>
+    <p>revenue share &mdash; you earn half of every dollar your voice generates</p>
+  </div>
+</div>
+
+<!-- Application form -->
+<div class="card" id="form-card">
+  <h3>Join the platform</h3>
+  <p class="subtitle">Tell us about yourself and your voice. We'll be in touch.</p>
+
+  <form id="talent-form" onsubmit="submitForm(event)">
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="name" placeholder="Your name or stage name" required>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com" required>
+    </div>
+    <div class="form-group">
+      <label>Country</label>
+      <input type="text" id="country" placeholder="Where are you based?" required>
+    </div>
+    <div class="form-group">
+      <label>Primary language</label>
+      <select id="language" required>
+        <option value="">Select your language</option>
+        <option value="en">English</option>
+        <option value="fr">Fran&ccedil;ais</option>
+        <option value="es">Espa&ntilde;ol</option>
+        <option value="de">Deutsch</option>
+        <option value="pt">Portugu&ecirc;s</option>
+        <option value="zh">&#20013;&#25991; (Chinese)</option>
+        <option value="ja">&#26085;&#26412;&#35486; (Japanese)</option>
+        <option value="ko">&#54620;&#44397;&#50612; (Korean)</option>
+        <option value="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081; (Russian)</option>
+        <option value="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368; (Hindi)</option>
+        <option value="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577; (Arabic)</option>
+        <option value="it">Italiano</option>
+        <option value="nl">Nederlands</option>
+        <option value="pl">Polski</option>
+        <option value="tr">T&uuml;rk&ccedil;e</option>
+        <option value="vi">Ti&#7871;ng Vi&#7879;t</option>
+        <option value="th">&#3616;&#3634;&#3625;&#3634;&#3652;&#3607;&#3618; (Thai)</option>
+        <option value="id">Bahasa Indonesia</option>
+        <option value="sv">Svenska</option>
+        <option value="fi">Suomi</option>
+        <option value="other">Other (specify below)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Additional languages (optional)</label>
+      <input type="text" id="extra-langs" placeholder="e.g. Cantonese, Tagalog, Swahili...">
+    </div>
+    <div class="form-group">
+      <label>Voice sample URL (optional)</label>
+      <input type="url" id="sample-url" placeholder="Link to a recording (Google Drive, SoundCloud, etc.)">
+    </div>
+    <div class="form-group">
+      <label>Tell us about your voice</label>
+      <textarea id="about" placeholder="What kind of voice work do you do? Audiobooks, narration, characters, singing? Any experience?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>How did you find us?</label>
+      <input type="text" id="referral" placeholder="Reddit, Discord, word of mouth...">
+    </div>
+
+    <p class="terms">By submitting, you agree that halo-ai may contact you about voice opportunities. Your voice will never be used without your explicit written consent. Your data stays on our servers &mdash; <a href="#">zero cloud, zero third parties</a>. You can withdraw at any time.</p>
+
+    <div style="text-align:center">
+      <button type="submit" class="btn btn-primary">Submit application</button>
+    </div>
+  </form>
+
+  <div class="success-msg" id="success">
+    <div class="icon">&#10003;</div>
+    <h3>Application received</h3>
+    <p>We'll review your submission and be in touch. Welcome to the family.</p>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <details class="faq-item">
+    <summary>Who owns my voice?</summary>
+    <p>You do. Always. We train a model from your sample, but you approve every use case before it goes live. You can revoke access at any time and we will destroy the model immediately.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Where does my data go?</summary>
+    <p>Nowhere. Everything runs on bare metal in Canada. Zero cloud. Zero third-party APIs. Your voice sample and trained model never leave our physical servers.</p>
+  </details>
+  <details class="faq-item">
+    <summary>How do I get paid?</summary>
+    <p>50/50 revenue share paid monthly. We support direct deposit, PayPal, and Bitcoin (BTCPay). You see exactly what your voice earned in your dashboard.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Can I mail a physical recording?</summary>
+    <p>Yes. Record on any device, save to an SD card or USB drive, and mail it to us. We process the audio, train the model, and mail your card back or destroy it &mdash; your choice. Contact us for the mailing address.</p>
+  </details>
+  <details class="faq-item">
+    <summary>What languages do you need most?</summary>
+    <p>Every language. But right now we're especially looking for Chinese (Mandarin & Cantonese), Japanese, Korean, Hindi, Arabic, and Russian voices. Be the first voice for your country.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Do I need professional equipment?</summary>
+    <p>A quiet room and a decent microphone is enough to start. We'll work with you on quality. If you're a professional voice actor with studio recordings, even better.</p>
+  </details>
+  <details class="faq-item">
+    <summary>What will my voice be used for?</summary>
+    <p>Audiobook narration, tutorial videos, AI assistant responses, game characters, and more &mdash; always with your approval. You choose which projects your voice appears in.</p>
+  </details>
+</div>
+
+<div class="footer">
+  <p>zero cloud &middot; zero containers &middot; compiled from source &middot; your voice stays yours</p>
+  <p style="margin-top:0.3rem;"><a href="/">halo-ai</a> &middot; designed and built by the architect</p>
+</div>
+
+<script>
+function submitForm(e) {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    country: document.getElementById('country').value,
+    language: document.getElementById('language').value,
+    extraLangs: document.getElementById('extra-langs').value,
+    sampleUrl: document.getElementById('sample-url').value,
+    about: document.getElementById('about').value,
+    referral: document.getElementById('referral').value,
+    timestamp: new Date().toISOString()
+  };
+
+  // Store locally until backend is ready
+  const apps = JSON.parse(localStorage.getItem('voice-applications') || '[]');
+  apps.push(data);
+  localStorage.setItem('voice-applications', JSON.stringify(apps));
+
+  // Hide form, show success
+  document.getElementById('talent-form').style.display = 'none';
+  document.getElementById('success').style.display = 'block';
+}
+</script>
+</body>
+</html>

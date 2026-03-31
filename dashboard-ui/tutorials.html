@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>halo-ai — Tutorials</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f; --card: rgba(16, 16, 24, 0.85); --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.15); --text: #e0e0e0; --dim: #888;
+    --label: #666; --cyan: #00d4ff; --green: #00ff88; --gold: #ffd740;
+    --red: #ff4444; --orange: #ff9800; --radius: 16px; --glass: blur(20px);
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+    min-height: 100vh;
+  }
+
+  .header { text-align: center; padding: 3rem 1rem 1rem; }
+  .logo { color: var(--cyan); font-size: 2rem; font-weight: 800; letter-spacing: 0.15em; }
+  .logo span { color: #fff; }
+  .tagline { color: var(--label); font-size: 1rem; margin-top: 0.3rem; }
+
+  .lang-bar {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+    max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;
+  }
+  .lang-btn {
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 12px; font-size: 0.75rem; color: var(--dim); cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .lang-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+  .lang-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,212,255,0.08); }
+
+  .section { max-width: 900px; margin: 2rem auto 0; padding: 0 1.5rem; }
+  .section h2 {
+    color: var(--label); font-size: 13px; font-weight: 400; text-transform: lowercase;
+    letter-spacing: 3px; margin-bottom: 0.8rem; border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+  }
+  .section h2 .accent { color: var(--cyan); }
+
+  .tutorial-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.8rem; max-width: 900px; margin: 0.8rem auto; padding: 0 1.5rem;
+  }
+
+  .tutorial-card {
+    background: var(--card); backdrop-filter: var(--glass); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.2rem; display: block; text-decoration: none;
+    transition: border-color 0.4s, transform 0.4s, box-shadow 0.4s; position: relative;
+    overflow: hidden;
+  }
+  .tutorial-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,212,255,0.05); }
+  .tutorial-card.coming-soon { opacity: 0.5; pointer-events: none; }
+  .tutorial-card.coming-soon::after {
+    content: 'coming soon'; position: absolute; top: 12px; right: 12px;
+    background: var(--label); color: var(--bg); font-size: 0.6rem; padding: 2px 8px;
+    border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .tutorial-card.live::after {
+    content: 'watch now'; position: absolute; top: 12px; right: 12px;
+    background: var(--green); color: var(--bg); font-size: 0.6rem; padding: 2px 8px;
+    border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .tutorial-num { color: var(--cyan); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .tutorial-card h3 { color: var(--text); font-size: 0.95rem; font-weight: 500; margin-bottom: 0.3rem; }
+  .tutorial-card p { color: var(--label); font-size: 0.78rem; line-height: 1.4; }
+  .tutorial-card .meta { color: var(--dim); font-size: 0.7rem; margin-top: 0.5rem; }
+
+  .subtitle-note {
+    text-align: center; max-width: 600px; margin: 2rem auto; padding: 0 1.5rem;
+    color: var(--dim); font-size: 0.85rem; line-height: 1.5;
+  }
+  .subtitle-note em { color: var(--cyan); font-style: normal; }
+
+  .footer { text-align: center; padding: 3rem; color: var(--label); font-size: 0.75rem; }
+  .footer a { color: var(--dim); text-decoration: none; }
+  .footer a:hover { color: var(--cyan); }
+
+  @media (max-width: 600px) {
+    .tutorial-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/" style="text-decoration:none"><div class="logo">&gt;&gt; <span>HALO</span> AI</div></a>
+  <p class="tagline">learn the stack &mdash; in your language</p>
+</div>
+
+<div class="subtitle-note">
+  Every tutorial includes <em>spoken narration</em> and <em>subtitles</em> in your language.<br>
+  Select your language below. More languages added as voice talent joins.
+</div>
+
+<!-- Language selector -->
+<div class="lang-bar">
+  <button class="lang-btn active" data-lang="en">English</button>
+  <button class="lang-btn" data-lang="fr">Fran&ccedil;ais</button>
+  <button class="lang-btn" data-lang="es">Espa&ntilde;ol</button>
+  <button class="lang-btn" data-lang="de">Deutsch</button>
+  <button class="lang-btn" data-lang="pt">Portugu&ecirc;s</button>
+  <button class="lang-btn" data-lang="zh">&#20013;&#25991;</button>
+  <button class="lang-btn" data-lang="ja">&#26085;&#26412;&#35486;</button>
+  <button class="lang-btn" data-lang="ko">&#54620;&#44397;&#50612;</button>
+  <button class="lang-btn" data-lang="ru">&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</button>
+  <button class="lang-btn" data-lang="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</button>
+  <button class="lang-btn" data-lang="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</button>
+</div>
+
+<!-- Getting started -->
+<div class="section"><h2><span class="accent">Getting</span> Started</h2></div>
+<div class="tutorial-grid">
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#01</div>
+    <h3>The Vision</h3>
+    <p>What halo-ai is and why it exists. Zero cloud, zero containers, 109 tok/s on bare metal.</p>
+    <div class="meta">~8 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#02</div>
+    <h3>Hardware Setup</h3>
+    <p>Mesh wiring, 4 machines, SSH keys, and why we don't use the cloud.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#03</div>
+    <h3>Arch Linux Install</h3>
+    <p>Base system, btrfs snapshots, systemd-boot, and why Arch for AI.</p>
+    <div class="meta">~15 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#04</div>
+    <h3>The Install Script</h3>
+    <p>One command. 33 services. Fully automated, fully auditable.</p>
+    <div class="meta">~10 min</div>
+  </div>
+</div>
+
+<!-- Core services -->
+<div class="section"><h2><span class="accent">Core</span> Services</h2></div>
+<div class="tutorial-grid">
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#05</div>
+    <h3>Security</h3>
+    <p>Meek's 10 tools, hardened SSH, Vaultwarden, fail2ban, and the security agents.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#06</div>
+    <h3>Lemonade + llama.cpp</h3>
+    <p>AMD's inference stack compiled from source. Vulkan, Flash Attention, 109 tok/s.</p>
+    <div class="meta">~10 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#07</div>
+    <h3>Chat + RAG</h3>
+    <p>Open WebUI, document ingestion, retrieval-augmented generation on your own data.</p>
+    <div class="meta">~10 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#08</div>
+    <h3>Deep Research</h3>
+    <p>Vane &mdash; AI-powered search with cited sources. Your private research engine.</p>
+    <div class="meta">~8 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#09</div>
+    <h3>Image Generation</h3>
+    <p>ComfyUI, Stable Diffusion, node-based workflows on 115GB GPU memory.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#10</div>
+    <h3>Voice</h3>
+    <p>whisper.cpp for speech-to-text, Kokoro TTS for 54 natural voices, built from source.</p>
+    <div class="meta">~10 min</div>
+  </div>
+</div>
+
+<!-- Advanced -->
+<div class="section"><h2><span class="accent">Advanced</span></h2></div>
+<div class="tutorial-grid">
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#11</div>
+    <h3>Workflows</h3>
+    <p>n8n automation &mdash; 400+ integrations, agent triggers, pipeline orchestration.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#12</div>
+    <h3>The Agents</h3>
+    <p>Meet the family. 17 autonomous agents, what they do, how they work together.</p>
+    <div class="meta">~15 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#13</div>
+    <h3>Man Cave</h3>
+    <p>The control center &mdash; GPU metrics, drag-and-drop panels, real-time monitoring.</p>
+    <div class="meta">~10 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#14</div>
+    <h3>The Mesh</h3>
+    <p>4 machines, SSH ring bus, btrfs snapshots, shared storage, no single point of failure.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#15</div>
+    <h3>Windows in the Mesh</h3>
+    <p>PXE boot, network install, cross-platform integration without the cloud.</p>
+    <div class="meta">~10 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#16</div>
+    <h3>Discord Bots</h3>
+    <p>6 bots, 24 channels, automated greetings, role management, game polls.</p>
+    <div class="meta">~10 min</div>
+  </div>
+</div>
+
+<!-- Production -->
+<div class="section"><h2><span class="accent">Production</span></h2></div>
+<div class="tutorial-grid">
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#17</div>
+    <h3>Reddit Bridge</h3>
+    <p>Echo manages the brand &mdash; autonomous posting, community engagement.</p>
+    <div class="meta">~8 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#18</div>
+    <h3>Audio Chain</h3>
+    <p>SM7B, Scarlett Solo, PipeWire, noise removal, mastering &mdash; studio-grade on Linux.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#19</div>
+    <h3>Voice Cloning</h3>
+    <p>XTTS v2, Kokoro, your voice as an AI &mdash; audiobooks, music, assistants.</p>
+    <div class="meta">~12 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#20</div>
+    <h3>The Downcomers</h3>
+    <p>AI-generated blues band. Cloned voice, generated instrumentals, Spotify distribution.</p>
+    <div class="meta">~10 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#21</div>
+    <h3>The Game</h3>
+    <p>Voxel extraction game &mdash; Godot 4, destructible terrain, AI-generated assets.</p>
+    <div class="meta">~15 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#22</div>
+    <h3>Benchmarks</h3>
+    <p>How we measure performance, track regressions, and prove the hardware works.</p>
+    <div class="meta">~8 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#23</div>
+    <h3>CI/CD</h3>
+    <p>Sentinel reviews every PR. Automated builds, tests, and deploys across the mesh.</p>
+    <div class="meta">~10 min</div>
+  </div>
+  <div class="tutorial-card coming-soon">
+    <div class="tutorial-num">#24</div>
+    <h3>Full Autonomous Demo</h3>
+    <p>Watch the entire stack run itself. Agents, pipelines, zero human interaction.</p>
+    <div class="meta">~20 min</div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>every tutorial voiced in your language &middot; subtitles included &middot; zero cloud</p>
+  <p style="margin-top:0.3rem;">
+    <a href="/">halo-ai</a> &middot;
+    <a href="/voice-talent">become a voice</a> &middot;
+    designed and built by the architect
+  </p>
+</div>
+
+<script>
+// Language selector
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // When tutorials are live, this will switch audio/subtitle track
+    const lang = btn.dataset.lang;
+    console.log('Selected language:', lang);
+  });
+});
+</script>
+</body>
+</html>

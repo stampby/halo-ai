@@ -20,6 +20,7 @@ from bounty_bot import BountyBot
 from meek_bot import MeekBot
 from amp_bot import AmpBot
 from mechanic_bot import MechanicBot
+from muse_bot import MuseBot
 
 
 async def main():
@@ -35,6 +36,8 @@ async def main():
         bots.append(("amp", AmpBot(token_env="DISCORD_AMP_TOKEN")))
     if os.environ.get("DISCORD_MECHANIC_TOKEN"):
         bots.append(("mechanic", MechanicBot(token_env="DISCORD_MECHANIC_TOKEN")))
+    if os.environ.get("DISCORD_MUSE_TOKEN"):
+        bots.append(("muse", MuseBot(token_env="DISCORD_MUSE_TOKEN")))
 
     if not bots:
         print("No bot tokens found. Set DISCORD_*_TOKEN in .env")
