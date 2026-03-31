@@ -361,7 +361,7 @@ ok "Vane built"
 info "Installing n8n..."
 cd /srv/ai/n8n
 [ -d .git ] || git clone https://github.com/n8n-io/n8n .
-npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+sudo npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
 ok "n8n built"
 
 info "Installing ComfyUI..."
