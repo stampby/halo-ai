@@ -15,6 +15,7 @@
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=archlinux&logoColor=white)](https://archlinux.org)
 [![ROCm](https://img.shields.io/badge/ROCm_7.13-ED1C24?style=flat&logo=amd&logoColor=white)](https://rocm.docs.amd.com)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-halo--ai-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/dSyV646eBs)
 
 </div>
 
@@ -26,7 +27,7 @@
 
 ## What is this?
 
-A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. Autonomous pipelines for game development, music production, and video production. 13 services, 11 autonomous agents, 78 tools. All bare metal, all compiled from source, all on one chip with 128GB unified memory.
+A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. Autonomous pipelines for game development, music production, and video production. 33 services, 17 autonomous agents, 98 tools, 5 Discord bots. All bare metal, all compiled from source, all on one chip with 128GB unified memory. Boot to ready: 18.7 seconds.
 
 **Talk to it.** Speak to Halo, see the text, hear the response. Every tool, every agent, every feature — controlled by your voice. Vibe coding at home, out of the box, on your own hardware. *"Open the pod bay doors, HAL."*
 
