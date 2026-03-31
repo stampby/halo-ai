@@ -193,7 +193,7 @@ All agents are powered by [AMD Gaia](https://github.com/amd/gaia) running on the
 |---------|------|---------|
 | Gaia API | 8090 | OpenAI-compatible agent API server |
 | Gaia MCP | 8765 | Model Context Protocol bridge for agent tools |
-| llama-server | 8081 | LLM backend (109 tok/s, Qwen3-30B-A3B) |
+| llama-server | 8081 | LLM backend (87 tok/s, Qwen3-30B-A3B) |
 
 Agent code: `/srv/ai/gaia/halo-agents/`
 Agent logs: `/srv/ai/logs/agents/`

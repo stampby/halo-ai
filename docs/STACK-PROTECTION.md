@@ -159,5 +159,5 @@ Step 4: If benchmarks match or beat previous — freeze, deploy, restart service
 Step 5: If regression — rollback to last freeze, flag the upstream commit
 ```
 
-This is why the stack runs at 109 tok/s and stays there. Weekly compiles aren't
+This is why the stack runs at 87 tok/s and stays there. Weekly compiles aren't
 overhead — they're the reason nothing breaks. *"The way is shut. It was made by those who are compiled, and the compiled keep it."*

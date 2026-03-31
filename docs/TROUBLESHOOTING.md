@@ -515,7 +515,7 @@ Expected performance on Strix Halo:
 
 | Model | Expected Speed |
 |-------|---------------|
-| Qwen3-30B-A3B (MoE, Q4_K_M) | ~109 tok/s |
+| Qwen3-30B-A3B (MoE, Q4_K_M) | ~87 tok/s |
 | Llama 3 70B | ~18 tok/s |
 | Llama 3 70B Q8 | ~10 tok/s |
 

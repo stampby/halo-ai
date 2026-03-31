@@ -11,7 +11,7 @@
 
 | Backend | Gen Speed (200 tok) | Gen Speed (500 tok) | Prompt Speed |
 |---------|:---:|:---:|:---:|
-| **Vulkan (RADV) + Flash Attention** | **109 tok/s** | **109 tok/s** | 58-172 tok/s |
+| **Vulkan (RADV) + Flash Attention** | **87 tok/s** | **87 tok/s** | 58-172 tok/s |
 | HIP (ROCm) + rocWMMA FA | 70.2 tok/s | 68.4 tok/s | 217-302 tok/s |
 
 **Vulkan wins for generation** (~55% faster). HIP wins for prompt processing. Default backend is now Vulkan + Flash Attention. *"These go to eleven."*
@@ -20,13 +20,15 @@
 
 | Test | Prompt Tokens | Gen Tokens | Gen Speed | TTFT | Total |
 |------|:---:|:---:|:---:|:---:|:---:|
-| Short Q&A | 12 | 20 | 109 tok/s | <60ms | 0.2s |
-| Technical explanation | 18 | 200 | 109 tok/s | 109ms | 2.0s |
-| Long generation | 20 | 500 | 109 tok/s | 99ms | 4.8s |
+| Short prompt | 17 | 93 | 87.2 tok/s | <60ms | 1.1s |
+| Medium prompt | 83 | 200 | 86.3 tok/s | 187ms | 2.5s |
+| Code generation | 40 | 500 | 86.0 tok/s | 193ms | 6.0s |
+| Long sustained | 26 | 1000 | 85.5 tok/s | 104ms | 11.8s |
 
 ### Key Metrics
 
-- **Generation**: ~109 tok/s sustained (Vulkan + Flash Attention)
+- **Generation**: 85-87 tok/s sustained (Vulkan + Flash Attention)
+- **Prompt processing**: 178-444 tok/s depending on input length
 - **Time to first token**: <110ms
 - **GPU utilization**: 97% during inference
 - **GPU temperature**: 55°C under sustained load (well within limits)
@@ -105,11 +107,11 @@ Or use the unified CLI: `halo fan quiet`
 | Condition | GPU Temp | Fan1 | Fan2 | Fan3 | Noise |
 |-----------|----------|------|------|------|-------|
 | Idle | 31°C | 0 rpm | 0 rpm | 0 rpm | Silent |
-| Sustained inference (109 tok/s) | 55-65°C | 0 rpm | 0 rpm | 0 rpm | Silent |
+| Sustained inference (87 tok/s) | 55-65°C | 0 rpm | 0 rpm | 0 rpm | Silent |
 | Heavy GPU + all 25 services | 65-75°C | ~800 rpm | ~800 rpm | ~500 rpm | Barely audible |
 | Stress test (120W sustained) | 85-90°C | ~2000 rpm | ~2000 rpm | ~1500 rpm | Noticeable |
 
-**Key takeaway**: At 109 tok/s sustained inference, the GPU stays under 70°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance. *The silence of the fans.*
+**Key takeaway**: At 87 tok/s sustained inference, the GPU stays under 70°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance. *The silence of the fans.*
 
 ### Persist Across Reboots
 
@@ -130,7 +132,7 @@ sudo systemctl enable halo-fancontrol
 
 | Model | Prompt Speed | Gen Speed | VRAM | Backend |
 |-------|-------------|-----------|------|---------|
-| **Qwen3-30B-A3B** (MoE) | 58-172 tok/s | **109 tok/s** | 18 GB | Vulkan + FA |
+| **Qwen3-30B-A3B** (MoE) | 58-172 tok/s | **87 tok/s** | 18 GB | Vulkan + FA |
 | **Qwen2.5-Coder-7B** | **515.7 tok/s** | **48.6 tok/s** | 4.1 GB | llama.cpp HIP |
 | Llama 3 70B (dense) | — | ~18 tok/s | 40 GB | Vulkan |
 

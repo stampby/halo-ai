@@ -120,7 +120,7 @@ When a fresh install opens `https://strixhalo` for the first time:
 
 **Step 4 — First Conversation**
 - Embedded chat widget
-- "Ask me anything. I'm running at 109 tok/s on your hardware."
+- "Ask me anything. I'm running at 87 tok/s on your hardware."
 - User sees it work. That's the moment. *"Whoa."*
 
 **Step 5 — Meet the Family**
