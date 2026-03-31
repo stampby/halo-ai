@@ -1,0 +1,13 @@
+[Unit]
+Description=halo-ai Daily Security Audit (Meek)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=bcloud
+WorkingDirectory=/home/bcloud/halo-ai
+ExecStart=/home/bcloud/halo-ai/scripts/halo-security-audit.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=halo-security-audit

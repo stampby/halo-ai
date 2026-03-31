@@ -1,0 +1,13 @@
+[Unit]
+Description=halo-ai Weekly Security Audit Archive (GitHub)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=bcloud
+WorkingDirectory=/home/bcloud/halo-ai
+ExecStart=/home/bcloud/halo-ai/scripts/halo-security-audit.sh --weekly
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=halo-security-audit-weekly

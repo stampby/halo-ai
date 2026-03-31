@@ -48,3 +48,4 @@ agent/data/
 test-runs/
 configs/Caddyfile
 benchmarks/
+security-audits/

@@ -57,12 +57,12 @@
   .tutorial-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,212,255,0.05); }
   .tutorial-card.coming-soon { opacity: 0.5; pointer-events: none; }
   .tutorial-card.coming-soon::after {
-    content: 'coming soon'; position: absolute; top: 12px; right: 12px;
+    content: var(--badge-text, 'coming soon'); position: absolute; top: 12px; right: 12px;
     background: var(--label); color: var(--bg); font-size: 0.6rem; padding: 2px 8px;
     border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;
   }
   .tutorial-card.live::after {
-    content: 'watch now'; position: absolute; top: 12px; right: 12px;
+    content: var(--badge-text, 'watch now'); position: absolute; top: 12px; right: 12px;
     background: var(--green); color: var(--bg); font-size: 0.6rem; padding: 2px 8px;
     border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;
   }
@@ -424,8 +424,18 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     setLang(btn.dataset.lang);
+    localStorage.setItem('halo-lang', btn.dataset.lang);
   });
 });
+
+// Restore saved language on load
+const saved = localStorage.getItem('halo-lang');
+if (saved && T[saved]) {
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === saved);
+  });
+  setLang(saved);
+}
 </script>
 </body>
 </html>
