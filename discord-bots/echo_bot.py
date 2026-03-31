@@ -90,7 +90,7 @@ class EchoBot(HaloBot):
             color=self.color,
         )
         embed.add_field(name="Role", value="Community voice of halo-ai", inline=False)
-        embed.add_field(name="Stack", value="109 tok/s · 14 agents · bare metal · zero cloud", inline=False)
+        embed.add_field(name="Stack", value="87 tok/s · 33 services · 17 agents · 98 tools · zero cloud", inline=False)
         embed.add_field(name="GitHub", value="[halo-ai](https://github.com/stampby/halo-ai)", inline=False)
         embed.set_footer(text="Designed and built by the architect")
         await interaction.response.send_message(embed=embed)
@@ -103,6 +103,46 @@ class EchoBot(HaloBot):
             print(f"Echo: synced {len(synced)} slash commands")
         except Exception as e:
             print(f"Echo: failed to sync commands: {e}")
+
+    async def on_member_join(self, member):
+        """Welcome new members — Echo greets everyone."""
+        if member.bot:
+            return
+
+        # Find the welcome channel
+        welcome_ch = None
+        for ch in member.guild.text_channels:
+            if ch.name == "welcome":
+                welcome_ch = ch
+                break
+
+        if not welcome_ch:
+            # Fallback to first text channel
+            for ch in member.guild.text_channels:
+                if ch.permissions_for(member.guild.me).send_messages:
+                    welcome_ch = ch
+                    break
+
+        if welcome_ch:
+            await welcome_ch.send(
+                f"Welcome to the family, **{member.display_name}**! "
+                f"I'm Echo — the voice of halo-ai. "
+                f"Check out #chat to say hello, or #installation if you want to get the stack running. "
+                f"The agents are here to help — just ask.\n\n"
+                f"*87 tok/s. 33 services. Zero cloud. Stamped by the architect.*"
+            )
+
+        # Assign Community role
+        community_role = None
+        for role in member.guild.roles:
+            if role.name == "Community":
+                community_role = role
+                break
+        if community_role:
+            try:
+                await member.add_roles(community_role)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
