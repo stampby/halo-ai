@@ -1,6 +1,6 @@
 # halo-ai Benchmark Results
 
-**Date**: 2026-03-30 (updated)
+**Date**: 2026-03-31 (updated — llama.cpp b8591)
 **Hardware**: AMD Ryzen AI MAX+ 395 (Strix Halo), 128GB LPDDR5x-8000
 **Kernel**: 6.19.9-arch1-1
 **ROCm**: 7.13 (TheRock nightly, gfx1151)
@@ -11,7 +11,7 @@
 
 | Backend | Gen Speed (200 tok) | Gen Speed (500 tok) | Prompt Speed |
 |---------|:---:|:---:|:---:|
-| **Vulkan (RADV) + Flash Attention** | **87 tok/s** | **87 tok/s** | 58-172 tok/s |
+| **Vulkan (RADV) + Flash Attention** | **86.91 tok/s** | **86.91 tok/s** | 58-172 tok/s |
 | HIP (ROCm) + rocWMMA FA | 70.2 tok/s | 68.4 tok/s | 217-302 tok/s |
 
 **Vulkan wins for generation** (~55% faster). HIP wins for prompt processing. Default backend is now Vulkan + Flash Attention. *"These go to eleven."*
@@ -246,3 +246,9 @@ sudo systemctl enable halo-fancontrol
 | Phase | Time |
 |-------|------|
 | Firmware → services ready | **19.3s** |
+
+
+## Update Log
+
+- **2026-03-31**: Updated to llama.cpp b8591 (build 8599). Vulkan gen: 86.91 tok/s. No regressions. Prompt: 442 tok/s.
+- **2026-03-30**: Initial benchmarks published.
