@@ -264,78 +264,25 @@
             </div>
         </div>
 
-        <!-- ═══ SERVICES BANNER ═══ -->
-        <div class="svc-banner">
-            <h3>services</h3>
-            <div class="svc-grid">
-                {% for svc in services %}
-                <div class="svc-item">
-                    <span class="svc-dot {{ 'up' if svc.status == 'running' else 'down' if svc.status in ['inactive','failed','dead'] else 'unknown' }}"></span>
-                    <span class="svc-name">{{ svc.name }}</span>
-                    <span class="svc-port">{% if svc.port %}:{{ svc.port }}{% endif %}</span>
-                    <span class="svc-health">{{ svc.health if svc.health != 'n/a' else '' }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
         <!-- ═══ PANELS ═══ -->
         <div class="panels" id="panelGrid">
-            <!-- ROW 1: Stack Protection + KCS + Agents -->
             <!-- ROW 1: Services + KCS + Agents -->
-            <section class="panel python-panel" data-panel="stack" draggable="true">
-                <h2><span class="drag-handle">&#x2630;</span> stack protection</h2>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <!-- LEFT COLUMN: Full frozen stack list (scrollable) -->
-                    <div>
-                        <div style="font-size:10px; color:var(--text-label); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">compiled from source</div>
-                        <div id="stackList" style="max-height:280px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(0,212,255,0.15) transparent; mask-image:linear-gradient(to bottom, black 90%, transparent 100%); -webkit-mask-image:linear-gradient(to bottom, black 90%, transparent 100%);">
-                            {% for comp in python.get('stack_components', []) %}
-                            <div class="stack-row" style="padding:6px 8px; border-bottom:1px solid var(--border); border-radius:6px; cursor:default; transition:background 0.3s, opacity 0.3s; {{ 'border-left:2px solid var(--orange); background:rgba(255,170,0,0.04);' if comp.status == 'stale' else '' }}" title="{{ 'needs recompile — source updated' if comp.status == 'stale' else comp.version }}">
-                                <div style="display:flex; align-items:center; gap:8px; width:100%;">
-                                    <span class="svc-dot {{ 'up' if comp.status == 'ok' else 'unknown' if comp.status == 'stale' else 'down' }}" style="width:6px;height:6px;"></span>
-                                    <span style="color:{{ 'var(--orange)' if comp.status == 'stale' else 'var(--accent)' }}; font-size:12px; font-weight:500; min-width:90px;">{{ comp.name }}{% if comp.compiled %}<span style="color:#cc0000; font-size:8px; margin-left:3px;" title="bleeding edge — compiled from source">🩸</span>{% endif %}</span>
-                                    {% if comp.compiled %}
-                                    <span class="mono" style="font-size:10px; color:var(--text-dim);">{{ comp.compiled }}</span>
-                                    {% endif %}
-                                    <span class="mono" style="font-size:10px; color:var(--text-dim); flex:1; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:160px;">{{ comp.version[:30] }}</span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); display:flex; justify-content:space-between;">
-                            <span style="color:var(--text-label); font-size:11px;">{{ python.get('stack_components', [])|length }} components</span>
-                            <span style="color:var(--orange); font-size:11px;">{{ python.get('stack_components', [])|selectattr('status', 'equalto', 'stale')|list|length }} need recompile</span>
-                        </div>
+        <div class="panels" id="panelGrid">
+            <!-- ROW 1: Services + KCS + Agents -->
+            <section class="panel" data-panel="services" draggable="true">
+                <h2><span class="drag-handle">&#x2630;</span> services</h2>
+                <div style="max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,212,255,0.15) transparent;">
+                    {% for svc in services %}
+                    <div style="display:flex;align-items:center;gap:6px;padding:3px 8px;border-bottom:1px solid var(--border);font-size:12px;">
+                        <span class="svc-dot {{ 'up' if svc.status == 'running' else 'down' if svc.status in ['inactive','failed','dead'] else 'unknown' }}"></span>
+                        <span style="color:var(--accent);min-width:100px;">{{ svc.name }}</span>
+                        <span class="mono" style="color:var(--text-dim);font-size:10px;">{% if svc.port %}:{{ svc.port }}{% endif %}</span>
+                        <span style="margin-left:auto;font-size:10px;color:var(--text-label);">{{ svc.health if svc.health != 'n/a' else '' }}</span>
                     </div>
-                    <!-- RIGHT COLUMN: Snapshots with restore buttons -->
-                    <div>
-                        <div style="font-size:10px; color:var(--text-label); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">snapshots — {{ python.get('freeze_count', 0) }} saved</div>
-                        <div id="snapshotList" style="max-height:260px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(0,255,136,0.15) transparent; mask-image:linear-gradient(to bottom, black 85%, transparent 100%); -webkit-mask-image:linear-gradient(to bottom, black 85%, transparent 100%);">
-                            {% for snap in python.get('snapshots', []) %}
-                            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid var(--border); border-radius:6px; transition:background 0.3s;" onmouseover="this.style.background='rgba(0,255,136,0.04)'" onmouseout="this.style.background='transparent'">
-                                <div>
-                                    <span class="mono" style="font-size:12px; color:var(--text);">{{ snap.name }}</span>
-                                    {% if snap.date %}
-                                    <span style="font-size:9px; color:var(--text-dim); margin-left:6px;">{{ snap.date }}</span>
-                                    {% endif %}
-                                </div>
-                                <button onclick="thawSnapshot('{{ snap.name }}')" class="btn" style="font-size:9px; padding:3px 10px; border-color:var(--green); color:var(--green);">restore</button>
-                            </div>
-                            {% endfor %}
-                            {% if not python.get('snapshots', []) %}
-                            <div style="padding:20px; text-align:center; color:var(--text-dim); font-size:12px;">no snapshots yet — hit freeze to create one</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="stack-actions" style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
-                    <button onclick="freezeStack()" class="btn btn-freeze" style="flex:1; min-width:120px;">freeze stack</button>
-                    <button onclick="thawStack()" class="btn btn-thaw" style="flex:1; min-width:120px;">rollback latest</button>
-                    <button onclick="compileStack()" class="btn" style="flex:1; min-width:120px; border-color:var(--orange); color:var(--orange);">update &amp; compile</button>
-                    <button onclick="updateSources()" class="btn" style="flex:1; min-width:120px; border-color:var(--accent); color:var(--accent);">pull sources</button>
+                    {% endfor %}
                 </div>
             </section>
+
 
 
                 <h2><span class="drag-handle">&#x2630;</span> kansas city shuffle <span style="color:var(--text-label);font-size:10px;letter-spacing:2px;">bracket's ssh mixer &mdash; ring bus</span></h2>
@@ -420,7 +367,6 @@
                 <div style="text-align:center;margin-top:8px;font-size:9px;color:var(--text-dim);letter-spacing:1px;">designed and built by the architect</div>
             </section>
 
-
             <section class="panel" data-panel="agents-detail" draggable="true">
                 <h2><span class="drag-handle">&#x2630;</span> agents</h2>
                 <div id="agentsList" style="max-height:220px;overflow-y:auto;">
@@ -446,8 +392,62 @@
             </section>
 
 
-
             <!-- ROW 2: Stack Protection + Lemonade + GlusterFS -->
+
+
+                <h2><span class="drag-handle">&#x2630;</span> stack protection</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <!-- LEFT COLUMN: Full frozen stack list (scrollable) -->
+                    <div>
+                        <div style="font-size:10px; color:var(--text-label); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">compiled from source</div>
+                        <div id="stackList" style="max-height:280px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(0,212,255,0.15) transparent; mask-image:linear-gradient(to bottom, black 90%, transparent 100%); -webkit-mask-image:linear-gradient(to bottom, black 90%, transparent 100%);">
+                            {% for comp in python.get('stack_components', []) %}
+                            <div class="stack-row" style="padding:6px 8px; border-bottom:1px solid var(--border); border-radius:6px; cursor:default; transition:background 0.3s, opacity 0.3s; {{ 'border-left:2px solid var(--orange); background:rgba(255,170,0,0.04);' if comp.status == 'stale' else '' }}" title="{{ 'needs recompile — source updated' if comp.status == 'stale' else comp.version }}">
+                                <div style="display:flex; align-items:center; gap:8px; width:100%;">
+                                    <span class="svc-dot {{ 'up' if comp.status == 'ok' else 'unknown' if comp.status == 'stale' else 'down' }}" style="width:6px;height:6px;"></span>
+                                    <span style="color:{{ 'var(--orange)' if comp.status == 'stale' else 'var(--accent)' }}; font-size:12px; font-weight:500; min-width:90px;">{{ comp.name }}{% if comp.compiled %}<span style="color:#cc0000; font-size:8px; margin-left:3px;" title="bleeding edge — compiled from source">🩸</span>{% endif %}</span>
+                                    {% if comp.compiled %}
+                                    <span class="mono" style="font-size:10px; color:var(--text-dim);">{{ comp.compiled }}</span>
+                                    {% endif %}
+                                    <span class="mono" style="font-size:10px; color:var(--text-dim); flex:1; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:160px;">{{ comp.version[:30] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-label); font-size:11px;">{{ python.get('stack_components', [])|length }} components</span>
+                            <span style="color:var(--orange); font-size:11px;">{{ python.get('stack_components', [])|selectattr('status', 'equalto', 'stale')|list|length }} need recompile</span>
+                        </div>
+                    </div>
+                    <!-- RIGHT COLUMN: Snapshots with restore buttons -->
+                    <div>
+                        <div style="font-size:10px; color:var(--text-label); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);">snapshots — {{ python.get('freeze_count', 0) }} saved</div>
+                        <div id="snapshotList" style="max-height:260px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(0,255,136,0.15) transparent; mask-image:linear-gradient(to bottom, black 85%, transparent 100%); -webkit-mask-image:linear-gradient(to bottom, black 85%, transparent 100%);">
+                            {% for snap in python.get('snapshots', []) %}
+                            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid var(--border); border-radius:6px; transition:background 0.3s;" onmouseover="this.style.background='rgba(0,255,136,0.04)'" onmouseout="this.style.background='transparent'">
+                                <div>
+                                    <span class="mono" style="font-size:12px; color:var(--text);">{{ snap.name }}</span>
+                                    {% if snap.date %}
+                                    <span style="font-size:9px; color:var(--text-dim); margin-left:6px;">{{ snap.date }}</span>
+                                    {% endif %}
+                                </div>
+                                <button onclick="thawSnapshot('{{ snap.name }}')" class="btn" style="font-size:9px; padding:3px 10px; border-color:var(--green); color:var(--green);">restore</button>
+                            </div>
+                            {% endfor %}
+                            {% if not python.get('snapshots', []) %}
+                            <div style="padding:20px; text-align:center; color:var(--text-dim); font-size:12px;">no snapshots yet — hit freeze to create one</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="stack-actions" style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+                    <button onclick="freezeStack()" class="btn btn-freeze" style="flex:1; min-width:120px;">freeze stack</button>
+                    <button onclick="thawStack()" class="btn btn-thaw" style="flex:1; min-width:120px;">rollback latest</button>
+                    <button onclick="compileStack()" class="btn" style="flex:1; min-width:120px; border-color:var(--orange); color:var(--orange);">update &amp; compile</button>
+                    <button onclick="updateSources()" class="btn" style="flex:1; min-width:120px; border-color:var(--accent); color:var(--accent);">pull sources</button>
+                </div>
+            </section>
+
             <section class="panel lemonade-panel" data-panel="lemonade" draggable="true">
                 <h2><span class="drag-handle">&#x2630;</span> lemonade &mdash; <a href="/cave/lemonade" style="color:var(--accent);text-decoration:none;font-size:10px;">full control</a></h2>
                 <div class="stack-info">
@@ -470,6 +470,7 @@
                     <div class="stack-row"><span>replication</span><span class="mono" style="color:var(--green);">active</span></div>
                 </div>
             </section>
+
 
         </div>
 

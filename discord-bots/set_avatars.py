@@ -8,12 +8,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+AVATAR_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")
+
 BOTS = {
-    "echo": ("DISCORD_ECHO_TOKEN", "echo.png"),
-    "bounty": ("DISCORD_BOUNTY_TOKEN", "halo-ai.png"),  # no bounty SVG yet
-    "meek": ("DISCORD_MEEK_TOKEN", "meek.png"),
-    "amp": ("DISCORD_AMP_TOKEN", "halo-ai.png"),  # no amp SVG yet
-    "mechanic": ("DISCORD_MECHANIC_TOKEN", "halo-ai.png"),  # no mechanic SVG yet
+    "echo": ("DISCORD_ECHO_TOKEN", os.path.join(AVATAR_DIR, "family", "02-echo_00001_.png")),
+    "bounty": ("DISCORD_BOUNTY_TOKEN", os.path.join(AVATAR_DIR, "avatars", "png", "halo-ai.png")),
+    "meek": ("DISCORD_MEEK_TOKEN", os.path.join(AVATAR_DIR, "family", "03-meek_00001_.png")),
+    "amp": ("DISCORD_AMP_TOKEN", os.path.join(AVATAR_DIR, "avatars", "png", "halo-ai.png")),
+    "mechanic": ("DISCORD_MECHANIC_TOKEN", os.path.join(AVATAR_DIR, "avatars", "png", "halo-ai.png")),
+    "muse": ("DISCORD_MUSE_TOKEN", os.path.join(AVATAR_DIR, "avatars", "png", "echo.png")),  # temp until muse portrait
 }
 
 

@@ -35,6 +35,7 @@ searxng/data/
 
 # Secrets
 .env
+env
 *.key
 *.pem
 *.p12

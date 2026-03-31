@@ -54,9 +54,16 @@ async def main():
 
     tasks = []
     for name, bot in bots:
-        tasks.append(asyncio.create_task(bot.start(bot.token)))
+        tasks.append(asyncio.create_task(_run_bot(name, bot)))
 
     await asyncio.gather(*tasks)
+
+
+async def _run_bot(name, bot):
+    try:
+        await bot.start(bot.token)
+    except Exception as e:
+        logging.getLogger("launch").error(f"Bot '{name}' failed to start: {e}")
 
 
 if __name__ == "__main__":
