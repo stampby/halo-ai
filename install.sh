@@ -268,7 +268,7 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
     [ -d nodejs-src ] && rm -rf nodejs-src
     git clone --depth 1 --branch v24.5.0 https://github.com/nodejs/node.git nodejs-src
     cd nodejs-src
-    /opt/python313/bin/python3.13 ./configure --prefix=/usr/local -q
+    /opt/python313/bin/python3.13 ./configure --prefix=/usr/local
     make -j$(nproc) -s && sudo make install -s
     sudo corepack enable
     ok "Node.js $(node --version) compiled"
