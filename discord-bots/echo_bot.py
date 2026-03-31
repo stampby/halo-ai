@@ -105,11 +105,43 @@ class EchoBot(HaloBot):
             print(f"Echo: failed to sync commands: {e}")
 
     async def on_member_join(self, member):
-        """Welcome new members — Echo greets everyone."""
+        """Welcome new members — DM first, then a short tag in #welcome."""
         if member.bot:
             return
 
-        # Find the welcome channel
+        # --- DM welcome (the real welcome) ---
+        dm_embed = discord.Embed(
+            title="Welcome to halo-ai!",
+            description=(
+                f"Hey **{member.display_name}**, glad you're here.\n\n"
+                "halo-ai is a fully local AI stack — 17 agents running bare-metal "
+                "on AMD Strix Halo hardware, zero cloud, zero containers. "
+                "Everything from inference to voice cloning to game servers, "
+                "designed and built by the architect.\n\n"
+                "**Channels to check out:**\n"
+                "• **#installation** — get the stack running on your own machine\n"
+                "• **#chat** — hang out and talk shop\n"
+                "• **#troubleshooting** — stuck? we got you\n\n"
+                "**Agents who can help:**\n"
+                "• **Bounty** — code, bugs, offensive security\n"
+                "• **Meek** — defensive security and hardening\n"
+                "• **Amp** — audio engineering, voice, music production\n"
+                "• **Mechanic** — hardware, drivers, GPU, fan curves\n\n"
+                "Just tag them in any channel and they'll jump in.\n\n"
+                "**GitHub:** https://github.com/stampby/halo-ai\n\n"
+                "*Stamped by the architect.*"
+            ),
+            color=self.color,
+        )
+        dm_embed.set_footer(text="Designed and built by the architect | halo-ai")
+
+        try:
+            await member.send(embed=dm_embed)
+        except discord.Forbidden:
+            # DMs disabled — the channel greeting still covers them
+            pass
+
+        # --- Short greeting in #welcome ---
         welcome_ch = None
         for ch in member.guild.text_channels:
             if ch.name == "welcome":
@@ -117,7 +149,7 @@ class EchoBot(HaloBot):
                 break
 
         if not welcome_ch:
-            # Fallback to first text channel
+            # Fallback to first text channel we can write to
             for ch in member.guild.text_channels:
                 if ch.permissions_for(member.guild.me).send_messages:
                     welcome_ch = ch
@@ -125,11 +157,8 @@ class EchoBot(HaloBot):
 
         if welcome_ch:
             await welcome_ch.send(
-                f"Welcome to the family, **{member.display_name}**! "
-                f"I'm Echo — the voice of halo-ai. "
-                f"Check out #chat to say hello, or #installation if you want to get the stack running. "
-                f"The agents are here to help — just ask.\n\n"
-                f"*87 tok/s. 33 services. Zero cloud. Stamped by the architect.*"
+                f"Welcome to the family, {member.mention}! "
+                f"Check your DMs — I sent you everything you need to get started."
             )
 
         # Assign Community role
