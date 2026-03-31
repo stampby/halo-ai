@@ -34,7 +34,7 @@
         .agt-name { display: block; color: var(--accent); font-size: 12px; font-weight: 500; letter-spacing: 1px; }
         .agt-role { display: block; color: var(--text-label); font-size: 9px; letter-spacing: 1px; }
         .agt-tools { display: block; color: var(--text-dim); font-size: 9px; margin-top: 2px; }
-        .agent-row { display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid var(--border); font-size:13px; cursor:pointer; border-radius:6px; transition:background 0.3s, transform 0.2s; }
+        .agent-row { display:flex; align-items:center; gap:6px; padding:3px 8px; border-bottom:1px solid var(--border); font-size:12px; cursor:pointer; border-radius:4px; transition:background 0.3s, transform 0.2s; }
         .agent-row:hover { background:rgba(0,212,255,0.06); transform:translateX(4px); }
         .agent-row:active { transform:translateX(2px); background:rgba(0,212,255,0.1); }
         .agent-row:last-child { border-bottom:none; }
@@ -64,6 +64,52 @@
             transition: transform 0.3s;
         }
         .halo-voice-indicator:hover { transform: scale(1.05); }
+        .halo-voice-indicator:hover .halo-stats { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .halo-stats {
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--bg-panel);
+            backdrop-filter: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 16px;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 50;
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            gap: 16px;
+        }
+        .halo-stats span { color: var(--accent); }
+        /* Voice Dialog */
+        .halo-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 136, 255, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            z-index: 2000;
+            display: none;
+            animation: dialogFadeIn 0.3s ease;
+        }
+        .halo-dialog.show { display: block; }
+        .halo-dialog.fadeout { animation: dialogFadeOut 0.5s ease forwards; }
+        .halo-dialog .user-text { color: var(--text-dim); font-size: 13px; margin-bottom: 12px; font-style: italic; }
+        .halo-dialog .halo-response { color: var(--accent); font-size: 14px; line-height: 1.6; }
+        .halo-dialog .halo-sig { color: var(--text-label); font-size: 10px; margin-top: 12px; letter-spacing: 2px; }
+        @keyframes dialogFadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        @keyframes dialogFadeOut { from { opacity: 1; } to { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } }
         .halo-voice-indicator.active #haloRing {
             opacity: 1;
             filter: drop-shadow(0 0 12px rgba(0,136,255,0.5));
@@ -104,6 +150,29 @@
             transition: color 0.3s;
         }
         .halo-voice-indicator.active .halo-voice-label { color: #0088ff; }
+        /* Breathing animation — always on */
+        .halo-voice-indicator svg { animation: haloBreathe 4s ease-in-out infinite; }
+        @keyframes haloBreathe {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(0,136,255,0.15)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 20px rgba(0,136,255,0.35)); transform: scale(1.03); }
+        }
+        /* Listening state — brighter, VU bars animate */
+        .halo-voice-indicator.listening svg {
+            animation: haloListenGlow 1s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(0,136,255,0.6));
+        }
+        .halo-voice-indicator.listening .halo-bar {
+            opacity: 1;
+            animation: haloVU 0.12s ease-in-out infinite alternate;
+        }
+        @keyframes haloListenGlow {
+            0%, 100% { filter: drop-shadow(0 0 25px rgba(0,136,255,0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(0,136,255,0.8)); }
+        }
+        @keyframes haloVU {
+            0% { height: 4px; opacity: 0.4; }
+            100% { height: 12px; opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -133,7 +202,7 @@
         </header>
 
         <!-- ═══ HALO VOICE INDICATOR ═══ -->
-        <div id="haloVoice" class="halo-voice-indicator" onclick="toggleHaloVoice()">
+        <div id="haloVoice" class="halo-voice-indicator" onclick="openHaloDialog()" style="position:relative;">
             <svg viewBox="0 0 120 120" width="120" height="120">
                 <!-- Outer glow ring -->
                 <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(0,140,255,0.12)" stroke-width="2"/>
@@ -160,8 +229,23 @@
                 <text x="60" y="67" text-anchor="middle" fill="#0088ff" font-size="28" font-weight="200" font-family="inherit" opacity="0.8">H</text>
             </svg>
             <div class="halo-voice-label">
-                <span id="haloVoiceStatus">click to listen</span>
+                <span id="haloVoiceStatus">click to speak</span>
             </div>
+            <!-- Hover stats -->
+            <div class="halo-stats">
+                <div>GPU <span>{{ gpu.get("gpu_temp", "--") }}°C</span></div>
+                <div>VRAM <span>{% if gpu.get("vram_used") %}{{ "%.0f"|format(gpu.vram_used / 1000000000) }}GB{% else %}--{% endif %}</span></div>
+                <div>LLM <span>{{ lemonade.get('gen_tps', '--') }} tok/s</span></div>
+                <div>Agents <span>27</span></div>
+                <div>Cloud <span>0</span></div>
+            </div>
+        </div>
+
+        <!-- Voice Dialog Popup -->
+        <div id="haloDialog" class="halo-dialog">
+            <div class="user-text" id="haloUserText"></div>
+            <div class="halo-response" id="haloResponseText"></div>
+            <div class="halo-sig">— halo</div>
         </div>
 
         <!-- ═══ HARDWARE STATS BANNER ═══ -->
@@ -196,10 +280,10 @@
         </div>
 
         <!-- ═══ PANELS ═══ -->
-        <!-- ═══ PANELS ═══ -->
         <div class="panels" id="panelGrid">
-            <!-- Stack Protection — FIRST -->
-            <section class="panel python-panel" data-panel="stack" draggable="true" style="grid-column: span 2;">
+            <!-- ROW 1: Stack Protection + KCS + Agents -->
+            <!-- ROW 1: Services + KCS + Agents -->
+            <section class="panel python-panel" data-panel="stack" draggable="true">
                 <h2><span class="drag-handle">&#x2630;</span> stack protection</h2>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <!-- LEFT COLUMN: Full frozen stack list (scrollable) -->
@@ -253,10 +337,8 @@
                 </div>
             </section>
 
-            <!-- Kansas City Shuffle — Ring Bus -->
-            <section class="panel" data-panel="kcs" draggable="true" style="grid-column: span 2;">
-                <h2><span class="drag-handle">&#x2630;</span> kansas city shuffle <span style="color:var(--text-label);font-size:10px;letter-spacing:2px;">bracket's ssh mixer &mdash; ring bus</span></h2>
 
+                <h2><span class="drag-handle">&#x2630;</span> kansas city shuffle <span style="color:var(--text-label);font-size:10px;letter-spacing:2px;">bracket's ssh mixer &mdash; ring bus</span></h2>
                 <!-- Ring Bus Visualization — Circle (4 nodes) -->
                 <div id="kcsRingViz" style="position:relative; height:260px; margin:16px 0;">
                     <!-- SVG ring circle + connection lines -->
@@ -338,57 +420,54 @@
                 <div style="text-align:center;margin-top:8px;font-size:9px;color:var(--text-dim);letter-spacing:1px;">designed and built by the architect</div>
             </section>
 
-            <!-- Agents Panel — scrollable, clickable profiles -->
+
             <section class="panel" data-panel="agents-detail" draggable="true">
                 <h2><span class="drag-handle">&#x2630;</span> agents</h2>
                 <div id="agentsList" style="max-height:220px;overflow-y:auto;">
-                    <div class="agent-row" data-agent="meek" onclick="showAgent('meek')"><span class="svc-dot unknown"></span><span style="color:var(--accent);">meek</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">security &middot; 10 tools</span></div>
+                    <div class="agent-row" data-agent="halo" onclick="showAgent('halo')"><span class="svc-dot unknown"></span><span style="color:#00d4ff;">halo</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">orchestrator</span></div>
                     <div class="agent-row" data-agent="echo" onclick="showAgent('echo')"><span class="svc-dot unknown"></span><span style="color:#ce93d8;">echo</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">social &middot; 8 tools</span></div>
+                    <div class="agent-row" data-agent="bounty" onclick="showAgent('bounty')"><span class="svc-dot unknown"></span><span style="color:#e040fb;">bounty</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bug hunter &middot; 6 tools</span></div>
+                    <div class="agent-row" data-agent="meek" onclick="showAgent('meek')"><span class="svc-dot unknown"></span><span style="color:var(--accent);">meek</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">security &middot; 10 tools</span></div>
                     <div class="agent-row" data-agent="amp" onclick="showAgent('amp')"><span class="svc-dot unknown"></span><span style="color:#ff6f00;">amp</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">audio &middot; 8 tools</span></div>
                     <div class="agent-row" data-agent="mechanic" onclick="showAgent('mechanic')"><span class="svc-dot unknown"></span><span style="color:#aed581;">mechanic</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">diagnostics &middot; 8 tools</span></div>
+                    <div class="agent-row" data-agent="muse" onclick="showAgent('muse')"><span class="svc-dot unknown"></span><span style="color:#ff6b9d;">muse</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">entertainment &middot; 8 tools</span></div>
                     <div class="agent-row" data-agent="sentinel" onclick="showAgent('sentinel')"><span class="svc-dot unknown"></span><span style="color:#4fc3f7;">sentinel</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">code review &middot; 5 tools</span></div>
-                    <div class="agent-row" data-agent="bounty" onclick="showAgent('bounty')"><span class="svc-dot unknown"></span><span style="color:#e040fb;">bounty</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bug hunter &middot; 6 tools</span></div>
-                    <div class="agent-row" data-agent="dealer" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">dealer</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game master &middot; 7 tools</span></div>
                     <div class="agent-row" data-agent="forge" onclick="showAgent('forge')"><span class="svc-dot unknown"></span><span style="color:#ef5350;">forge</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game assets &middot; 6 tools</span></div>
+                    <div class="agent-row" data-agent="dealer" onclick="showAgent('dealer')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">dealer</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">game master &middot; 7 tools</span></div>
                     <div class="agent-row" data-agent="conductor" onclick="showAgent('conductor')"><span class="svc-dot unknown"></span><span style="color:#e6ee9c;">conductor</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">composer &middot; 7 tools</span></div>
-                    <div class="agent-row" data-agent="crypto" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span style="color:#ffab40;">crypto</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">arbitrage &middot; 6 tools</span></div>
                     <div class="agent-row" data-agent="quartermaster" onclick="showAgent('quartermaster')"><span class="svc-dot unknown"></span><span style="color:#78909c;">quartermaster</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">server ops &middot; 7 tools</span></div>
-                    <div class="agent-row" data-agent="piper" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span style="color:#00e676;">piper</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">war pipes &middot; 4 tools</span></div>
-                    <div class="agent-row" data-agent="axe" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">axe</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">lead guitar &middot; 4 tools</span></div>
-                    <div class="agent-row" data-agent="rhythm" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span style="color:#795548;">rhythm</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">rhythm guitar &middot; 4 tools</span></div>
-                    <div class="agent-row" data-agent="bottom" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span style="color:#607d8b;">bottom</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bass &middot; 4 tools</span></div>
-                    <div class="agent-row" data-agent="bones" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span style="color:#f44336;">bones</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">drums &middot; 4 tools</span></div>
+                    <div class="agent-row" data-agent="crypto" onclick="showAgent('crypto')"><span class="svc-dot unknown"></span><span style="color:#ffab40;">crypto</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">arbitrage &middot; 6 tools</span></div>
+                    <div class="agent-row" data-agent="piper" onclick="showAgent('piper')"><span class="svc-dot unknown"></span><span style="color:#00e676;">piper</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">war pipes</span></div>
+                    <div class="agent-row" data-agent="axe" onclick="showAgent('axe')"><span class="svc-dot unknown"></span><span style="color:#ff5722;">axe</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">lead guitar</span></div>
+                    <div class="agent-row" data-agent="rhythm" onclick="showAgent('rhythm')"><span class="svc-dot unknown"></span><span style="color:#795548;">rhythm</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">rhythm guitar</span></div>
+                    <div class="agent-row" data-agent="bottom" onclick="showAgent('bottom')"><span class="svc-dot unknown"></span><span style="color:#607d8b;">bottom</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">bass</span></div>
+                    <div class="agent-row" data-agent="bones" onclick="showAgent('bones')"><span class="svc-dot unknown"></span><span style="color:#f44336;">bones</span><span style="color:var(--text-label);margin-left:auto;font-size:10px;">drums</span></div>
                 </div>
             </section>
 
-            <!-- Lemonade / LLM -->
+
+
+            <!-- ROW 2: Stack Protection + Lemonade + GlusterFS -->
             <section class="panel lemonade-panel" data-panel="lemonade" draggable="true">
                 <h2><span class="drag-handle">&#x2630;</span> lemonade &mdash; <a href="/cave/lemonade" style="color:var(--accent);text-decoration:none;font-size:10px;">full control</a></h2>
                 <div class="stack-info">
-                    <div class="stack-row">
-                        <span>status</span>
-                        <span class="mono {{ 'text-green' if lemonade.get('status') == 'online' else 'text-red' }}">{{ lemonade.get('status', '?') }}</span>
-                    </div>
-                    <div class="stack-row">
-                        <span>model</span>
-                        <span class="mono">{{ lemonade.get('model', '?') }}</span>
-                    </div>
-                    <div class="stack-row">
-                        <span>prompt tok/s</span>
-                        <span class="mono">{{ lemonade.get('prompt_tps', '—') }}</span>
-                    </div>
-                    <div class="stack-row">
-                        <span>gen tok/s</span>
-                        <span class="mono">{{ lemonade.get('gen_tps', '—') }}</span>
-                    </div>
-                    <div class="stack-row">
-                        <span>slots idle</span>
-                        <span class="mono">{{ lemonade.get('slots_idle', '?') }}</span>
-                    </div>
-                    <div class="stack-row">
-                        <span>slots busy</span>
-                        <span class="mono">{{ lemonade.get('slots_processing', '?') }}</span>
-                    </div>
+                    <div class="stack-row"><span>status</span><span class="mono {{ 'text-green' if lemonade.get('status') == 'online' else 'text-red' }}">{{ lemonade.get('status', '?') }}</span></div>
+                    <div class="stack-row"><span>model</span><span class="mono">{{ lemonade.get('model', '?') }}</span></div>
+                    <div class="stack-row"><span>prompt tok/s</span><span class="mono">{{ lemonade.get('prompt_tps', '—') }}</span></div>
+                    <div class="stack-row"><span>gen tok/s</span><span class="mono">{{ lemonade.get('gen_tps', '—') }}</span></div>
+                    <div class="stack-row"><span>slots idle</span><span class="mono">{{ lemonade.get('slots_idle', '?') }}</span></div>
+                    <div class="stack-row"><span>slots busy</span><span class="mono">{{ lemonade.get('slots_processing', '?') }}</span></div>
+                </div>
+            </section>
+
+            <section class="panel" data-panel="glusterfs" draggable="true">
+                <h2><span class="drag-handle">&#x2630;</span> glusterfs pool</h2>
+                <div class="stack-info">
+                    <div class="stack-row"><span>volume</span><span class="mono">pool (replicated)</span></div>
+                    <div class="stack-row"><span>bricks</span><span class="mono">ryzen + strix-halo</span></div>
+                    <div class="stack-row"><span>mount</span><span class="mono">/pool/</span></div>
+                    <div class="stack-row"><span>capacity</span><span class="mono">3.7 TB available</span></div>
+                    <div class="stack-row"><span>replication</span><span class="mono" style="color:var(--green);">active</span></div>
                 </div>
             </section>
 

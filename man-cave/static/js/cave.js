@@ -575,3 +575,154 @@ setInterval(kcsGlusterRefresh, 30000);
         animFrame = requestAnimationFrame(animateVoice);
     }
 })();
+
+// ── Halo Voice Dialog ──────────────
+let haloDialogOpen = false;
+let haloListening = false;
+
+function openHaloDialog() {
+    const dialog = document.getElementById('haloDialog');
+    const orb = document.getElementById('haloVoice');
+    const status = document.getElementById('haloVoiceStatus');
+    
+    if (haloDialogOpen) {
+        closeHaloDialog();
+        return;
+    }
+
+    haloDialogOpen = true;
+    haloListening = true;
+    orb.classList.add('active');
+    orb.classList.add('listening');
+    status.textContent = 'listening...';
+    
+    document.getElementById('haloUserText').textContent = '';
+    document.getElementById('haloResponseText').textContent = 'listening...';
+    dialog.classList.remove('fadeout');
+    dialog.classList.add('show');
+
+    // Start speech recognition if available
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = function(event) {
+            let transcript = '';
+            for (let i = 0; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            document.getElementById('haloUserText').textContent = '"' + transcript + '"';
+            
+            if (event.results[0].isFinal) {
+                haloListening = false;
+                orb.classList.remove('listening');
+                status.textContent = 'thinking...';
+                document.getElementById('haloResponseText').textContent = 'thinking...';
+                sendToHalo(transcript);
+            }
+        };
+
+        recognition.onerror = function() {
+            haloListening = false;
+            orb.classList.remove('listening');
+            status.textContent = 'click to speak';
+            document.getElementById('haloResponseText').textContent = 'could not hear you. try again.';
+            setTimeout(closeHaloDialog, 3000);
+        };
+
+        recognition.onend = function() {
+            if (haloListening) {
+                // Timed out without speech
+                haloListening = false;
+                orb.classList.remove('listening');
+                document.getElementById('haloResponseText').textContent = 'silence. click again when ready.';
+                setTimeout(closeHaloDialog, 2500);
+            }
+        };
+
+        recognition.start();
+    } else {
+        // No speech recognition — show text input
+        document.getElementById('haloResponseText').innerHTML = '<input id="haloTextInput" type="text" placeholder="type your question..." style="background:transparent;border:1px solid rgba(0,136,255,0.3);border-radius:8px;padding:8px 12px;color:var(--text);width:100%;font-size:14px;outline:none;" onkeydown="if(event.key===\'Enter\'){sendToHalo(this.value);this.disabled=true;}">';
+        setTimeout(() => document.getElementById('haloTextInput')?.focus(), 100);
+    }
+}
+
+async function sendToHalo(text) {
+    const status = document.getElementById('haloVoiceStatus');
+    try {
+        const resp = await fetch('/cave/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                message: text,
+                agent: 'halo',
+                system: 'You are Halo, the system orchestrator of halo-ai. Brief, authoritative, direct. One to three sentences max. Zero cloud. Zero data retention. You know every service and can direct users to them: Open WebUI (port 3000) for chat, ComfyUI (port 8188) for image gen, SearXNG (port 8888) for search, n8n (port 5678) for workflows, Whisper for speech-to-text, Kokoro for TTS, Qdrant for vector search, llama-server (port 8081) for inference at 87 tok/s. You know all 27 agents: Echo (social), Bounty (bugs), Meek (security), Amp (audio), Mechanic (hardware), Muse (entertainment), Sentinel (code), Forge (games), Dealer (game master), Conductor (composer), Quartermaster (servers), Crypto (arbitrage). When someone asks for a service, tell them exactly where to go. When they need an agent, route them by name.'
+            })
+        });
+        const data = await resp.json();
+        document.getElementById('haloResponseText').textContent = data.response || data.reply || 'I hear you.';
+        status.textContent = 'halo';
+    } catch (e) {
+        document.getElementById('haloResponseText').textContent = 'Systems nominal. I hear you.';
+        status.textContent = 'halo';
+    }
+
+    // Highlight relevant panels based on response
+    const response = (data.response || data.reply || '').toLowerCase();
+    const panelMap = {
+        'lemonade': 'lemonade', 'llm': 'lemonade', 'inference': 'lemonade', 'tok/s': 'lemonade', 'model': 'lemonade',
+        'stack': 'stack', 'freeze': 'stack', 'compile': 'stack', 'protection': 'stack', 'snapshot': 'stack',
+        'agent': 'agents-detail', 'echo': 'agents-detail', 'bounty': 'agents-detail', 'meek': 'agents-detail',
+        'amp': 'agents-detail', 'muse': 'agents-detail', 'mechanic': 'agents-detail', 'sentinel': 'agents-detail',
+        'kansas': 'kcs', 'ssh': 'kcs', 'ring': 'kcs', 'mixer': 'kcs', 'mesh': 'kcs',
+        'gluster': 'glusterfs', 'pool': 'glusterfs', 'replicate': 'glusterfs', 'storage': 'glusterfs',
+        'activity': 'activity', 'news': 'news',
+    };
+    for (const [keyword, panelId] of Object.entries(panelMap)) {
+        if (response.includes(keyword)) {
+            const panel = document.querySelector(`[data-panel="${panelId}"]`);
+            if (panel) {
+                panel.style.transition = 'box-shadow 0.5s, border-color 0.5s';
+                panel.style.boxShadow = '0 0 20px rgba(0,136,255,0.3)';
+                panel.style.borderColor = 'rgba(0,136,255,0.5)';
+                setTimeout(() => {
+                    panel.style.boxShadow = '';
+                    panel.style.borderColor = '';
+                }, 6000);
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            break;
+        }
+    }
+
+    // Fade out after 6 seconds
+    setTimeout(closeHaloDialog, 6000);
+}
+
+function closeHaloDialog() {
+    const dialog = document.getElementById('haloDialog');
+    const orb = document.getElementById('haloVoice');
+    const status = document.getElementById('haloVoiceStatus');
+    
+    dialog.classList.add('fadeout');
+    orb.classList.remove('active');
+    orb.classList.remove('listening');
+    status.textContent = 'click to speak';
+    
+    setTimeout(() => {
+        dialog.classList.remove('show');
+        dialog.classList.remove('fadeout');
+        haloDialogOpen = false;
+    }, 500);
+}
+
+// Click outside dialog to close
+document.addEventListener('click', function(e) {
+    if (haloDialogOpen && !e.target.closest('#haloDialog') && !e.target.closest('#haloVoice')) {
+        closeHaloDialog();
+    }
+});
