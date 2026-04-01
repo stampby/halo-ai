@@ -92,6 +92,32 @@ Full guide: [USB-PORTABLE.md](docs/USB-PORTABLE.md)
 - **Dependabot** + **CodeQL** scanning on every push
 - npm/pip supply chain monitoring via Sentinel
 
+### Accessing from other machines
+
+All services are on `127.0.0.1` behind Caddy. To access from other devices on your LAN, add these to your hosts file:
+
+**Linux/Mac** — `/etc/hosts`:
+```
+10.0.0.131    strixhalo chat.strixhalo research.strixhalo search.strixhalo n8n.strixhalo comfyui.strixhalo gaia.strixhalo
+```
+
+**Windows** — run PowerShell as Administrator:
+```
+Add-Content C:\Windows\System32\drivers\etc\hosts "10.0.0.131    strixhalo chat.strixhalo research.strixhalo search.strixhalo n8n.strixhalo comfyui.strixhalo gaia.strixhalo"
+```
+
+Replace `10.0.0.131` with your Strix Halo's IP. Then open any service in your browser:
+
+| URL | Service |
+|-----|---------|
+| `http://strixhalo` | Landing page |
+| `http://chat.strixhalo` | Open WebUI |
+| `http://research.strixhalo` | Deep Research (Vane) |
+| `http://gaia.strixhalo` | Gaia Agent UI |
+| `http://comfyui.strixhalo` | Image Generation |
+| `http://n8n.strixhalo` | Workflow Automation |
+| `http://search.strixhalo` | Private Search |
+
 ### Re-running
 
 The installer is fully **idempotent** — safe to run multiple times. Existing configs are preserved, already-installed tools are skipped, secrets are not overwritten.
