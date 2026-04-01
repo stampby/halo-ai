@@ -28,27 +28,34 @@ Do not use a regular USB flash drive. They are too slow for an OS and will wear 
 
 ## Build the USB
 
-### Option 1 — Build directly to USB drive
+### Recommended — Build on your PC first, flash to USB after
+
+Build everything to an image file on your local drive. If anything fails halfway through, your USB is untouched — just delete the image and try again. No bricked USB, no wasted time.
 
 ```bash
-# Find your USB drive (CAREFUL — pick the right one)
-lsblk
-
-# Build it (this erases the USB drive)
-sudo ./scripts/halo-build-usb.sh /dev/sdX
-```
-
-### Option 2 — Build an image file first
-
-```bash
-# Create a flashable image
+# Step 1 — Build the image on your PC (takes 2-3 hours)
 sudo ./scripts/halo-build-usb.sh --image halo-usb.img
 
-# Flash it to your USB drive later
+# Step 2 — Verify it completed successfully
+ls -lh halo-usb.img    # Should be ~45GB+
+
+# Step 3 — Flash to USB (takes ~5 minutes on USB 3.2)
+lsblk                  # Find your USB drive — CAREFUL, pick the right one
 sudo dd if=halo-usb.img of=/dev/sdX bs=4M status=progress
 ```
 
-The build takes 2-3 hours (compiling from source). Go make coffee.
+The image file stays on your PC. You can re-flash any time without rebuilding.
+
+### Alternative — Build directly to USB drive
+
+If you want to skip the image step and build straight to USB:
+
+```bash
+lsblk                                      # Find your USB drive
+sudo ./scripts/halo-build-usb.sh /dev/sdX   # Build directly (erases USB)
+```
+
+Warning: if the build fails halfway, the USB may be in a broken state. The image method above is safer.
 
 ---
 
