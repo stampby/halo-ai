@@ -100,14 +100,15 @@ SEARXNG_SECRET=$(openssl rand -hex 32)
 echo ''
 info "SearXNG secret key: auto-generated"
 prompt SEARXNG_KEY "SearXNG secret key" "$SEARXNG_SECRET"
-ok "SearXNG key: ${SEARXNG_KEY:0:16}..."
+[[ "$SEARXNG_KEY" =~ ^[a-f0-9]+$ ]] || { warn "Invalid SearXNG key — regenerating"; SEARXNG_KEY=$(openssl rand -hex 32); }
+ok "SearXNG key: [set]"
 
 # 4. Dashboard API key
 DASHBOARD_KEY=$(openssl rand -base64 32)
 echo ''
 info "Dashboard API key: auto-generated"
 prompt DASHBOARD_API_KEY "Dashboard API key" "$DASHBOARD_KEY"
-ok "Dashboard key: ${DASHBOARD_API_KEY:0:16}..."
+ok "Dashboard key: [set]"
 
 # 5. Server hostname
 echo ''
@@ -297,6 +298,25 @@ if ! command -v go >/dev/null; then
 fi
 export PATH=/usr/local/go/bin:~/go/bin:$PATH
 
+# ── Pre-build source audit ────────────────────────
+step "Auditing source repos before building"
+audit_repo() {
+    local dir="$1" name="$2"
+    if [ -d "$dir/.git" ]; then
+        local commit=$(git -C "$dir" rev-parse --short HEAD 2>/dev/null)
+        local dirty=$(git -C "$dir" status --porcelain 2>/dev/null | wc -l)
+        local unsigned=$(git -C "$dir" log -1 --format='%G?' 2>/dev/null)
+        info "$name: commit $commit, $([ "$dirty" -eq 0 ] && echo 'clean' || echo "${dirty} uncommitted changes")"
+        [ "$dirty" -gt 0 ] && warn "$name has uncommitted changes — review before trusting"
+    fi
+}
+for repo_pair in "llama-cpp:llama.cpp" "lemonade:Lemonade" "whisper-cpp:whisper.cpp" "qdrant:Qdrant" "vane:Vane" "comfyui:ComfyUI" "kokoro:Kokoro"; do
+    dir="/srv/ai/${repo_pair%%:*}"
+    name="${repo_pair##*:}"
+    [ -d "$dir" ] && audit_repo "$dir" "$name"
+done
+ok "Source audit complete"
+
 # ── Build everything ───────────────────────────────
 step "Building llama.cpp — HIP + Vulkan + OpenCL (~10 min)"
 source /etc/profile.d/rocm.sh 2>/dev/null || true
@@ -337,8 +357,8 @@ ok "Qdrant built"
 
 info "Building Caddy..."
 go install github.com/caddyserver/caddy/v2/cmd/caddy@latest
-sudo ln -sfn ~/go/bin/caddy /usr/local/bin/caddy
-ok "Caddy built and linked to /usr/local/bin/caddy"
+sudo cp ~/go/bin/caddy /usr/local/bin/caddy && sudo chmod 755 /usr/local/bin/caddy
+ok "Caddy built and installed to /usr/local/bin/caddy"
 
 step "Installing SearXNG + Open WebUI (~10 min)"
 info "Installing SearXNG..."
