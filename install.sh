@@ -367,7 +367,7 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
         make -j"$(nproc)" -s && sudo make install -s || fail "Node.js build failed"
     fi
     sudo corepack enable
-    sudo npm install -g yarn
+    command -v yarn >/dev/null || sudo npm install -g yarn
     rm -rf "$NODE_DIR" 2>/dev/null || true
     ok "Node.js $(node --version) + yarn compiled"
 fi
