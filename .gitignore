@@ -35,10 +35,15 @@ searxng/data/
 
 # Secrets
 .env
+.env.*
 env
 *.key
 *.pem
 *.p12
+
+# Discord bot runtime data
+discord-bots/data/
+discord-bots/logs/
 
 # Runtime data — never commit
 dashboard-api/data/
