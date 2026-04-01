@@ -308,6 +308,9 @@ class HaloBot(commands.Bot):
             reply = re.sub(r'https?://\S+', '', reply)
             reply = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', reply)  # [text](url) → text
             reply = reply.strip()
+            # Wrap in code block for clean formatting
+            if reply and not reply.startswith('```'):
+                reply = f"```\n{reply}\n```"
 
             self.history[channel_id].append({
                 "role": "assistant",
