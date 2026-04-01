@@ -507,7 +507,7 @@ ok "Vane built (axios pinned safe)"
 info "Installing n8n..."
 cd /srv/ai/n8n
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/n8n-io/n8n .; fi
-sudo npm install -g pnpm
+command -v pnpm >/dev/null || sudo npm install -g pnpm
 # Pin axios to safe version via pnpm overrides
 pnpm pkg set pnpm.overrides.axios="1.14.0" 2>/dev/null || true
 pnpm install --ignore-scripts && pnpm build
