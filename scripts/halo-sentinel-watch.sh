@@ -60,3 +60,6 @@ curl -s -X POST -H "Authorization: Bot $TOKEN" -H "Content-Type: application/jso
     -d "$PAYLOAD" "https://discord.com/api/v10/channels/$SECURITY_CHANNEL/messages" > /dev/null
 
 echo "Sentinel watch posted: $DATE"
+
+# Check for new forks
+"$REPO_DIR/scripts/halo-fork-watch.sh" 2>/dev/null || true
