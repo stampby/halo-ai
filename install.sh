@@ -104,8 +104,38 @@ echo ''
 
 # ── Preflight ──────────────────────────────────────
 step "Preflight checks"
-[ "$(id -u)" -eq 0 ] && fail "Do not run as root. Run as your normal user (with sudo access)."
+
+# Root check — big red warning
+if [ "$(id -u)" -eq 0 ]; then
+    echo ''
+    echo -e "${RED}${BOLD}  ╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}${BOLD}  ║                                                          ║${NC}"
+    echo -e "${RED}${BOLD}  ║   *** DO NOT RUN THIS SCRIPT AS ROOT OR WITH SUDO ***    ║${NC}"
+    echo -e "${RED}${BOLD}  ║                                                          ║${NC}"
+    echo -e "${RED}${BOLD}  ║   Run as your normal user. The script uses sudo           ║${NC}"
+    echo -e "${RED}${BOLD}  ║   internally only when needed.                            ║${NC}"
+    echo -e "${RED}${BOLD}  ║                                                          ║${NC}"
+    echo -e "${RED}${BOLD}  ║   Correct:   ./install.sh                                ║${NC}"
+    echo -e "${RED}${BOLD}  ║   Wrong:     sudo ./install.sh                           ║${NC}"
+    echo -e "${RED}${BOLD}  ║                                                          ║${NC}"
+    echo -e "${RED}${BOLD}  ╚══════════════════════════════════════════════════════════╝${NC}"
+    echo ''
+    fail "Running as root (uid 0). Switch to your normal user."
+fi
+
 command -v pacman >/dev/null || fail "Arch Linux required."
+
+# Sudo check — make sure user has sudo access
+if ! sudo -v 2>/dev/null; then
+    fail "Your user needs sudo access. Run: usermod -aG wheel $(whoami)"
+fi
+ok "Running as $(whoami) with sudo access"
+
+# Re-run detection
+if [ -d /srv/ai/llama-cpp/.git ] || [ -x /opt/python312/bin/python3.12 ]; then
+    warn "Previous install detected — re-run mode (safe to continue)"
+fi
+
 lscpu | grep -q "Strix" || warn "This installer is designed for AMD Strix Halo. Proceeding anyway..."
 /opt/rocm/bin/rocminfo 2>/dev/null | grep -q "gfx1151" && ok "ROCm already installed" || NEED_ROCM=1
 
