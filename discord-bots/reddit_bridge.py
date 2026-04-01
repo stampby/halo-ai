@@ -31,6 +31,11 @@ WATCH_SUBREDDITS = [
     "linuxhardware",
     "gamedev",
     "godot",
+    "strixhalo",
+    "llm",
+    "AI_Agents",
+    "Amd",
+    "localLLM",
 ]
 
 # Keywords that trigger Echo's attention
