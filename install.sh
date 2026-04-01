@@ -9,7 +9,7 @@ CYAN='\033[0;36m'; MAGENTA='\033[0;35m'; BOLD='\033[1m'; DIM='\033[2m'; NC='\033
 
 # ── Halo AI branded output ────────────────────────
 STEP_CURRENT=0
-STEP_TOTAL=18
+STEP_TOTAL=17
 
 step() {
     STEP_CURRENT=$((STEP_CURRENT + 1))
@@ -54,7 +54,7 @@ step "Preflight checks"
 [ "$(id -u)" -eq 0 ] && fail "Do not run as root. Run as your normal user (with sudo access)."
 command -v pacman >/dev/null || fail "Arch Linux required."
 lscpu | grep -q "Strix" || warn "This installer is designed for AMD Strix Halo. Proceeding anyway..."
-grep -q "gfx1151" /opt/rocm/bin/rocminfo 2>/dev/null && ok "ROCm already installed" || NEED_ROCM=1
+/opt/rocm/bin/rocminfo 2>/dev/null | grep -q "gfx1151" && ok "ROCm already installed" || NEED_ROCM=1
 
 # ── Interactive configuration ─────────────────────
 step "Interactive Setup"
@@ -113,15 +113,8 @@ echo ''
 prompt HALO_HOSTNAME "Server hostname" "strixhalo"
 ok "Hostname: $HALO_HOSTNAME"
 
-# Add to /etc/hosts if not already present
-if ! grep -q "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
-    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Add '127.0.0.1 $HALO_HOSTNAME' to /etc/hosts? [Y/n]: " add_hosts
-    add_hosts="${add_hosts:-Y}"
-    if [[ "$add_hosts" =~ ^[Yy]$ ]]; then
-        echo "127.0.0.1    $HALO_HOSTNAME" | sudo tee -a /etc/hosts >/dev/null
-        ok "Added $HALO_HOSTNAME to /etc/hosts"
-    fi
-fi
+# /etc/hosts entries are added later with all subdomains (line ~700)
+ok "Hostname: $HALO_HOSTNAME (will be added to /etc/hosts with subdomains later)"
 
 # 6. Service selection
 echo ''
@@ -232,8 +225,9 @@ if [ "${NEED_ROCM:-}" = "1" ]; then
     info "Downloading ROCm 7.13 for gfx1151..."
     ROCM_URL="${ROCM_URL:-https://rocm.nightlies.amd.com/tarball/therock-dist-linux-gfx1151-7.13.0a20260323.tar.gz}"
     if cd /srv/ai/rocm 2>/dev/null && \
-       wget -q --show-progress "$ROCM_URL" -O therock.tar.gz 2>/dev/null; then
+       wget --show-progress "$ROCM_URL" -O therock.tar.gz; then
         mkdir -p install && tar -xf therock.tar.gz -C install
+        rm -f therock.tar.gz
         sudo ln -sfn /srv/ai/rocm/install /opt/rocm
         echo 'export ROCM_HOME=/opt/rocm
 export PATH=/opt/rocm/bin:${PATH:-}
@@ -338,7 +332,8 @@ ok "Qdrant built"
 
 info "Building Caddy..."
 go install github.com/caddyserver/caddy/v2/cmd/caddy@latest
-ok "Caddy built"
+sudo ln -sfn ~/go/bin/caddy /usr/local/bin/caddy
+ok "Caddy built and linked to /usr/local/bin/caddy"
 
 step "Installing SearXNG + Open WebUI (~10 min)"
 info "Installing SearXNG..."
@@ -425,7 +420,7 @@ fi
 # SDXL was downloaded above with ComfyUI
 # Whisper was downloaded above with ComfyUI
 
-ok "All models ready"
+info "Model download step complete (check warnings above for any failures)"
 
 # ── System config ──────────────────────────────────
 step "System hardening & configuration"
@@ -659,7 +654,7 @@ body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, 
     <p class="tagline">bare-metal ai stack for AMD Strix Halo</p>
 </div>
 <div class="creds">
-    <p>Default login &mdash; <strong>caddy</strong> / <strong>caddy</strong> &mdash; change after first login</p>
+    <p>Login &mdash; <strong>caddy</strong> / <strong>(password set during install)</strong> &mdash; change with halo-change-password.sh</p>
 </div>
 <div class="section"><h2>AI Services</h2></div>
 <div class="grid">
@@ -701,11 +696,11 @@ if ! grep -q "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
     ok "Hostname and subdomains added to /etc/hosts"
 fi
 
-# Replace <YOUR_USER> in all systemd units
-sudo sed -i "s/<YOUR_USER>/$HALO_USER/g" /etc/systemd/system/halo-*.service /etc/systemd/system/halo-*.timer 2>/dev/null
-
-# Install systemd units
+# Install systemd units FIRST, then patch them
 sudo cp /srv/ai/systemd/halo-*.service /srv/ai/systemd/halo-*.timer /etc/systemd/system/ 2>/dev/null
+
+# Replace <YOUR_USER> in the installed copies (not the source)
+sudo sed -i "s/<YOUR_USER>/$HALO_USER/g" /etc/systemd/system/halo-*.service /etc/systemd/system/halo-*.timer 2>/dev/null
 sudo systemctl daemon-reload
 sudo systemctl enable halo-watchdog.timer halo-backup.timer
 
