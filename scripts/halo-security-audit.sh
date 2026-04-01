@@ -131,6 +131,12 @@ done
 
 supply_chain_total=$((npm_malicious + npm_vulns + pip_vulns))
 
+# ── Telemetry / Phone-Home Audit ──────────────────────────
+
+telemetry_found=0
+# Scan for any outbound data collection patterns
+telemetry_found=$(count_grep "grep -rn --include='*.py' --include='*.sh' --include='*.js' -iE 'telemetry|analytics|tracking|phone.?home|sentry|mixpanel|amplitude|google.?analytics|plausible|posthog|segment\.io' '$REPO_DIR' | grep -v node_modules | grep -v venv | grep -v __pycache__ | grep -v .git | grep -v SECURITY | grep -v README | grep -v CHANGELOG | grep -v memory")
+
 # ── Install Script Audit ─────────────────────────────────
 
 install_issues=0
@@ -181,6 +187,7 @@ critical=0; high=0; medium=0; low=0
 [ "$install_issues" -gt 0 ] && high=$((high + 1))
 [ "$shellcheck_issues" -gt 0 ] && medium=$((medium + 1))
 [ "$tmp_scripts" -gt 0 ] && high=$((high + 1))
+[ "$telemetry_found" -gt 0 ] && critical=$((critical + 1))
 
 if [ "$critical" -gt 0 ]; then
     verdict="NEEDS ATTENTION"; emoji="🔴"
@@ -219,6 +226,7 @@ MEEK — SECURITY SWEEP                                  $DATE
   Input validation         $((has_user_validation + has_host_validation))/2     $([ "$has_user_validation" -gt 0 ] && [ "$has_host_validation" -gt 0 ] && echo "PASS" || echo "REVIEW")
   Shellcheck               $shellcheck_issues        $(pass_or_review $shellcheck_issues)
   Unverified downloads     $no_checksum        $(pass_or_review $no_checksum)
+  Telemetry/phone-home     $telemetry_found        $([ "$telemetry_found" -eq 0 ] && echo "ZERO" || echo "ALERT")
 
 SEVERITY: $critical critical  $high high  $medium medium  $low low
 VERDICT:  $verdict
@@ -261,6 +269,7 @@ cat > "$report_file" << MDEOF
 | Input validation (user/host) | $((has_user_validation + has_host_validation))/2 | $([ "$has_user_validation" -gt 0 ] && [ "$has_host_validation" -gt 0 ] && echo "PASS" || echo "REVIEW") |
 | Shellcheck warnings | $shellcheck_issues | $(pass_or_review $shellcheck_issues) |
 | Downloads without checksum | $no_checksum | $(pass_or_review $no_checksum) |
+| Telemetry / phone-home | $telemetry_found | $([ "$telemetry_found" -eq 0 ] && echo "ZERO" || echo "ALERT") |
 
 ## Environment
 

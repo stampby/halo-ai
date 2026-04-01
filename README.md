@@ -312,6 +312,16 @@ halo-ai is building a community-powered voice platform. We need voice talent fro
 
 👉 **[Apply to join](dashboard-ui/voice-talent.html)** — be the first voice for your country.
 
+## Privacy
+
+**Zero telemetry. Zero tracking. Zero data collection.**
+
+halo-ai does not collect, transmit, or store any data about you, your hardware, your usage, or your content. Nothing phones home. Nothing reports back. There are no analytics, no crash reports, no "anonymous" usage statistics.
+
+Your data stays on your machine. Period.
+
+This is not a service. This is not a platform. This is a tool — built by the architect, for anyone who wants to run AI on their own hardware without asking permission.
+
 ## Credits
 
 **Designed and built by the architect** — every script, every service, every agent. From source. No shortcuts. *"I am inevitable."*
