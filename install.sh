@@ -494,8 +494,8 @@ info "Installing Open WebUI..."
 cd /srv/ai/open-webui
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/open-webui/open-webui .; fi
 /opt/python312/bin/python3.12 -m venv .venv && source .venv/bin/activate
-sed -i 's/ddgs==9.11.2/ddgs>=9.11.3/' pyproject.toml 2>/dev/null
-sed -i 's/rapidocr-onnxruntime==1.4.4/rapidocr-onnxruntime>=1.2.3/' pyproject.toml 2>/dev/null
+sed -i 's/ddgs==9.11.2/ddgs>=9.11.3/' pyproject.toml 2>/dev/null || true
+sed -i 's/rapidocr-onnxruntime==1.4.4/rapidocr-onnxruntime>=1.2.3/' pyproject.toml 2>/dev/null || true
 pip install -q setuptools hatchling && pip install -q . 
 deactivate
 ok "Open WebUI installed"
@@ -622,16 +622,21 @@ fi
 # Disable sleep/suspend
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
-# SSH hardening
-echo "PasswordAuthentication no
+# SSH hardening (preserve existing if present)
+if [ ! -f /etc/ssh/sshd_config.d/90-halo-security.conf ]; then
+    echo "PasswordAuthentication no
 ChallengeResponseAuthentication no
 UsePAM no
 PermitRootLogin no
 AllowUsers $HALO_USER" | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
+else
+    ok "SSH hardening already configured"
+fi
 
 # Install nftables firewall
 info "Installing firewall..."
 sudo pacman -S --noconfirm --needed nftables 2>/dev/null
+[ -f /etc/nftables.conf ] && sudo cp /etc/nftables.conf /etc/nftables.conf.bak
 sudo cp /srv/ai/configs/system/nftables.conf /etc/nftables.conf
 LAN_IFACE=$(ip -4 route show default | awk '{print $5; exit}')
 LAN_SUBNET=$(ip -4 addr show dev "$LAN_IFACE" 2>/dev/null | awk '/inet / {print $2; exit}' | sed 's|\.[0-9]*/|.0/|')
@@ -644,9 +649,12 @@ fi
 sudo systemctl enable --now nftables 2>/dev/null
 ok "Firewall active (LAN-only SSH + HTTP)"
 
-# Install fail2ban
+# Install fail2ban (preserve existing config)
 info "Installing fail2ban..."
 sudo pacman -S --noconfirm --needed fail2ban 2>/dev/null
+if [ -f /etc/fail2ban/jail.local ]; then
+    ok "fail2ban already configured"
+else
 cat << 'F2BCONF' | sudo tee /etc/fail2ban/jail.local
 [sshd]
 enabled = true
@@ -657,6 +665,7 @@ maxretry = 5
 bantime = 3600
 findtime = 600
 F2BCONF
+fi
 sudo systemctl enable --now fail2ban 2>/dev/null
 ok "fail2ban active (5 attempts = 1hr ban)"
 
@@ -864,7 +873,8 @@ if ! grep -qF "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
 fi
 
 # Install systemd units FIRST, then patch them
-sudo cp /srv/ai/systemd/halo-*.service /srv/ai/systemd/halo-*.timer /etc/systemd/system/ 2>/dev/null
+sudo cp /srv/ai/systemd/halo-*.service /etc/systemd/system/ 2>/dev/null || true
+sudo cp /srv/ai/systemd/halo-*.timer /etc/systemd/system/ 2>/dev/null || true
 
 # Replace <YOUR_USER> in the installed copies (not the source)
 sudo sed -i "s/<YOUR_USER>/$HALO_USER/g" /etc/systemd/system/halo-*.service /etc/systemd/system/halo-*.timer 2>/dev/null
@@ -927,7 +937,7 @@ if printf '%s\n' "${SELECTED_SERVICES[@]}" | grep -qx meek; then
     cd /srv/ai
     sudo btrfs subvolume create /srv/ai/meek 2>/dev/null || true
     sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai/meek
-    [ -d /srv/ai/meek/.git ] || git clone https://github.com/stampby/meek /srv/ai/meek
+    if [ -d /srv/ai/meek/.git ]; then git -C /srv/ai/meek pull --ff-only 2>/dev/null || true; else git clone https://github.com/stampby/meek /srv/ai/meek; fi
     mkdir -p /srv/ai/meek/reports
     ok "Meek cloned to /srv/ai/meek/"
 
@@ -956,26 +966,7 @@ echo -e "  ${CYAN}Enabled services:${NC} ${SELECTED_SERVICES[*]}"
 echo ''
 
 # ── CRITICAL: Password change warning ─────────────
-if [ "$CADDY_PASSWORD" = "Caddy" ]; then
-echo ''
-echo -e "${RED}${BOLD}  ╔══════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${RED}${BOLD}  ║                                                              ║${NC}"
-echo -e "${RED}${BOLD}  ║   *** SECURITY WARNING: DEFAULT PASSWORD IN USE ***          ║${NC}"
-echo -e "${RED}${BOLD}  ║                                                              ║${NC}"
-echo -e "${RED}${BOLD}  ║   The Caddy reverse proxy is using the default password.     ║${NC}"
-echo -e "${RED}${BOLD}  ║   Anyone who knows this password can access ALL services.    ║${NC}"
-echo -e "${RED}${BOLD}  ║                                                              ║${NC}"
-echo -e "${RED}${BOLD}  ║   You MUST change it immediately after first boot:           ║${NC}"
-echo -e "${RED}${BOLD}  ║                                                              ║${NC}"
-echo -e "${RED}${BOLD}  ║      /srv/ai/scripts/halo-change-password.sh                 ║${NC}"
-echo -e "${RED}${BOLD}  ║                                                              ║${NC}"
-echo -e "${RED}${BOLD}  ╚══════════════════════════════════════════════════════════════╝${NC}"
-echo ''
-fi
-
 echo -e "  ${BOLD}Next steps:${NC}"
-echo ''
-echo -e "  ${RED}${BOLD}0.${NC} ${RED}${BOLD}CHANGE THE DEFAULT CADDY PASSWORD:${NC}"
 echo -e "     ${BOLD}/srv/ai/scripts/halo-change-password.sh${NC}"
 echo ''
 echo -e "  ${YELLOW}1.${NC} Reboot to activate GPU memory (115GB GTT):"
