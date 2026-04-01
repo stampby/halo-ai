@@ -41,56 +41,39 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 - **Survives Arch rolling release.** Freeze the stack, let pacman update, agents detect if anything broke, thaw to rollback in 30 seconds. This is why halo-ai runs on Arch without fear. *"It's just a flesh wound."*
 - **You own the whole stack.** No package manager decides when your AI server goes down. *"My precious."*
 
-## Quick Install
+## Install — Two Ways
 
-> **Important:** This stack compiles 18 components from source. Due to the complexity, **always run a dry-run first** to catch problems before they happen.
+### Option A — Install Script (on your machine)
 
-### Requirements
+> Compiles 18 components from source. Always dry-run first.
 
-- AMD Strix Halo (Ryzen AI MAX+ 395)
-- Arch Linux (fresh `archinstall` recommended)
-- Internet connection (~25GB downloads)
-- 2-3 hours (compiling from source)
-
-### Step 1 — Clone
+**Requirements:** AMD Strix Halo, Arch Linux, internet, 2-3 hours.
 
 ```bash
 git clone https://github.com/stampby/halo-ai.git
 cd halo-ai
-```
-
-### Step 2 — Dry-run (recommended)
-
-```bash
-./install.sh --dry-run
-```
-
-This validates all 17 steps without touching your system. If it passes, proceed. If not, check the output for errors.
-
-### Step 3 — Install
-
-```bash
-./install.sh
-```
-
-Follow the prompts. Defaults are sensible. Password will be auto-generated if left blank. The script will recommend the dry-run on launch — you can skip it if you already ran it.
-
-### Step 4 — Reboot and start
-
-```bash
+./install.sh --dry-run    # Validate first
+./install.sh              # Build everything
 sudo reboot
-# After reboot:
-sudo systemctl start halo-llama-server halo-caddy
-# (full command shown at end of install)
 ```
 
-### Can't Install? Use the USB
+Follow the prompts. Defaults are sensible. Password auto-generated if left blank.
 
-Skip the install script entirely. Flash halo-ai onto a USB SSD, plug it into any Strix Halo machine, boot, talk. Full guide: [USB-PORTABLE.md](docs/USB-PORTABLE.md)
+### Option B — USB Drive (plug in and boot)
+
+> Skip the install entirely. Full stack on a USB SSD. Plug into any Strix Halo machine, boot, talk.
+
+**Requirements:** 256GB+ USB SSD (Samsung T7 recommended), any Strix Halo machine.
 
 ```bash
-sudo ./scripts/halo-build-usb.sh /dev/sdX
+git clone https://github.com/stampby/halo-ai.git
+cd halo-ai
+sudo ./scripts/halo-build-usb.sh /dev/sdX    # Build to USB
 ```
+
+Boot from USB → autologin → voice assistant starts. Nothing touches the host machine.
+
+Full guide: [USB-PORTABLE.md](docs/USB-PORTABLE.md)
 
 ### What NOT to do
 
