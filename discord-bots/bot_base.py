@@ -16,7 +16,7 @@ LLM_MODEL = os.environ.get("LLM_MODEL", "q")
 logger = logging.getLogger("halo-discord")
 
 # Documentation base URL
-DOCS_BASE = "https://github.com/bong-water-water-bong/halo-ai/blob/main"
+DOCS_BASE = "https://github.com/stampby/halo-ai/blob/main"
 
 # Agent-to-documentation mapping — each agent knows their domain docs
 AGENT_DOCS = {
@@ -24,7 +24,7 @@ AGENT_DOCS = {
         ("README", f"{DOCS_BASE}/README.md"),
         ("Agents & Family", f"{DOCS_BASE}/docs/AGENTS.md"),
         ("Benchmarks", f"{DOCS_BASE}/BENCHMARKS.md"),
-        ("Benchmarks Site", "https://bong-water-water-bong.github.io/benchmarks/"),
+        ("Benchmarks Site", "https://stampby.github.io/benchmarks/"),
         ("Blueprints", f"{DOCS_BASE}/docs/BLUEPRINTS.md"),
     ],
     "bounty": [
@@ -55,7 +55,7 @@ ALL_DOCS = [
     ("Stack Protection", f"{DOCS_BASE}/docs/STACK-PROTECTION.md"),
     ("Troubleshooting", f"{DOCS_BASE}/docs/TROUBLESHOOTING.md"),
     ("Benchmarks", f"{DOCS_BASE}/BENCHMARKS.md"),
-    ("Benchmarks Site", "https://bong-water-water-bong.github.io/benchmarks/"),
+    ("Benchmarks Site", "https://stampby.github.io/benchmarks/"),
     ("Agents & Family", f"{DOCS_BASE}/docs/AGENTS.md"),
     ("VPN Access", f"{DOCS_BASE}/docs/VPN.md"),
     ("Blueprints", f"{DOCS_BASE}/docs/BLUEPRINTS.md"),
@@ -68,7 +68,7 @@ FOCUS_GUARDRAIL = (
     "\n- You have a personality and backstory. You can share a couple of personal details "
     "if asked, but always steer the conversation back to halo-ai within 2-3 messages."
     "\n- Your primary goal is helping people USE halo-ai — install it, configure it, troubleshoot it."
-    "\n- Always encourage users to visit https://github.com/bong-water-water-bong/halo-ai "
+    "\n- Always encourage users to visit https://github.com/stampby/halo-ai "
     "to download and set up the stack themselves."
     "\n- If conversation drifts off-topic for more than 2 exchanges, bring it back: "
     "'Anyway — are you running halo-ai yet? Let me help you get set up.'"

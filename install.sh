@@ -1,7 +1,7 @@
 #!/bin/bash
 # halo-ai — designed and built by the architect
 # Bare-metal AI stack for AMD Strix Halo (Arch Linux)
-# https://github.com/bong-water-water-bong/halo-ai
+# https://github.com/stampby/halo-ai
 set -euo pipefail
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'
@@ -40,7 +40,7 @@ BANNER
 echo -e "${NC}"
 echo -e "${DIM}  Bare-metal AI stack for AMD Strix Halo${NC}"
 echo -e "${DIM}  designed and built by the architect${NC}"
-echo -e "${DIM}  github.com/bong-water-water-bong/halo-ai${NC}"
+echo -e "${DIM}  github.com/stampby/halo-ai${NC}"
 echo ''
 
 INSTALL_START=$(date +%s)
@@ -68,31 +68,31 @@ prompt() {
     printf -v "$var_name" '%s' "${input:-$default}"
 }
 
-# Helper: prompt for password (no echo)
+# Helper: prompt for password (no echo, allows blank for auto-generate)
 prompt_secret() {
     local var_name="$1" prompt_text="$2"
-    while true; do
-        read -srp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text: " input
-        echo ''
-        if [ -n "$input" ]; then
-            printf -v "$var_name" '%s' "$input"
-            return
-        fi
-        warn "Password cannot be empty. Please try again."
-    done
+    read -srp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text: " input
+    echo ''
+    printf -v "$var_name" '%s' "$input"
 }
 
 # 1. System username
 DETECTED_USER=$(whoami)
 prompt HALO_USER "System username" "$DETECTED_USER"
+# Validate username — prevents injection into sed, systemd units, SSH config, /etc/hosts
+[[ "$HALO_USER" =~ ^[a-z_][a-z0-9_-]*$ ]] || fail "Invalid username: '$HALO_USER' — must be a valid Linux username"
 ok "Username: $HALO_USER"
 
 # 2. Caddy password
 echo ''
-info "Caddy reverse proxy password (protects web access)"
-info "Default: Caddy — change this immediately after install!"
-prompt_secret CADDY_PASSWORD "Caddy password (leave blank for 'Caddy' — CHANGE AFTER INSTALL)"
-CADDY_PASSWORD="${CADDY_PASSWORD:-Caddy}"
+info "Caddy reverse proxy password (protects ALL web services)"
+info "A strong password will be auto-generated if you leave it blank."
+prompt_secret CADDY_PASSWORD "Caddy password (blank = auto-generate)"
+if [ -z "$CADDY_PASSWORD" ]; then
+    CADDY_PASSWORD=$(openssl rand -base64 16)
+    warn "Auto-generated password: $CADDY_PASSWORD"
+    warn "SAVE THIS — you will need it to access your services."
+fi
 ok "Caddy password set (will be hashed during install)"
 
 # 3. SearXNG secret key
@@ -112,6 +112,8 @@ ok "Dashboard key: ${DASHBOARD_API_KEY:0:16}..."
 # 5. Server hostname
 echo ''
 prompt HALO_HOSTNAME "Server hostname" "strixhalo"
+# Validate hostname — prevents injection into Caddyfile, sed, /etc/hosts
+[[ "$HALO_HOSTNAME" =~ ^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$ ]] || fail "Invalid hostname: '$HALO_HOSTNAME'"
 ok "Hostname: $HALO_HOSTNAME"
 
 # /etc/hosts entries are added later with all subdomains (line ~700)
@@ -212,7 +214,7 @@ step "Cloning halo-ai repo"
 cd /srv/ai
 if [ ! -d .git ]; then
     git init
-    git remote add origin https://github.com/bong-water-water-bong/halo-ai.git
+    git remote add origin https://github.com/stampby/halo-ai.git
 fi
 git fetch origin main
 git checkout -B main origin/main -- configs/ systemd/ scripts/ assets/ docs/ README.md .gitignore 2>/dev/null || \
@@ -361,27 +363,23 @@ step "Installing Vane + n8n + ComfyUI + Kokoro (~15 min)"
 # On March 31, 2026, axios@1.14.1 and axios@0.30.4 were backdoored
 # with a North Korean RAT via plain-crypto-js. Pin to safe versions.
 info "Applying axios supply chain attack mitigation..."
-cat > /tmp/halo-npm-audit.sh << 'AUDIT'
-#!/bin/bash
-# Post-install check for compromised axios versions
-for dir in "$@"; do
-    if [ -d "$dir/node_modules" ]; then
-        # Check for the malicious dependency
-        if [ -d "$dir/node_modules/plain-crypto-js" ]; then
-            echo "CRITICAL: plain-crypto-js found in $dir — COMPROMISED"
-            rm -rf "$dir/node_modules/plain-crypto-js"
-            echo "Removed malicious package. Re-running install..."
+# Shell function — no /tmp script needed (avoids TOCTOU race)
+halo_npm_audit() {
+    for dir in "$@"; do
+        if [ -d "$dir/node_modules" ]; then
+            if [ -d "$dir/node_modules/plain-crypto-js" ]; then
+                echo "CRITICAL: plain-crypto-js found in $dir — COMPROMISED"
+                rm -rf "$dir/node_modules/plain-crypto-js"
+                echo "Removed malicious package."
+            fi
+            AX_VER=$(jq -r .version "$dir/node_modules/axios/package.json" 2>/dev/null)
+            if [ "$AX_VER" = "1.14.1" ] || [ "$AX_VER" = "0.30.4" ]; then
+                echo "CRITICAL: Compromised axios@$AX_VER in $dir — removing"
+                rm -rf "$dir/node_modules/axios"
+            fi
         fi
-        # Check axios version
-        AX_VER=$(node -e "try{console.log(require('$dir/node_modules/axios/package.json').version)}catch(e){}" 2>/dev/null)
-        if [ "$AX_VER" = "1.14.1" ] || [ "$AX_VER" = "0.30.4" ]; then
-            echo "CRITICAL: Compromised axios@$AX_VER in $dir — removing"
-            rm -rf "$dir/node_modules/axios"
-        fi
-    fi
-done
-AUDIT
-chmod +x /tmp/halo-npm-audit.sh
+    done
+}
 ok "Axios supply chain mitigation active"
 
 info "Installing Vane (Perplexica)..."
@@ -390,7 +388,7 @@ if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone http
 # Pin axios to safe version before install
 npm pkg set overrides.axios="1.14.0" 2>/dev/null || true
 yarn install --ignore-scripts && yarn build
-/tmp/halo-npm-audit.sh /srv/ai/vane
+halo_npm_audit /srv/ai/vane
 ok "Vane built (axios pinned safe)"
 
 info "Installing n8n..."
@@ -399,8 +397,8 @@ if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone http
 sudo npm install -g pnpm
 # Pin axios to safe version via pnpm overrides
 pnpm pkg set pnpm.overrides.axios="1.14.0" 2>/dev/null || true
-pnpm install --frozen-lockfile --ignore-scripts && pnpm build
-/tmp/halo-npm-audit.sh /srv/ai/n8n
+pnpm install --ignore-scripts && pnpm build
+halo_npm_audit /srv/ai/n8n
 ok "n8n built (axios pinned safe)"
 
 info "Installing ComfyUI..."
@@ -523,7 +521,7 @@ ok "fail2ban active (5 attempts = 1hr ban)"
 step "Applying configuration & enabling services"
 
 # Generate Caddy password hash and write Caddyfile with subdomain routing
-CADDY_HASH=$(caddy hash-password --plaintext "$CADDY_PASSWORD")
+CADDY_HASH=$(printf '%s' "$CADDY_PASSWORD" | caddy hash-password --stdin)
 cat > /srv/ai/configs/Caddyfile << CADDYEOF
 {
     admin off
@@ -600,7 +598,8 @@ ln -sfn /srv/ai/vane/.next/static /srv/ai/vane/.next/standalone/.next/static 2>/
 ln -sfn /srv/ai/vane/public /srv/ai/vane/.next/standalone/public 2>/dev/null
 ln -sfn /srv/ai/vane/drizzle /srv/ai/vane/.next/standalone/drizzle 2>/dev/null
 # Get model name from llama-server config
-MODEL_NAME=$(grep -oP '(?<=--model /srv/ai/models/)\S+' /srv/ai/systemd/halo-llama-server.service | head -1)
+MODEL_NAME=$(grep -oP '(?<=--model /srv/ai/models/)\S+' /srv/ai/systemd/halo-llama-server.service 2>/dev/null | head -1)
+[ -z "$MODEL_NAME" ] && MODEL_NAME="unknown-model" && warn "Could not detect model name from llama-server config"
 cat > /srv/ai/vane/.next/standalone/data/config.json << VANEEOF
 {
   "modelProviders": [
@@ -676,7 +675,7 @@ body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, 
     <p class="tagline">bare-metal ai stack for AMD Strix Halo</p>
 </div>
 <div class="creds">
-    <p>Login &mdash; <strong>caddy</strong> / <strong>(password set during install)</strong> &mdash; change with halo-change-password.sh</p>
+    <p>Change password: <strong>halo-change-password.sh</strong></p>
 </div>
 <div class="section"><h2>AI Services</h2></div>
 <div class="grid">
@@ -693,11 +692,11 @@ body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, 
 </div>
 <div class="section"><h2>Agents</h2></div>
 <div class="grid">
-    <a class="card" target="_blank" href="https://github.com/bong-water-water-bong/meek"><h3><span class="dot on"></span>Meek</h3><p>Security — 9 Reflex agents guard 24/7</p></a>
-    <a class="card" target="_blank" href="https://github.com/bong-water-water-bong/echo"><h3><span class="dot on"></span>Echo</h3><p>Social media — she speaks for the family</p></a>
+    <a class="card" target="_blank" href="https://github.com/stampby/meek"><h3><span class="dot on"></span>Meek</h3><p>Security — 9 Reflex agents guard 24/7</p></a>
+    <a class="card" target="_blank" href="https://github.com/stampby/echo"><h3><span class="dot on"></span>Echo</h3><p>Social media — she speaks for the family</p></a>
 </div>
 <div class="footer">
-    <p>109 tok/s &middot; 115GB GPU &middot; zero containers &middot; <a href="https://github.com/bong-water-water-bong/halo-ai">GitHub</a></p>
+    <p>109 tok/s &middot; 115GB GPU &middot; zero containers &middot; <a href="https://github.com/stampby/halo-ai">GitHub</a></p>
     <p style="font-size:0.75rem;color:#555;margin-top:4px;">designed and built by the architect</p>
 </div>
 </body>
@@ -705,15 +704,16 @@ body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, 
 LANDINGEOF
 
 # Replace landing page URLs with actual hostname
-sed -i "s|CHAT_URL|http://chat.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
-sed -i "s|RESEARCH_URL|http://research.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
-sed -i "s|COMFYUI_URL|http://comfyui.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
-sed -i "s|N8N_URL|http://n8n.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
-sed -i "s|SEARCH_URL|http://search.$HALO_HOSTNAME|g" /srv/ai/configs/index.html
+sed -i -e "s|CHAT_URL|http://chat.$HALO_HOSTNAME|g" \
+       -e "s|RESEARCH_URL|http://research.$HALO_HOSTNAME|g" \
+       -e "s|COMFYUI_URL|http://comfyui.$HALO_HOSTNAME|g" \
+       -e "s|N8N_URL|http://n8n.$HALO_HOSTNAME|g" \
+       -e "s|SEARCH_URL|http://search.$HALO_HOSTNAME|g" \
+       /srv/ai/configs/index.html
 ok "Landing page created"
 
 # Add hostname + subdomains to /etc/hosts
-if ! grep -q "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
+if ! grep -qF "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
     echo "127.0.0.1    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME" | sudo tee -a /etc/hosts
     ok "Hostname and subdomains added to /etc/hosts"
 fi
@@ -782,7 +782,7 @@ if printf '%s\n' "${SELECTED_SERVICES[@]}" | grep -qx meek; then
     cd /srv/ai
     sudo btrfs subvolume create /srv/ai/meek 2>/dev/null || true
     sudo chown -R "$HALO_USER":"$HALO_USER" /srv/ai/meek
-    [ -d /srv/ai/meek/.git ] || git clone https://github.com/bong-water-water-bong/meek /srv/ai/meek
+    [ -d /srv/ai/meek/.git ] || git clone https://github.com/stampby/meek /srv/ai/meek
     mkdir -p /srv/ai/meek/reports
     ok "Meek cloned to /srv/ai/meek/"
 

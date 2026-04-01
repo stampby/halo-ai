@@ -65,19 +65,19 @@ jobs:
 
             ### Install
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/install.sh | bash
+            curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | bash
             ```
 
             ### Python package
             ```bash
-            pip install halo-ai --index-url https://ghcr.io/bong-water-water-bong
+            pip install halo-ai --index-url https://ghcr.io/stampby
             ```
 
             *Stamped by the architect*
 
       - name: Publish to GitHub Packages (PyPI)
         run: |
-          twine upload --repository-url https://ghcr.io/bong-water-water-bong \
+          twine upload --repository-url https://ghcr.io/stampby \
             --username ${{ github.actor }} \
             --password ${{ secrets.GITHUB_TOKEN }} \
             dist/* || echo "PyPI upload skipped — using GitHub Releases instead"

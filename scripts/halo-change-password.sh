@@ -1,7 +1,7 @@
 #!/bin/bash
 # halo-ai — designed and built by the architect
 # halo-change-password.sh — Change the Caddy reverse proxy password
-# Part of halo-ai: https://github.com/bong-water-water-bong/halo-ai
+# Part of halo-ai: https://github.com/stampby/halo-ai
 set -euo pipefail
 
 CADDYFILE="/srv/ai/configs/Caddyfile"

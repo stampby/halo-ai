@@ -131,6 +131,37 @@ done
 
 supply_chain_total=$((npm_malicious + npm_vulns + pip_vulns))
 
+# ── Install Script Audit ─────────────────────────────────
+
+install_issues=0
+
+# Check for downloads without checksum verification
+no_checksum=$(count_grep "grep -n 'wget\|curl.*-o\|curl.*-O' '$REPO_DIR/install.sh' | grep -v sha256 | grep -v checksum")
+[ "$no_checksum" -gt 0 ] && install_issues=$((install_issues + no_checksum))
+
+# Check for unvalidated user input used in sed/tee/systemd
+unsafe_sed=$(count_grep "grep -n 'sed.*\$HALO_\|sed.*\$CADDY_\|tee.*\$HALO_' '$REPO_DIR/install.sh' | grep -v 'Validate'")
+
+# Check for scripts written to /tmp
+tmp_scripts=$(count_grep "grep -n '> /tmp/.*\.sh\|cat > /tmp/' '$REPO_DIR/install.sh'")
+[ "$tmp_scripts" -gt 0 ] && install_issues=$((install_issues + tmp_scripts))
+
+# Check for weak default passwords
+weak_defaults=$(count_grep "grep -n 'PASSWORD:-\|PASSWORD.*Caddy\|password.*default' '$REPO_DIR/install.sh' | grep -iv 'auto-generate\|openssl rand'")
+[ "$weak_defaults" -gt 0 ] && install_issues=$((install_issues + weak_defaults))
+
+# Check for input validation on HALO_USER and HALO_HOSTNAME
+has_user_validation=$(grep -c 'HALO_USER.*=~\|HALO_USER.*fail' "$REPO_DIR/install.sh" 2>/dev/null || echo 0)
+has_host_validation=$(grep -c 'HALO_HOSTNAME.*=~\|HALO_HOSTNAME.*fail' "$REPO_DIR/install.sh" 2>/dev/null || echo 0)
+[ "$has_user_validation" -eq 0 ] && install_issues=$((install_issues + 1))
+[ "$has_host_validation" -eq 0 ] && install_issues=$((install_issues + 1))
+
+# Shellcheck (if available)
+shellcheck_issues=0
+if command -v shellcheck >/dev/null; then
+    shellcheck_issues=$(shellcheck -S warning "$REPO_DIR/install.sh" 2>/dev/null | grep -c "^In " || echo 0)
+fi
+
 # ── Severity Calculation ───────────────────────────────
 
 critical=0; high=0; medium=0; low=0
@@ -147,6 +178,9 @@ critical=0; high=0; medium=0; low=0
 [ "$unpinned" -gt 0 ] && medium=$((medium + 1))
 [ "$gitignore_issues" -gt 0 ] && medium=$((medium + 1))
 [ "$env_perms" != "600" ] && [ "$env_perms" != "n/a" ] && low=$((low + 1))
+[ "$install_issues" -gt 0 ] && high=$((high + 1))
+[ "$shellcheck_issues" -gt 0 ] && medium=$((medium + 1))
+[ "$tmp_scripts" -gt 0 ] && high=$((high + 1))
 
 if [ "$critical" -gt 0 ]; then
     verdict="NEEDS ATTENTION"; emoji="🔴"
@@ -166,7 +200,7 @@ pass_or_review() { [ "$1" -eq 0 ] && echo "PASS" || echo "REVIEW"; }
 read -r -d '' discord_msg << MSGEOF || true
 $emoji **Security Audit — $DATE**
 
-Automated sweep by Meek. 12 checks across the full stack.
+Automated sweep by Meek. 17 checks across the full stack.
 
 \`\`\`
 Services exposed to network:   $exposed_services $(ok_or_warn $exposed_services)
@@ -181,6 +215,11 @@ Secrets in git history:        $git_secrets $(ok_or_warn $git_secrets)
 npm malicious packages:        $npm_malicious $(ok_or_warn $npm_malicious)
 npm critical/high vulns:       $npm_vulns $(ok_or_warn $npm_vulns)
 pip malicious packages:        $pip_vulns $(ok_or_warn $pip_vulns)
+Install script issues:         $install_issues $(ok_or_warn $install_issues)
+Scripts written to /tmp:       $tmp_scripts $(ok_or_warn $tmp_scripts)
+Input validation present:      $((has_user_validation + has_host_validation))/2 $([ "$has_user_validation" -gt 0 ] && [ "$has_host_validation" -gt 0 ] && echo "✅" || echo "⚠️")
+Shellcheck warnings:           $shellcheck_issues $(ok_or_warn $shellcheck_issues)
+Downloads w/o checksum:        $no_checksum $(ok_or_warn $no_checksum)
 \`\`\`
 
 **Severity: $critical critical · $high high · $medium medium · $low low**
@@ -215,13 +254,18 @@ cat > "$report_file" << MDEOF
 | npm malicious packages | $npm_malicious | $(pass_or_review $npm_malicious) |
 | npm critical/high vulns | $npm_vulns | $(pass_or_review $npm_vulns) |
 | pip malicious packages | $pip_vulns | $(pass_or_review $pip_vulns) |
+| Install script issues | $install_issues | $(pass_or_review $install_issues) |
+| Scripts written to /tmp | $tmp_scripts | $(pass_or_review $tmp_scripts) |
+| Input validation (user/host) | $((has_user_validation + has_host_validation))/2 | $([ "$has_user_validation" -gt 0 ] && [ "$has_host_validation" -gt 0 ] && echo "PASS" || echo "REVIEW") |
+| Shellcheck warnings | $shellcheck_issues | $(pass_or_review $shellcheck_issues) |
+| Downloads without checksum | $no_checksum | $(pass_or_review $no_checksum) |
 
 ## Environment
 
 - **Date:** $TIMESTAMP
 - **Branch:** $(git -C "$REPO_DIR" branch --show-current 2>/dev/null || echo 'unknown')
 - **Commit:** $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo 'unknown')
-- **Scanner:** halo-security-audit.sh v2.0 (supply chain auditing)
+- **Scanner:** halo-security-audit.sh v3.0 (supply chain + install script auditing)
 
 ---
 *Automated scan by Meek, Security Chief*

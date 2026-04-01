@@ -4,7 +4,7 @@ pkgver=1.0.0
 pkgrel=1
 pkgdesc="Bare-metal AI stack for AMD Strix Halo — 109 tok/s, zero containers, 115GB GPU memory"
 arch=('x86_64')
-url="https://github.com/bong-water-water-bong/halo-ai"
+url="https://github.com/stampby/halo-ai"
 license=('Apache-2.0')
 depends=(
     'python'

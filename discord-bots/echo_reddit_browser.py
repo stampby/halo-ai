@@ -202,9 +202,18 @@ class EchoRedditBrowser:
 
     # --- Login ---
 
-    async def login(self):
-        """Open browser for manual Reddit login, save cookies."""
+    async def login(self, username: str = None, password: str = None):
+        """Headless browser Reddit login via Playwright + xvfb.
+
+        Usage: xvfb-run python echo_reddit_browser.py login <username> <password>
+        """
         from playwright.async_api import async_playwright
+
+        if not username or not password:
+            print("Usage: xvfb-run python echo_reddit_browser.py login <username> <password>")
+            return
+
+        print(f"\n=== Echo Reddit Login — {username} ===")
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=False)
@@ -214,25 +223,66 @@ class EchoRedditBrowser:
             )
             page = await context.new_page()
 
-            await page.goto("https://www.reddit.com/login")
-            print("\n=== LOG IN TO REDDIT ===")
-            print("Browser is open. Log in to your Reddit account.")
-            print("Press ENTER here when you're logged in and see your homepage.\n")
-            input("Waiting... press ENTER when done: ")
+            try:
+                # Go to old Reddit login — simpler form
+                print("Loading login page...")
+                await page.goto("https://old.reddit.com/login", wait_until="networkidle")
+                await asyncio.sleep(2)
 
-            # Save cookies
-            cookies = await context.cookies()
-            self._save_cookies(cookies)
-            print(f"Saved {len(cookies)} cookies to {COOKIES_FILE}")
+                # Fill in the login form
+                print("Filling credentials...")
+                await page.fill('input[name="user"]', username)
+                await page.fill('input[name="passwd"]', password)
+                await asyncio.sleep(0.5)
 
-            # Refresh cookies after login to capture everything
-            await page.goto("https://www.reddit.com")
-            await asyncio.sleep(2)
-            cookies = await context.cookies()
-            self._save_cookies(cookies)
-            print(f"Refreshed — {len(cookies)} cookies saved.")
+                # Submit
+                print("Submitting...")
+                await page.click('button[type="submit"]')
+                await asyncio.sleep(5)
 
-            await browser.close()
+                # Check if we landed on the homepage (success) or still on login (fail)
+                current = page.url
+                content = await page.content()
+                print(f"After login, URL: {current}")
+
+                if "login" in current.lower() and "error" in content.lower():
+                    await page.screenshot(path=str(DATA_DIR / "login_fail.png"))
+                    print("Login failed — check credentials. Screenshot saved.")
+                    return
+
+                # Navigate to verify
+                await page.goto("https://old.reddit.com/", wait_until="networkidle")
+                await asyncio.sleep(2)
+
+                # Check for logged-in indicator
+                logged_in = await page.locator(".user a").first.text_content() if await page.locator(".user a").count() > 0 else None
+                if logged_in:
+                    print(f"Logged in as: {logged_in}")
+                else:
+                    print("Login may have succeeded — saving cookies anyway.")
+
+                # Save cookies
+                cookies = await context.cookies()
+                # Convert to our format
+                saved = []
+                for c in cookies:
+                    saved.append({
+                        "name": c["name"],
+                        "value": c["value"],
+                        "domain": c.get("domain", ".reddit.com"),
+                        "path": c.get("path", "/"),
+                    })
+
+                self._save_cookies(saved)
+                print(f"Saved {len(saved)} cookies to {COOKIES_FILE}")
+                print("Done. Echo is ready to post.")
+
+            except Exception as e:
+                await page.screenshot(path=str(DATA_DIR / "login_error.png"))
+                print(f"Error: {e}")
+                print("Screenshot saved to data/reddit/login_error.png")
+            finally:
+                await browser.close()
 
     # --- Scanning (RSS/JSON, no API) ---
 
@@ -634,7 +684,9 @@ async def cli():
     cmd = args[0]
 
     if cmd == "login":
-        await echo.login()
+        uname = args[1] if len(args) > 1 else None
+        passwd = args[2] if len(args) > 2 else None
+        await echo.login(uname, passwd)
 
     elif cmd == "status":
         s = echo.status()

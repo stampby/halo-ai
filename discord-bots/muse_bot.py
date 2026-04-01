@@ -1,10 +1,16 @@
 # halo-ai — stamped by the architect
-"""Muse — session musician, entertainment, voice chat support."""
+"""Muse — session musician, entertainment, voice chat support, game nights & trivia."""
 
 import io
+import asyncio
+import random
+from datetime import datetime, timezone, timedelta
+
 import aiohttp
-from bot_base import HaloBot
 import discord
+from discord.ext import tasks
+
+from bot_base import HaloBot
 
 # Kokoro TTS endpoint — runs locally on Strix Halo
 KOKORO_URL = "http://localhost:8083"
@@ -216,6 +222,152 @@ class MuseBot(HaloBot):
                 await message.reply(chunk, mention_author=False)
             # Also speak it if they're in voice
             await self.speak_response(message, response)
+
+
+    # --- Trivia & Game Nights ---
+
+    TRIVIA_CHANNEL_NAME = "general"  # Where Muse posts trivia/game nights
+    GAME_NIGHT_DAY = 5  # Saturday (0=Mon, 5=Sat)
+    TRIVIA_DAY = 2  # Wednesday
+
+    TRIVIA_CATEGORIES = [
+        {
+            "theme": "Music",
+            "questions": [
+                ("Who played the guitar solo on 'Hotel California'?", "Don Felder and Joe Walsh"),
+                ("What instrument does Muse play best?", "All of them. But if she had to pick — piano."),
+                ("What year did Nirvana release 'Nevermind'?", "1991"),
+                ("Which blues guitarist was known as 'Slowhand'?", "Eric Clapton"),
+                ("What key is 'Stairway to Heaven' in?", "A minor"),
+            ],
+        },
+        {
+            "theme": "Tech & AI",
+            "questions": [
+                ("What does LLM stand for?", "Large Language Model"),
+                ("What GPU architecture does Strix Halo use?", "RDNA 3.5 (gfx1151)"),
+                ("How much unified memory does the architect's system have?", "128GB LPDDR5"),
+                ("What does ROCm stand for?", "Radeon Open Compute"),
+                ("How many tokens per second does Qwen3-30B-A3B hit on Strix Halo?", "109 t/s decode"),
+            ],
+        },
+        {
+            "theme": "Random Fun",
+            "questions": [
+                ("What's the most common key for pop songs?", "C major / G major"),
+                ("How many strings does a standard bass guitar have?", "4"),
+                ("What does 'sudo' stand for?", "superuser do"),
+                ("What color is Bounty's embed?", "Purple (0xE040FB)"),
+                ("Who is Echo married to?", "Halo"),
+            ],
+        },
+    ]
+
+    async def on_ready(self):
+        await super().on_ready()
+        self.add_listener(self._on_voice_state_update, "on_voice_state_update")
+        # Start the scheduled events loop
+        if not self._weekly_events.is_running():
+            self._weekly_events.start()
+
+    def _get_event_channel(self, guild: discord.Guild) -> discord.TextChannel | None:
+        for ch in guild.text_channels:
+            if ch.name == self.TRIVIA_CHANNEL_NAME:
+                return ch
+        # Fallback to first writable channel
+        for ch in guild.text_channels:
+            if ch.permissions_for(guild.me).send_messages:
+                return ch
+        return None
+
+    @tasks.loop(hours=1)
+    async def _weekly_events(self):
+        """Check once an hour if it's time for trivia or game night."""
+        now = datetime.now(timezone.utc)
+        hour = now.hour
+        weekday = now.weekday()
+
+        # Wednesday 7pm UTC — Trivia
+        if weekday == self.TRIVIA_DAY and hour == 19:
+            for guild in self.guilds:
+                ch = self._get_event_channel(guild)
+                if ch:
+                    await self._run_trivia(ch)
+
+        # Saturday 8pm UTC — Game Night announcement
+        if weekday == self.GAME_NIGHT_DAY and hour == 20:
+            for guild in self.guilds:
+                ch = self._get_event_channel(guild)
+                if ch:
+                    await self._announce_game_night(ch)
+
+    @_weekly_events.before_loop
+    async def _before_events(self):
+        await self.wait_until_ready()
+
+    async def _run_trivia(self, channel: discord.TextChannel):
+        """Run a trivia round — 5 questions, react to answer."""
+        category = random.choice(self.TRIVIA_CATEGORIES)
+        questions = random.sample(category["questions"], min(5, len(category["questions"])))
+
+        embed = discord.Embed(
+            title=f"Trivia Night — {category['theme']}",
+            description=(
+                "Hey everyone, Muse here. It's trivia time.\n"
+                "I'll drop 5 questions — try to answer in chat before I reveal.\n"
+                "No prizes, just bragging rights and my respect."
+            ),
+            color=self.color,
+        )
+        embed.set_footer(text="Muse trivia | halo-ai")
+        await channel.send(embed=embed)
+
+        for i, (question, answer) in enumerate(questions, 1):
+            await asyncio.sleep(3)
+            q_embed = discord.Embed(
+                title=f"Question {i}",
+                description=question,
+                color=self.color,
+            )
+            await channel.send(embed=q_embed)
+
+            # Wait 30 seconds for answers
+            await asyncio.sleep(30)
+
+            await channel.send(f"**Answer:** {answer}")
+            await asyncio.sleep(2)
+
+        await channel.send(
+            "*That's a wrap. Same time next week — bring your A-game.*"
+        )
+
+    async def _announce_game_night(self, channel: discord.TextChannel):
+        """Announce game night."""
+        games = [
+            "Cards Against Humanity online",
+            "Gartic Phone",
+            "skribbl.io",
+            "GeoGuessr",
+            "Jackbox (if someone's got it)",
+            "Among Us",
+            "chess tournament",
+        ]
+        pick = random.choice(games)
+
+        embed = discord.Embed(
+            title="Game Night",
+            description=(
+                f"It's Saturday. You know what that means.\n\n"
+                f"Tonight's vibe: **{pick}**\n\n"
+                f"Drop a reaction if you're in. "
+                f"Voice channel opens in 30 min.\n\n"
+                f"*No skill required. Just show up.*"
+            ),
+            color=self.color,
+        )
+        embed.set_footer(text="Muse game night | halo-ai")
+        msg = await channel.send(embed=embed)
+        await msg.add_reaction("\U0001F3AE")  # controller emoji
 
 
 if __name__ == "__main__":

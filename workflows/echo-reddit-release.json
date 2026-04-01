@@ -89,7 +89,7 @@
         "url": "https://discord.com/api/webhooks/{{ $env.DISCORD_WEBHOOK_ID }}/{{ $env.DISCORD_WEBHOOK_TOKEN }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ content: '📢 **New Release Draft Ready**\\n\\n**' + $json.title + '**\\n\\nQueued for r/' + $json.subreddit + '. Review and approve in the Reddit bridge.\\n\\n`python reddit_bridge.py queue`', username: 'Echo', avatar_url: 'https://raw.githubusercontent.com/bong-water-water-bong/halo-ai/main/assets/avatars/echo.svg' }) }}",
+        "jsonBody": "={{ JSON.stringify({ content: '📢 **New Release Draft Ready**\\n\\n**' + $json.title + '**\\n\\nQueued for r/' + $json.subreddit + '. Review and approve in the Reddit bridge.\\n\\n`python reddit_bridge.py queue`', username: 'Echo', avatar_url: 'https://raw.githubusercontent.com/stampby/halo-ai/main/assets/avatars/echo.svg' }) }}",
         "options": {}
       },
       "id": "discord-1",

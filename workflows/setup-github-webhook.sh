@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-REPO="bong-water-water-bong/halo-ai"
+REPO="stampby/halo-ai"
 # n8n webhook URL (through Caddy reverse proxy)
 WEBHOOK_URL="${1:-https://strixhalo/webhooks/github-release}"
 

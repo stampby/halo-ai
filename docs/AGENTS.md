@@ -118,7 +118,7 @@ This is why halo-ai survives on Arch. The agents are the safety net. Out of the 
 - **Reports:** rule changes, blocked connections, exposed service alerts
 
 ### shadow — Integrity + SSH Mesh `#ff9800`
-- **Watches:** SHA256 hashes of critical configs, SSH host keys, [mixer](https://github.com/bong-water-water-bong/mixer) mesh status
+- **Watches:** SHA256 hashes of critical configs, SSH host keys, [mixer](https://github.com/stampby/mixer) mesh status
 - **Acts when:** a config file changes, host key mismatch, mesh snapshot needed
 - **Distributes:** snapshots across the mesh when network is quiet (watchdog, no timer)
 - **Reports:** file changes detected, snapshots distributed, mesh health

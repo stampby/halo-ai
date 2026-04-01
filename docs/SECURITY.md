@@ -452,7 +452,7 @@ This should show only Caddy (on `0.0.0.0:443` / `0.0.0.0:8443`) and sshd (on `0.
 
 ## SSH Mixer — Distributed Mesh Snapshots
 
-The [mixer](https://github.com/bong-water-water-bong/mixer) is Shadow's distributed backup system. It ensures no single machine is a single point of failure.
+The [mixer](https://github.com/stampby/mixer) is Shadow's distributed backup system. It ensures no single machine is a single point of failure.
 
 ### How it works
 

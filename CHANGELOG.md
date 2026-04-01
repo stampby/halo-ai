@@ -18,7 +18,7 @@ First public release.
 - Discord bot squad: Echo, Bounty, Meek, Amp
 - Automation pipeline: GitHub → n8n → agents → Reddit/Discord
 - Full security audit and hardening
-- Benchmark site: bong-water-water-bong.github.io/benchmarks
+- Benchmark site: stampby.github.io/benchmarks
 - GitHub Packages with CI/CD release pipeline
 
 ---

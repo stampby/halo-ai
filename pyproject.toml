@@ -34,9 +34,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/bong-water-water-bong/halo-ai"
-Repository = "https://github.com/bong-water-water-bong/halo-ai"
-Documentation = "https://github.com/bong-water-water-bong/halo-ai/tree/main/docs"
+Homepage = "https://github.com/stampby/halo-ai"
+Repository = "https://github.com/stampby/halo-ai"
+Documentation = "https://github.com/stampby/halo-ai/tree/main/docs"
 
 [project.scripts]
 halo = "scripts.halo:main"

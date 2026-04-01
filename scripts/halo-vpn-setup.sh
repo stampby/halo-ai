@@ -182,7 +182,7 @@ cat << 'BANNER'
 BANNER
 echo -e "${NC}"
 echo -e "${DIM}  WireGuard VPN Setup${NC}"
-echo -e "${DIM}  github.com/bong-water-water-bong/halo-ai${NC}"
+echo -e "${DIM}  github.com/stampby/halo-ai${NC}"
 echo ''
 
 # ── Preflight ─────────────────────────────────────

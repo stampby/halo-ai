@@ -2,7 +2,7 @@ pkgbase = halo-ai
 	pkgdesc = Bare-metal AI stack for AMD Strix Halo — 109 tok/s, zero containers, 115GB GPU memory
 	pkgver = 1.0.0
 	pkgrel = 1
-	url = https://github.com/bong-water-water-bong/halo-ai
+	url = https://github.com/stampby/halo-ai
 	arch = x86_64
 	license = Apache-2.0
 	depends = python
@@ -27,7 +27,7 @@ pkgbase = halo-ai
 	optdepends = wireguard-tools: VPN remote access
 	optdepends = qrencode: QR codes for VPN client configs
 	optdepends = asciinema: terminal recording
-	source = halo-ai-1.0.0.tar.gz::https://github.com/bong-water-water-bong/halo-ai/archive/refs/heads/main.tar.gz
+	source = halo-ai-1.0.0.tar.gz::https://github.com/stampby/halo-ai/archive/refs/heads/main.tar.gz
 	sha256sums = SKIP
 
 pkgname = halo-ai
