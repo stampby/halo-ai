@@ -84,6 +84,14 @@ sudo systemctl start halo-llama-server halo-caddy
 # (full command shown at end of install)
 ```
 
+### Can't Install? Use the USB
+
+Skip the install script entirely. Flash halo-ai onto a USB SSD, plug it into any Strix Halo machine, boot, talk. Full guide: [USB-PORTABLE.md](docs/USB-PORTABLE.md)
+
+```bash
+sudo ./scripts/halo-build-usb.sh /dev/sdX
+```
+
 ### What NOT to do
 
 - **Do not run as root** — `./install.sh` not `sudo ./install.sh`
