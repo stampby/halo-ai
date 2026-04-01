@@ -140,7 +140,7 @@ Audio input --> Open WebUI or direct API call
     |
     v
 whisper-server :8082
-    |-- GPU-accelerated transcription (whisper-large-v3)
+    |-- GPU-accelerated transcription (whisper-large-v3-turbo)
     |-- Returns text
     |
     v
@@ -208,7 +208,7 @@ Everything lives under `/srv/ai/`, organized as Btrfs subvolumes for snapshot is
 |
 |-- models/                 # GGUF model files
 |   |-- qwen3-30b-a3b-q4_k_m.gguf
-|   `-- whisper-large-v3.bin
+|   `-- whisper-large-v3-turbo.bin
 |
 |-- configs/                # All configuration files
 |   |-- Caddyfile           # Caddy reverse proxy config

@@ -141,7 +141,8 @@ sudo systemctl enable halo-fancontrol
 | Component | Model | Size | Resolution | GPU Memory | Status |
 |-----------|-------|------|-----------|------------|--------|
 | **Wan2.1** | T2V-1.3B | 17 GB | 832×480 | 5.8 GB | Working — text-to-video |
-| **ComfyUI + SDXL** | Various | — | Up to 4K | 115 GB available | Working — image + AnimateDiff |
+| **ComfyUI + FLUX.1** | FLUX.1 schnell | ~12 GB | Up to 4K | 115 GB available | 5.2x faster than SDXL on ROCm 7 |
+| **ComfyUI + SDXL** | SD XL Base 1.0 | ~6.5 GB | Up to 4K | 115 GB available | Fallback — image + AnimateDiff |
 
 ### Music Generation
 

@@ -611,18 +611,24 @@ deactivate
 ok "ComfyUI installed"
 
 # Download image generation models
-progress "Downloading SDXL base model (~6.5GB)..."
+progress "Downloading FLUX.1 schnell (~12GB — fastest, best quality)..."
+wget -q --show-progress 'https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors' \
+    -O /srv/ai/comfyui/models/checkpoints/flux1-schnell.safetensors 2>/dev/null || \
+    warn "FLUX.1 download failed — download manually later"
+[ -f /srv/ai/comfyui/models/checkpoints/flux1-schnell.safetensors ] && ok "FLUX.1 schnell ready"
+
+progress "Downloading SDXL base model (~6.5GB — fallback)..."
 wget -q --show-progress 'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors' \
     -O /srv/ai/comfyui/models/checkpoints/sd_xl_base_1.0.safetensors 2>/dev/null || \
     warn "SDXL download failed — download manually later"
 [ -f /srv/ai/comfyui/models/checkpoints/sd_xl_base_1.0.safetensors ] && ok "SDXL base model ready"
 
-# Download Whisper model for speech-to-text
-progress "Downloading Whisper large-v3 model (~3GB)..."
-wget -q --show-progress 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin' \
-    -O /srv/ai/models/whisper-large-v3.bin 2>/dev/null || \
-    warn "Whisper model download failed — download manually later"
-[ -f /srv/ai/models/whisper-large-v3.bin ] && ok "Whisper large-v3 model ready"
+# Download Whisper model for speech-to-text (Turbo: 5.4x faster, ~1% more WER)
+progress "Downloading Whisper large-v3-turbo model (~1.6GB)..."
+wget -q --show-progress 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin' \
+    -O /srv/ai/models/whisper-large-v3-turbo.bin 2>/dev/null || \
+    warn "Whisper turbo download failed — download manually later"
+[ -f /srv/ai/models/whisper-large-v3-turbo.bin ] && ok "Whisper large-v3-turbo ready"
 
 info "Installing Kokoro TTS..."
 cd /srv/ai/kokoro

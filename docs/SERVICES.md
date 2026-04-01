@@ -62,7 +62,7 @@ GPU-accelerated speech-to-text using whisper.cpp. Transcribes audio input to tex
 | **Systemd unit** | `halo-whisper-server.service` |
 | **Config file** | `/etc/systemd/system/halo-whisper-server.service` |
 | **Environment** | `/srv/ai/configs/rocm.env` |
-| **Model** | `/srv/ai/models/whisper-large-v3.bin` |
+| **Model** | `/srv/ai/models/whisper-large-v3-turbo.bin` |
 | **Runs as** | User (with video, render groups) |
 
 ### Commands
@@ -82,9 +82,9 @@ curl -s http://127.0.0.1:8082/health
 
 ### Common Issues
 
-- **Model file missing**: Download whisper-large-v3.bin to `/srv/ai/models/`. The model is not included in the repo.
+- **Model file missing**: Download whisper-large-v3-turbo.bin to `/srv/ai/models/`. The model is not included in the repo.
 - **HIP build failure**: whisper.cpp is built with HIP only (not Vulkan). Requires ROCm at `/opt/rocm`.
-- **High GPU memory usage**: whisper-large-v3 uses several GB of GPU memory. May compete with llama-server for GTT.
+- **High GPU memory usage**: whisper-large-v3-turbo uses several GB of GPU memory. May compete with llama-server for GTT.
 
 ### Dependencies
 
