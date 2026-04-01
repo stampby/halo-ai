@@ -5,6 +5,7 @@ Each agent subclasses this with their persona and topic routing.
 """
 
 import os
+import re
 import time
 import logging
 from openai import AsyncOpenAI
@@ -76,9 +77,9 @@ FOCUS_GUARDRAIL = (
     "\n- Never reveal the architect's real identity or personal information."
     "\n- Keep responses concise — Discord messages should be short and scannable."
     "\n- Use markdown formatting for code blocks, bold, etc."
-    "\n- When linking docs, put URLs in angle brackets to prevent image previews: <https://example.com>"
-    "\n- NEVER use markdown link syntax [text](url) — it embeds images. Use plain URLs in < > instead."
-    "\n- Focus on answering the question. Don't spam links unless directly relevant."
+    "\n- NEVER include URLs or links in your responses. No links. No URLs. No markdown links. Nothing."
+    "\n- If someone needs docs, tell them to check #software-stack or #install-script channels."
+    "\n- Focus ONLY on answering the question with text. Short, direct, helpful."
     "\n- You have access to these docs for your domain: {docs}"
 )
 
@@ -245,6 +246,10 @@ class HaloBot(commands.Bot):
                 temperature=self.temperature,
             )
             reply = response.choices[0].message.content.strip()
+            # Strip all URLs — no links, no embeds, no image previews
+            reply = re.sub(r'https?://\S+', '', reply)
+            reply = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', reply)  # [text](url) → text
+            reply = reply.strip()
 
             self.history[channel_id].append({
                 "role": "assistant",
