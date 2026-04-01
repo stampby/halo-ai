@@ -43,22 +43,20 @@ if [ -f /home/bcloud/halo-ai/discord-bots/.env ]; then
         STATUS="FAIL (exit $EXIT_CODE)"
     fi
 
-    MSG="Dry-run completed: $TIMESTAMP
-Status: $STATUS | Steps: $STEPS/17 | Errors flagged: $ERRORS
-Full log: attached below"
+    MSG='```
+DRY-RUN                                                '"$TIMESTAMP"'
+═══════════════════════════════════════════════════════════════
+Status:  '"$STATUS"'
+Steps:   '"$STEPS"'/17
+Errors:  '"$ERRORS"'
+═══════════════════════════════════════════════════════════════
+```'
 
-    # Post summary
+    # Post one clean code block — no file attachment, no noise
     curl -s -X POST \
         -H "Authorization: Bot $DISCORD_ECHO_TOKEN" \
         -H "Content-Type: application/json" \
         -d "$(python3 -c "import json,sys; print(json.dumps({'content': sys.stdin.read()}))" <<< "$MSG")" \
-        "https://discord.com/api/v10/channels/$CHANGELOG_ID/messages" > /dev/null
-
-    # Upload the clean log as a file attachment
-    curl -s -X POST \
-        -H "Authorization: Bot $DISCORD_ECHO_TOKEN" \
-        -F "files[0]=@$CLEAN_LOG" \
-        -F 'payload_json={"content":"Full terminal output:"}' \
         "https://discord.com/api/v10/channels/$CHANGELOG_ID/messages" > /dev/null
 
     echo "Posted to Discord #changelog"

@@ -198,35 +198,37 @@ pass_or_review() { [ "$1" -eq 0 ] && echo "PASS" || echo "REVIEW"; }
 # ── Build Discord Message ──────────────────────────────
 
 read -r -d '' discord_msg << MSGEOF || true
-$emoji **Security Audit — $DATE**
-
-Automated sweep by Meek. 17 checks across the full stack.
-
 \`\`\`
-Services exposed to network:   $exposed_services $(ok_or_warn $exposed_services)
-Hardcoded secrets in code:     $secrets_found $(ok_or_warn $secrets_found)
-shell=True usage:              $shell_injection $(ok_or_warn $shell_injection)
-SSH host key verify disabled:  $ssh_nocheck $(ok_or_warn $ssh_nocheck)
-Unauthenticated web apps:      $unauth_apps $(ok_or_warn $unauth_apps)
-Unpinned pip dependencies:     $unpinned $(ok_or_warn $unpinned)
-.gitignore coverage:           $gitignore_issues gaps $(ok_or_warn $gitignore_issues)
-.env file permissions:         $env_perms $([ "$env_perms" = "600" ] && echo "✅" || echo "⚠️")
-Secrets in git history:        $git_secrets $(ok_or_warn $git_secrets)
-npm malicious packages:        $npm_malicious $(ok_or_warn $npm_malicious)
-npm critical/high vulns:       $npm_vulns $(ok_or_warn $npm_vulns)
-pip malicious packages:        $pip_vulns $(ok_or_warn $pip_vulns)
-Install script issues:         $install_issues $(ok_or_warn $install_issues)
-Scripts written to /tmp:       $tmp_scripts $(ok_or_warn $tmp_scripts)
-Input validation present:      $((has_user_validation + has_host_validation))/2 $([ "$has_user_validation" -gt 0 ] && [ "$has_host_validation" -gt 0 ] && echo "✅" || echo "⚠️")
-Shellcheck warnings:           $shellcheck_issues $(ok_or_warn $shellcheck_issues)
-Downloads w/o checksum:        $no_checksum $(ok_or_warn $no_checksum)
+MEEK — SECURITY SWEEP                                  $DATE
+═══════════════════════════════════════════════════════════════
+
+  Exposed services         $exposed_services        $(pass_or_review $exposed_services)
+  Hardcoded secrets        $secrets_found        $(pass_or_review $secrets_found)
+  shell=True usage         $shell_injection        $(pass_or_review $shell_injection)
+  SSH verify disabled      $ssh_nocheck        $(pass_or_review $ssh_nocheck)
+  Unauth web apps          $unauth_apps        $(pass_or_review $unauth_apps)
+  Unpinned pip deps        $unpinned        $(pass_or_review $unpinned)
+  .gitignore gaps          $gitignore_issues        $(pass_or_review $gitignore_issues)
+  .env permissions         $env_perms      $([ "$env_perms" = "600" ] && echo "PASS" || echo "REVIEW")
+  Secrets in git           $git_secrets        $(pass_or_review $git_secrets)
+  npm malicious            $npm_malicious        $(pass_or_review $npm_malicious)
+  npm critical/high        $npm_vulns        $(pass_or_review $npm_vulns)
+  pip malicious            $pip_vulns        $(pass_or_review $pip_vulns)
+  Install script           $install_issues        $(pass_or_review $install_issues)
+  /tmp scripts             $tmp_scripts        $(pass_or_review $tmp_scripts)
+  Input validation         $((has_user_validation + has_host_validation))/2     $([ "$has_user_validation" -gt 0 ] && [ "$has_host_validation" -gt 0 ] && echo "PASS" || echo "REVIEW")
+  Shellcheck               $shellcheck_issues        $(pass_or_review $shellcheck_issues)
+  Unverified downloads     $no_checksum        $(pass_or_review $no_checksum)
+
+SEVERITY: $critical critical  $high high  $medium medium  $low low
+VERDICT:  $verdict
+
+Dry-run timer: every 6 hours (results in #changelog)
+Next sweep in 24 hours.
+
+I see everything. I trust nothing. — Meek
+═══════════════════════════════════════════════════════════════
 \`\`\`
-
-**Severity: $critical critical · $high high · $medium medium · $low low**
-**Verdict: $verdict**
-
-Past audits: [GitHub Archive](https://github.com/$GITHUB_REPO/issues?q=label%3Asecurity-audit)
-*Next scan in 24 hours. — Meek, Security Chief*
 MSGEOF
 
 # ── Save Report File ──────────────────────────────────
