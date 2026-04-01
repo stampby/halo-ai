@@ -1,0 +1,21 @@
+# halo-ai — the architect reviews everything critical
+# When branch protection is enabled, these files require architect approval
+
+# Install script — one bad line breaks every install
+install.sh @stampby
+
+# Security — Caddy, systemd, audit scripts
+SECURITY.md @stampby
+configs/Caddyfile @stampby
+systemd/ @stampby
+scripts/halo-security-audit.sh @stampby
+
+# Discord bots — one bad push = spam
+discord-bots/ @stampby
+
+# CI/CD — controls what runs on every push
+.github/ @stampby
+
+# Core docs
+README.md @stampby
+BENCHMARKS.md @stampby

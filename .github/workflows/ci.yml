@@ -35,6 +35,30 @@ jobs:
             bash -n "$f" && echo "OK: $f" || echo "FAIL: $f"
           done
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Check install.sh
+        run: shellcheck install.sh --severity=warning || true
+
+      - name: Check all scripts
+        run: find scripts/ -name "*.sh" -exec shellcheck --severity=warning {} + || true
+
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run install.sh --dry-run
+        run: |
+          chmod +x install.sh
+          ./install.sh --dry-run
+
   build:
     runs-on: ubuntu-latest
     steps:
