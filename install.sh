@@ -446,7 +446,8 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
         make -j"$(nproc)" -s && sudo make install -s || fail "Node.js build failed"
     fi
     sudo corepack enable
-    command -v yarn >/dev/null || sudo npm install -g yarn
+    sudo npm install -g --force yarn 2>/dev/null || true
+    sudo npm install -g --force pnpm 2>/dev/null || true
     rm -rf "$NODE_DIR" 2>/dev/null || true
     ok "Node.js $(node --version) + yarn compiled"
 fi
@@ -456,7 +457,9 @@ step "Rust + Go toolchains (~5 min)"
 if ! command -v cargo >/dev/null; then
     info "Installing Rust toolchain..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source ~/.cargo/env
+    # shellcheck disable=SC1091
+    [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+    export PATH="$HOME/.cargo/bin:$PATH"
 fi
 
 # ── Go (for Caddy) ─────────────────────────────────
@@ -587,14 +590,17 @@ cd /srv/ai/vane
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ItzCrazyKns/Vane .; fi
 # Pin axios to safe version before install
 npm pkg set overrides.axios="1.14.0" 2>/dev/null || true
-yarn install --ignore-scripts && yarn build
+yarn install --ignore-scripts
+# Rebuild native modules that need compilation (better-sqlite3)
+cd node_modules/better-sqlite3 2>/dev/null && yarn build-release && cd /srv/ai/vane || true
+yarn build
 halo_npm_audit /srv/ai/vane
 ok "Vane built (axios pinned safe)"
 
 info "Installing n8n..."
 cd /srv/ai/n8n
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/n8n-io/n8n .; fi
-command -v pnpm >/dev/null || sudo npm install -g pnpm
+command -v pnpm >/dev/null || sudo npm install -g --force pnpm 2>/dev/null || true
 # Pin axios to safe version via pnpm overrides
 pnpm pkg set pnpm.overrides.axios="1.14.0" 2>/dev/null || true
 pnpm install --ignore-scripts && pnpm build
