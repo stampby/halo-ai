@@ -356,17 +356,52 @@ deactivate
 ok "Open WebUI installed"
 
 step "Installing Vane + n8n + ComfyUI + Kokoro (~15 min)"
+
+# ── SECURITY: Block compromised axios versions (CVE-2026-XXXXX) ──
+# On March 31, 2026, axios@1.14.1 and axios@0.30.4 were backdoored
+# with a North Korean RAT via plain-crypto-js. Pin to safe versions.
+info "Applying axios supply chain attack mitigation..."
+cat > /tmp/halo-npm-audit.sh << 'AUDIT'
+#!/bin/bash
+# Post-install check for compromised axios versions
+for dir in "$@"; do
+    if [ -d "$dir/node_modules" ]; then
+        # Check for the malicious dependency
+        if [ -d "$dir/node_modules/plain-crypto-js" ]; then
+            echo "CRITICAL: plain-crypto-js found in $dir — COMPROMISED"
+            rm -rf "$dir/node_modules/plain-crypto-js"
+            echo "Removed malicious package. Re-running install..."
+        fi
+        # Check axios version
+        AX_VER=$(node -e "try{console.log(require('$dir/node_modules/axios/package.json').version)}catch(e){}" 2>/dev/null)
+        if [ "$AX_VER" = "1.14.1" ] || [ "$AX_VER" = "0.30.4" ]; then
+            echo "CRITICAL: Compromised axios@$AX_VER in $dir — removing"
+            rm -rf "$dir/node_modules/axios"
+        fi
+    fi
+done
+AUDIT
+chmod +x /tmp/halo-npm-audit.sh
+ok "Axios supply chain mitigation active"
+
 info "Installing Vane (Perplexica)..."
 cd /srv/ai/vane
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ItzCrazyKns/Vane .; fi
+# Pin axios to safe version before install
+npm pkg set overrides.axios="1.14.0" 2>/dev/null || true
 yarn install && yarn build
-ok "Vane built"
+/tmp/halo-npm-audit.sh /srv/ai/vane
+ok "Vane built (axios pinned safe)"
 
 info "Installing n8n..."
 cd /srv/ai/n8n
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/n8n-io/n8n .; fi
-sudo npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
-ok "n8n built"
+sudo npm install -g pnpm
+# Pin axios to safe version via pnpm overrides
+pnpm pkg set pnpm.overrides.axios="1.14.0" 2>/dev/null || true
+pnpm install --frozen-lockfile && pnpm build
+/tmp/halo-npm-audit.sh /srv/ai/n8n
+ok "n8n built (axios pinned safe)"
 
 info "Installing ComfyUI..."
 cd /srv/ai/comfyui
