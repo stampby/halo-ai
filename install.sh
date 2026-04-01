@@ -102,6 +102,30 @@ echo -e "${DIM}  Builds use all $(nproc) cores in parallel — your machine will
 echo -e "${DIM}  Everything is built natively for your hardware — no containers, no shortcuts.${NC}"
 echo ''
 
+# ── Dry-run recommendation ────────────────────────
+if [ "$DRY_RUN" -eq 0 ]; then
+    echo -e "${CYAN}${BOLD}  ┌──────────────────────────────────────────────────────────┐${NC}"
+    echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+    echo -e "${CYAN}${BOLD}  │   RECOMMENDATION: Run a dry-run first                    │${NC}"
+    echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+    echo -e "${CYAN}${BOLD}  │   This stack compiles 18 components from source.          │${NC}"
+    echo -e "${CYAN}${BOLD}  │   A dry-run validates everything without installing:      │${NC}"
+    echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+    echo -e "${CYAN}${BOLD}  │      ./install.sh --dry-run                               │${NC}"
+    echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+    echo -e "${CYAN}${BOLD}  │   If this is your first install, we strongly recommend    │${NC}"
+    echo -e "${CYAN}${BOLD}  │   running the dry-run to catch issues before they happen. │${NC}"
+    echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+    echo -e "${CYAN}${BOLD}  └──────────────────────────────────────────────────────────┘${NC}"
+    echo ''
+    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Continue with full install? (y/N): " confirm
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+        info "Run ./install.sh --dry-run to validate first."
+        exit 0
+    fi
+    echo ''
+fi
+
 # ── Preflight ──────────────────────────────────────
 step "Preflight checks"
 
