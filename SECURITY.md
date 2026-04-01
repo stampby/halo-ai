@@ -124,3 +124,99 @@ table inet filter {
 ```
 
 Managed by systemd: `sudo systemctl status nftables`
+
+---
+
+## Latest Security Audit — 2026-04-01
+
+**Verdict:** NEEDS ATTENTION
+**Severity:** 1 critical · 3 high · 2 medium · 1 low
+**Scanner:** halo-security-audit.sh v3.0 (supply chain + install script auditing)
+**Commit:** 42a9f2c
+
+| Check | Result | Status |
+|-------|--------|--------|
+| Services exposed to network | 0 | PASS |
+| Hardcoded secrets in code | 0 | PASS |
+| shell=True usage | 5 | REVIEW |
+| SSH StrictHostKeyChecking=no | 6 | REVIEW |
+| Unauthenticated web apps | 2 | REVIEW |
+| Unpinned pip dependencies | 5 | REVIEW |
+| .gitignore coverage | 0 gaps | PASS |
+| .env file permissions | 644 | REVIEW |
+| Secrets in git history | 2 | REVIEW |
+| npm malicious packages | 0 | PASS |
+| npm critical/high vulns | 0 | PASS |
+| pip malicious packages | 0 | PASS |
+| Install script issues | 11 | REVIEW |
+| Scripts written to /tmp | 0 | PASS |
+| Input validation (user/host) | 2/2 | PASS |
+| Shellcheck warnings | 0 | PASS |
+| Downloads without checksum | 10 | REVIEW |
+
+*Automated daily by Meek (Security Chief) at 06:00 UTC. Weekly archives filed as GitHub issues.*
+
+---
+
+## Incident Response — axios Supply Chain Attack (2026-03-31)
+
+**Severity:** CRITICAL
+**Attack:** North Korean group UNC1069 backdoored `axios@1.14.1` and `axios@0.30.4` with a RAT dropper (`plain-crypto-js`)
+**Impact:** halo-ai install script pulls n8n and Vane via npm/pnpm/yarn — both depend on axios
+**Caught by:** Zach ([@zmcnaney](https://github.com/zmcnaney))
+
+### Response Timeline (March 31, 2026 UTC)
+
+| Time | Action |
+|------|--------|
+| 21:35 | Axios pinned to 1.14.0 (last safe version) via npm/pnpm overrides |
+| 21:42 | Supply chain auditing added to Meek's security pipeline |
+| 21:54 | `--ignore-scripts` added to all npm/pnpm/yarn installs |
+| 22:52 | Install script hardened (11 HIGH findings fixed), Meek upgraded to v3.0 |
+
+### Mitigations
+
+- **Version pinning:** axios locked to 1.14.0 via npm/pnpm overrides in install.sh
+- **Post-install audit:** auto-detects and removes `plain-crypto-js` and compromised axios versions
+- **Script blocking:** `--ignore-scripts` on all package installs prevents postinstall RAT execution
+- **Credential rotation:** all 7 Discord bot tokens regenerated
+- **Stack freeze:** no updates until install script stable, 24hr wait policy on all future updates
+- **Automated scanning:** Meek v3.0 checks for known malicious npm/pip packages daily
+
+### If You Installed Before the Patch
+
+1. **Roll back:** `sudo snapper -c root undochange <snapshot>`
+2. **Rotate ALL credentials:** SSH keys, API keys, .env values, Discord tokens
+3. **Re-run the installer** with the patched version (v0.9.1+)
+
+### References
+
+- [Snyk: axios npm compromised](https://snyk.io/blog/axios-npm-package-compromised-supply-chain-attack-delivers-cross-platform/)
+- [StepSecurity: axios supply chain attack](https://www.stepsecurity.io/blog/axios-compromised-on-npm-malicious-versions-drop-remote-access-trojan)
+
+---
+
+## Automated Security Pipeline
+
+Three agents run daily on Strix Halo via systemd timers:
+
+| Agent | Schedule | Scope | Reports to |
+|-------|----------|-------|------------|
+| **Meek** (Security Chief) | 06:00 UTC daily | 17-check audit: secrets, supply chain, install script | Discord #security (pinned) |
+| **Bounty** (Bug Hunter) | 08:00 UTC daily | Dry-run verification, shellcheck, GitHub issues | Discord #security |
+| **Sentinel** (Code Watcher) | 10:00 UTC daily | Repo dirty state, axios pin enforcement, source inspection | Discord #security |
+
+Weekly full audit archived as GitHub issue (Mondays 06:30 UTC) with label `security-audit`.
+
+### Known Malicious Package Watchlist
+
+```
+plain-crypto-js  event-stream  flatmap-stream  ua-parser-js
+coa  rc  colors  faker
+```
+
+All packages scanned across `/srv/ai/n8n`, `/srv/ai/vane`, `/srv/ai/open-webui`, `/srv/ai/comfyui`, `/srv/ai/kokoro`, `/srv/ai/searxng`.
+
+---
+
+*Designed and built by the architect*
