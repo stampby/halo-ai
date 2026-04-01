@@ -7,6 +7,59 @@ set -euo pipefail
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'
 CYAN='\033[0;36m'; MAGENTA='\033[0;35m'; BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
 
+# ── Dry-run mode ──────────────────────────────────
+DRY_RUN=0
+[ "${1:-}" = "--dry-run" ] && DRY_RUN=1
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    sudo()  { echo "  [DRY-RUN] sudo $*"; }
+    wget() {
+        echo "  [DRY-RUN] wget $*"
+        # Create placeholder files so existence checks pass
+        local next_is_output=0
+        for arg in "$@"; do
+            if [ "$next_is_output" -eq 1 ]; then touch "$arg" 2>/dev/null || true; next_is_output=0; continue; fi
+            [ "$arg" = "-O" ] && next_is_output=1
+            [[ "$arg" == http* ]] && touch "$(basename "$arg")" 2>/dev/null || true
+        done
+    }
+    make()  { echo "  [DRY-RUN] make $*"; }
+    cmake() { echo "  [DRY-RUN] cmake $*"; }
+    cargo() { echo "  [DRY-RUN] cargo $*"; }
+    pip()   { echo "  [DRY-RUN] pip $*"; }
+    npm()   { echo "  [DRY-RUN] npm $*"; }
+    pnpm()  { echo "  [DRY-RUN] pnpm $*"; }
+    yarn()  { echo "  [DRY-RUN] yarn $*"; }
+    curl()  { echo "  [DRY-RUN] curl $*"; }
+    go()    { echo "  [DRY-RUN] go $*"; }
+    caddy() { echo "DRY_RUN_HASH"; }
+    tar() {
+        echo "  [DRY-RUN] tar $*"
+        # Create expected directories from tar extraction
+        for arg in "$@"; do
+            [[ "$arg" == *.tar.* || "$arg" == *.xz || "$arg" == -* ]] && continue
+            [ ! -d "$arg" ] && mkdir -p "$arg" 2>/dev/null || true
+        done
+    }
+    _real_cd=$(which cd 2>/dev/null || echo cd)
+    cd() { builtin cd "$@" 2>/dev/null || echo "  [DRY-RUN] cd $*"; }
+    ln() { echo "  [DRY-RUN] ln $*"; }
+    cp() { echo "  [DRY-RUN] cp $*"; }
+    chmod() { echo "  [DRY-RUN] chmod $*"; }
+    # Skip build steps — dry-run only validates config and service wiring
+    SKIP_BUILDS=1
+    source() { echo "  [DRY-RUN] source $*"; }
+    deactivate() { echo "  [DRY-RUN] deactivate"; }
+    git() {
+        if [ "${1:-}" = "clone" ]; then
+            echo "  [DRY-RUN] git clone ${*:2}"
+        else
+            command git "$@"
+        fi
+    }
+    echo -e "\n${YELLOW}${BOLD}  *** DRY-RUN MODE — nothing will be installed ***${NC}\n"
+fi
+
 # ── Halo AI branded output ────────────────────────
 STEP_CURRENT=0
 STEP_TOTAL=17
@@ -64,6 +117,11 @@ echo ''
 # Helper: prompt with default
 prompt() {
     local var_name="$1" prompt_text="$2" default="$3"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        printf -v "$var_name" '%s' "$default"
+        info "[DRY-RUN] $prompt_text → $default"
+        return
+    fi
     read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text [${default}]: " input
     printf -v "$var_name" '%s' "${input:-$default}"
 }
@@ -71,6 +129,11 @@ prompt() {
 # Helper: prompt for password (no echo, allows blank for auto-generate)
 prompt_secret() {
     local var_name="$1" prompt_text="$2"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        printf -v "$var_name" '%s' ""
+        info "[DRY-RUN] $prompt_text → [auto-generate]"
+        return
+    fi
     read -srp "$(echo -e "${BLUE}[halo-ai]${NC}") $prompt_text: " input
     echo ''
     printf -v "$var_name" '%s' "$input"
@@ -156,7 +219,14 @@ render_menu() {
     echo "  a) Select all    n) Select none    Enter) Confirm"
 }
 
-while true; do
+if [ "$DRY_RUN" -eq 1 ]; then
+    render_menu
+    info "[DRY-RUN] All services selected (default)"
+    choice=""
+else
+    choice="loop"
+fi
+while [ "$choice" != "" ]; do
     render_menu
     read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Toggle service (1-${#ALL_SERVICES[@]}, a, n, or Enter to confirm): " choice
     case "$choice" in
@@ -223,6 +293,19 @@ git checkout -B main origin/main -- configs/ systemd/ scripts/ assets/ docs/ REA
 ok "halo-ai repo ready"
 
 # ── ROCm ───────────────────────────────────────────
+if [ "${SKIP_BUILDS:-0}" -eq 1 ]; then
+    step "ROCm GPU runtime [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Building Python 3.12 + 3.13 [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Building Node.js 24 [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Rust + Go toolchains [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Auditing source repos [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Building llama.cpp [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Building Lemonade + Whisper [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Building Qdrant + Caddy [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Installing SearXNG + Open WebUI [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Installing Vane + n8n + ComfyUI + Kokoro [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+    step "Downloading AI models [DRY-RUN SKIP]"; ok "Skipped — dry-run"
+else
 step "ROCm GPU runtime (~10 min download, ~2 min extract)"
 if [ "${NEED_ROCM:-}" = "1" ]; then
     command -v wget >/dev/null || sudo pacman -S --noconfirm --needed wget
@@ -258,6 +341,10 @@ for VER in 3.12.13 3.13.3; do
     wget -q "https://www.python.org/ftp/python/$VER/Python-$VER.tar.xz" || fail "Failed to download Python $VER"
     [ -f "Python-$VER.tar.xz" ] || fail "Python $VER archive missing after download"
     tar xf "Python-$VER.tar.xz" && cd "Python-$VER"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        ok "[DRY-RUN] Python $MAJOR would be compiled here"
+        continue
+    fi
     ./configure --prefix="$PREFIX" --enable-optimizations -q
     make -j"$(nproc)" -s && sudo make altinstall -s || fail "Python $VER build failed"
     # Cleanup — non-fatal
@@ -273,8 +360,12 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
     cd "$NODE_DIR"
     git clone --depth 1 --branch v24.5.0 https://github.com/nodejs/node.git src
     cd src
-    /opt/python313/bin/python3.13 ./configure --prefix=/usr/local
-    make -j"$(nproc)" -s && sudo make install -s || fail "Node.js build failed"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        ok "[DRY-RUN] Node.js would be compiled here"
+    else
+        /opt/python313/bin/python3.13 ./configure --prefix=/usr/local
+        make -j"$(nproc)" -s && sudo make install -s || fail "Node.js build failed"
+    fi
     sudo corepack enable
     sudo npm install -g yarn
     rm -rf "$NODE_DIR" 2>/dev/null || true
@@ -540,6 +631,8 @@ sudo systemctl enable --now fail2ban 2>/dev/null
 ok "fail2ban active (5 attempts = 1hr ban)"
 
 # ── Apply interactive configuration ────────────────
+fi  # end SKIP_BUILDS
+
 step "Applying configuration & enabling services"
 
 # Generate Caddy password hash and write Caddyfile with subdomain routing
