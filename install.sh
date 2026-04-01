@@ -575,7 +575,7 @@ pip install -q --no-deps -e .
 pip install -q torch --index-url https://download.pytorch.org/whl/rocm6.2.4
 pip install -q audioop-lts scipy transformers spacy inflect av uvicorn fastapi soundfile pydantic
 pip install -q --no-deps 'misaki>=0.7.4' 'kokoro>=0.7.16'
-python -m spacy download en_core_web_sm
+python -c "import spacy; spacy.load('en_core_web_sm')" 2>/dev/null || python -m spacy download en_core_web_sm
 deactivate
 ok "Kokoro installed"
 
@@ -722,8 +722,8 @@ ok "Caddy configured with subdomain routing"
 
 mkdir -p /srv/ai/.caddy
 
-# Write SearXNG secret key
-sed -i "s|secret_key: \"CHANGEME-generate-a-new-secret-key\"|secret_key: \"$SEARXNG_KEY\"|" /srv/ai/configs/searxng/settings.yml
+# Write SearXNG secret key (works on fresh install AND re-run)
+sed -i 's|secret_key: ".*"|secret_key: "'"$SEARXNG_KEY"'"|' /srv/ai/configs/searxng/settings.yml
 chmod 640 /srv/ai/configs/searxng/settings.yml
 ok "SearXNG secret key configured"
 
