@@ -408,33 +408,32 @@ class EchoBot(HaloBot):
             return
 
         # --- DM welcome (the real welcome) ---
-        dm_embed = discord.Embed(
-            title="Welcome to halo-ai!",
-            description=(
-                f"Hey **{member.display_name}**, glad you're here.\n\n"
-                "halo-ai is a fully local AI stack — 17 agents running bare-metal "
-                "on AMD Strix Halo hardware, zero cloud, zero containers. "
-                "Everything from inference to voice cloning to game servers, "
-                "designed and built by the architect.\n\n"
-                "**Channels to check out:**\n"
-                "• **#installation** — get the stack running on your own machine\n"
-                "• **#chat** — hang out and talk shop\n"
-                "• **#troubleshooting** — stuck? we got you\n\n"
-                "**Agents who can help:**\n"
-                "• **Bounty** — code, bugs, offensive security\n"
-                "• **Meek** — defensive security and hardening\n"
-                "• **Amp** — audio engineering, voice, music production\n"
-                "• **Mechanic** — hardware, drivers, GPU, fan curves\n\n"
-                "Just tag them in any channel and they'll jump in.\n\n"
-                "**GitHub:** https://github.com/stampby/halo-ai\n\n"
-                "*Stamped by the architect.*"
-            ),
-            color=self.color,
+        dm_msg = (
+            "```\n"
+            f"Welcome to halo-ai, {member.display_name}!\n"
+            "\n"
+            "42 services. 17 agents. Zero cloud. Bare metal.\n"
+            "Compiled from source on AMD Strix Halo.\n"
+            "\n"
+            "Channels:\n"
+            "  #installation    — get the stack running\n"
+            "  #chat            — hang out\n"
+            "  #troubleshooting — stuck? we got you\n"
+            "\n"
+            "Agents:\n"
+            "  Bounty    — code, bugs, security\n"
+            "  Meek      — hardening, audits\n"
+            "  Amp       — audio, voice, music\n"
+            "  Mechanic  — hardware, drivers, GPU\n"
+            "\n"
+            "Tag any agent in any channel.\n"
+            "\n"
+            "Designed and built by the architect\n"
+            "```"
         )
-        dm_embed.set_footer(text="Designed and built by the architect | halo-ai")
 
         try:
-            await member.send(embed=dm_embed)
+            await member.send(dm_msg)
         except discord.Forbidden:
             # DMs disabled — the channel greeting still covers them
             pass
@@ -455,8 +454,8 @@ class EchoBot(HaloBot):
 
         if welcome_ch:
             await welcome_ch.send(
-                f"Welcome to the family, {member.mention}! "
-                f"Check your DMs — I sent you everything you need to get started."
+                f"```\nWelcome to the family, {member.display_name}!\n"
+                f"Check your DMs — everything you need to get started.\n```"
             )
 
         # Assign Community role
