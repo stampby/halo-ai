@@ -29,7 +29,7 @@
 
 ## What is this?
 
-A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. Autonomous pipelines for game development, music production, and video production. 33 services, 17 autonomous agents, 98 tools, 5 Discord bots. All bare metal, all compiled from source, all on one chip with 128GB unified memory. Boot to ready: 18.7 seconds.
+A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat, deep research, voice, image generation, RAG, and workflows. Autonomous pipelines for game development, music production, and video production. 42 services, 17 autonomous agents, 98 tools, 7 Discord bots. All bare metal, all compiled from source, all on one chip with 128GB unified memory. Boot to ready: 19.3 seconds.
 
 **Talk to it.** Speak to Halo, see the text, hear the response. Every tool, every agent, every feature — controlled by your voice. Vibe coding at home, out of the box, on your own hardware. *"Open the pod bay doors, HAL."*
 
@@ -97,6 +97,9 @@ sudo systemctl start halo-llama-server halo-caddy
 - All services bound to `127.0.0.1` behind Caddy auth
 - SSH key-only, root login disabled, fail2ban active
 - Meek runs a **17-check security audit** every 24 hours
+- **axios supply chain attack mitigated** — version pinned, postinstall scripts blocked
+- **Dependabot** + **CodeQL** scanning on every push
+- npm/pip supply chain monitoring via Sentinel
 
 ### Re-running
 
@@ -140,6 +143,26 @@ The installer is fully **idempotent** — safe to run multiple times. Existing c
 - **All services on localhost** — Caddy is the only entry point
 - **Systemd hardening** — ProtectSystem, PrivateTmp, NoNewPrivileges on every service
 - **[Shadow](https://github.com/stampby/shadow)** — file integrity monitoring, SSH mesh watcher
+
+### Security Bulletin
+
+> **2026-04-01 — axios Supply Chain Attack (CRITICAL)**
+>
+> `axios@1.14.1` and `axios@0.30.4` were backdoored by North Korean group UNC1069 with a RAT dropper (`plain-crypto-js`). halo-ai's install script was affected via n8n and Vane npm dependencies. Patched within 90 minutes. All credentials rotated.
+>
+> **If you installed before v0.9.1:** Roll back via `sudo snapper -c root undochange <snapshot>`, rotate ALL credentials, re-run the installer.
+>
+> Full incident report: [Security Advisory GHSA-mfc3-9wg8-25xf](https://github.com/stampby/halo-ai/security/advisories/GHSA-mfc3-9wg8-25xf) — credited to [@zmcnaney](https://github.com/zmcnaney)
+>
+> **Mitigations in place:** axios pinned to 1.14.0, `--ignore-scripts` on all npm installs, Meek v3.0 daily audits (17 checks), Dependabot alerts + CodeQL scanning enabled, automated supply chain monitoring via Sentinel.
+
+### Security Automation — [docs](SECURITY.md)
+- **Meek** — 17-check security audit daily at 06:00 UTC, auto-pinned to Discord #security
+- **Bounty** — bug patrol + dry-run verification daily at 08:00 UTC
+- **Sentinel** — source inspection + supply chain monitoring daily at 10:00 UTC
+- **Dependabot** — weekly dependency update PRs (pip + npm + GitHub Actions)
+- **CodeQL** — code scanning on every push (Python, JavaScript/TypeScript, Actions)
+- **Private vulnerability reporting** — enabled, report issues securely via GitHub Security tab
 
 ### Stack Protection — [docs](docs/STACK-PROTECTION.md)
 - **Freeze/thaw** — one-click snapshot and rollback of the entire stack. *"I'll be back."*
