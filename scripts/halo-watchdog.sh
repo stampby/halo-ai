@@ -162,9 +162,10 @@ main() {
     fi
 }
 
-main
-
 # ── PRE-REPAIR SNAPSHOT ─────────────────────────────
 snapshot_before_repair() {
-    sudo snapper -c root create --type single --cleanup-algorithm number         --description "halo-watchdog pre-repair $(date +%Y%m%d-%H%M%S)" 2>/dev/null
+    sudo snapper -c root create --type single --cleanup-algorithm number \
+        --description "halo-watchdog pre-repair $(date +%Y%m%d-%H%M%S)" 2>/dev/null
 }
+
+main

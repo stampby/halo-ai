@@ -192,7 +192,7 @@ ok "Services to enable: ${SELECTED_SERVICES[*]}"
 step "Installing build dependencies"
 sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv \
     sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac \
-    opencl-headers ocl-icd opencl-clhpp wget
+    opencl-headers ocl-icd opencl-clhpp wget shaderc protobuf ccache
 
 # ── User groups ────────────────────────────────────
 step "GPU access & directory structure"
@@ -492,7 +492,8 @@ AllowUsers $HALO_USER" | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
 info "Installing firewall..."
 sudo pacman -S --noconfirm --needed nftables 2>/dev/null
 sudo cp /srv/ai/configs/system/nftables.conf /etc/nftables.conf
-LAN_SUBNET=$(ip -4 route show scope link | awk '/src/ {print $1; exit}')
+LAN_IFACE=$(ip -4 route show default | awk '{print $5; exit}')
+LAN_SUBNET=$(ip -4 addr show dev "$LAN_IFACE" 2>/dev/null | awk '/inet / {print $2; exit}' | sed 's|\.[0-9]*/|.0/|')
 if [ -n "$LAN_SUBNET" ] && echo "$LAN_SUBNET" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$'; then
     sudo sed -i "s|xxx.xxx.xxx.0/24|${LAN_SUBNET}|g" /etc/nftables.conf
     ok "Firewall LAN subnet: $LAN_SUBNET"
