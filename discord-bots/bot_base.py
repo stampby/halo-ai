@@ -255,6 +255,15 @@ class HaloBot(commands.Bot):
         if message.id in HaloBot._claimed_messages:
             return
 
+        # SUPPORT CHANNELS — bots only respond when directly @mentioned
+        # The architect handles support personally. Bots stay quiet unless called.
+        MENTION_ONLY_CHANNELS = [
+            "troubleshooting", "installation", "hardware",
+            "security", "support",
+        ]
+        if message.channel.name in MENTION_ONLY_CHANNELS:
+            return
+
         # Cooldown — don't spam the channel
         if self._on_cooldown(message.channel.id):
             return
