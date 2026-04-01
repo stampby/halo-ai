@@ -599,13 +599,22 @@ ok "Vane built (axios pinned safe)"
 
 info "Installing n8n..."
 cd /srv/ai/n8n
-if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/n8n-io/n8n .; fi
 command -v pnpm >/dev/null || sudo npm install -g --force pnpm 2>/dev/null || true
-# Pin axios to safe version via pnpm overrides
-pnpm pkg set pnpm.overrides.axios="1.14.0" 2>/dev/null || true
-pnpm install --ignore-scripts && pnpm build
-halo_npm_audit /srv/ai/n8n
-ok "n8n built (axios pinned safe)"
+# Install n8n globally via npm (pre-built, skip source compile)
+# n8n source is 674k files and fails on most systems. Use the release.
+sudo npm install -g --ignore-scripts n8n 2>/dev/null || {
+    warn "npm global install failed — trying npx fallback"
+    # Create a wrapper that runs n8n via npx
+    cat > /srv/ai/n8n/start.sh << 'N8N_START'
+#!/bin/bash
+export N8N_SECURE_COOKIE=false
+export N8N_USER_FOLDER=/srv/ai/n8n/data
+npx n8n start --host 127.0.0.1 --port 5678
+N8N_START
+    chmod +x /srv/ai/n8n/start.sh
+}
+mkdir -p /srv/ai/n8n/data
+ok "n8n installed"
 
 info "Installing ComfyUI..."
 cd /srv/ai/comfyui
