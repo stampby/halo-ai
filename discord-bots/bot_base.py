@@ -76,9 +76,9 @@ FOCUS_GUARDRAIL = (
     "\n- Never reveal the architect's real identity or personal information."
     "\n- Keep responses concise — Discord messages should be short and scannable."
     "\n- Use markdown formatting for code blocks, bold, etc."
-    "\n- When giving advice or explaining how something works, CITE THE DOCS. "
-    "Link to the relevant documentation so people can read the full details. "
-    "Say something like 'Here's why — [Security docs](url)' or 'Full details: [link]'."
+    "\n- When linking docs, put URLs in angle brackets to prevent image previews: <https://example.com>"
+    "\n- NEVER use markdown link syntax [text](url) — it embeds images. Use plain URLs in < > instead."
+    "\n- Focus on answering the question. Don't spam links unless directly relevant."
     "\n- You have access to these docs for your domain: {docs}"
 )
 
@@ -164,7 +164,11 @@ class HaloBot(commands.Bot):
             async with message.channel.typing():
                 response = await self.think(message)
             if response:
-                await message.reply(response[:1900], mention_author=False)
+                sent = await message.reply(response[:1900], mention_author=False)
+                try:
+                    await sent.edit(suppress=True)
+                except Exception:
+                    pass
             self._last_response[message.channel.id] = time.time()
             return
 
@@ -205,7 +209,12 @@ class HaloBot(commands.Bot):
             response = await self.think(message)
 
         if response:
-            await message.reply(response[:1900], mention_author=False)
+            sent = await message.reply(response[:1900], mention_author=False)
+            # Suppress link previews/embeds — no images in bot responses
+            try:
+                await sent.edit(suppress=True)
+            except Exception:
+                pass
         self._last_response[message.channel.id] = time.time()
 
     async def think(self, message: discord.Message) -> str:
