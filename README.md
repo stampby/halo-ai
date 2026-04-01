@@ -311,40 +311,9 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ## Tutorials
 
-24 video walkthroughs — start to finish, nothing skipped. Every tutorial includes **spoken narration and subtitles in your language**.
+Video walkthroughs coming soon. First video is live:
 
-🌐 Available in: English · Français · Español · Deutsch · Português · 中文 · 日本語 · 한국어 · Русский · हिन्दी · العربية
-
-👉 **[Browse all tutorials](dashboard-ui/tutorials.html)**
-
-| # | Video | Description | Status |
-|---|-------|-------------|--------|
-| 1 | The Vision | What halo-ai is and why | coming soon |
-| 2 | Hardware Setup | Mesh wiring, 4 machines | coming soon |
-| 3 | Arch Linux Install | Base OS, btrfs, first boot | coming soon |
-| 4 | The Install Script | 33 services compiled from source | coming soon |
-| 5 | Security | Meek's 10 tools, hardened SSH, deny-all model | coming soon |
-| 6 | Lemonade + llama.cpp | Unified API, 91 tok/s, Vulkan + FA | coming soon |
-| 7 | Chat + RAG | Open WebUI, document upload, vector search | coming soon |
-| 8 | Deep Research | Vane, cited sources, private search | coming soon |
-| 9 | Image Generation | ComfyUI on 123GB GPU | coming soon |
-| 10 | Voice | whisper.cpp, Kokoro TTS, 54 voices | coming soon |
-| 11 | Workflows | n8n automation, GitHub webhooks | coming soon |
-| 12 | The Agents | Gaia, 17 agents, 78 tools, management | coming soon |
-| 13 | Man Cave | Control center, stack protection, freeze/thaw | coming soon |
-| 14 | The Mesh | SSH keys, 4 machines, mixer, Shadow | coming soon |
-| 15 | Windows in the Mesh | Minisforum, VSS, Terminal | coming soon |
-| 16 | Discord Bots | Echo, Bounty, Meek, Amp, Muse, Mechanic | coming soon |
-| 17 | Reddit Bridge | Scan, draft, approve, post | coming soon |
-| 18 | Audio Chain | SM7B, Scarlett, PipeWire, routing | coming soon |
-| 19 | Voice Cloning | Recording, XTTS v2, training | coming soon |
-| 20 | The Downcomers | First track, vocal doubling, DistroKid | coming soon |
-| 21 | The Game | Undercroft, anti-cheat, Dealer AI | coming soon |
-| 22 | Benchmarks | llama-bench, GitHub Pages, history | coming soon |
-| 23 | CI/CD | GitHub Actions, releases, packaging | coming soon |
-| 24 | Full Autonomous Demo | Tag → agents → Reddit post, zero human | coming soon |
-
-*99% of users don't have Claude. These tutorials make the experience effortless without it. "Where we're going, we don't need roads."*
+- **[halo ai on usb](https://youtu.be/0OIQANS04x4)** — full stack on a USB SSD, plug in and boot
 
 ## Voice Talent
 
