@@ -152,9 +152,67 @@ class HaloBot(commands.Bot):
         last = self._last_response.get(channel_id, 0)
         return (time.time() - last) < self._cooldown
 
+    # Support keywords → channel routing
+    SUPPORT_ROUTES = {
+        "installation": ["install", "installer", "install.sh", "archinstall", "pacman", "setup"],
+        "troubleshooting": ["error", "failed", "crash", "broken", "not working", "bug", "fix",
+                           "traceback", "exception", "segfault", "help me", "issue", "problem"],
+        "hardware": ["gpu", "driver", "rocm", "vulkan", "temperature", "fan", "bios", "memory"],
+        "security": ["firewall", "ssh", "nftables", "fail2ban", "password", "key", "vpn"],
+    }
+
+    async def _route_support(self, message: discord.Message) -> bool:
+        """If someone posts support questions in water-cooler, move to the right channel."""
+        # Only route from water-cooler
+        if message.channel.name != "water-cooler":
+            return False
+
+        content_lower = message.content.lower()
+        target_channel_name = None
+
+        for channel_name, keywords in self.SUPPORT_ROUTES.items():
+            for kw in keywords:
+                if kw in content_lower:
+                    target_channel_name = channel_name
+                    break
+            if target_channel_name:
+                break
+
+        if not target_channel_name:
+            return False
+
+        # Find the target channel
+        target = None
+        for ch in message.guild.text_channels:
+            if ch.name == target_channel_name:
+                target = ch
+                break
+
+        if not target:
+            return False
+
+        # Post in the right channel, ping the user
+        await target.send(
+            f"**{message.author.display_name}** asked:\n> {message.content[:500]}\n\n"
+            f"{message.author.mention} — moved your question here so the right agents can help."
+        )
+
+        # Delete from water-cooler and notify
+        try:
+            await message.delete()
+        except Exception:
+            pass
+
+        return True
+
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
+
+        # Route support questions from water-cooler to correct channel
+        if self.name == "echo":
+            if await self._route_support(message):
+                return
 
         content_lower = message.content.lower()
         directly_mentioned = self.user.mentioned_in(message)
