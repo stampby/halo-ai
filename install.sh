@@ -389,7 +389,7 @@ cd /srv/ai/vane
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ItzCrazyKns/Vane .; fi
 # Pin axios to safe version before install
 npm pkg set overrides.axios="1.14.0" 2>/dev/null || true
-yarn install && yarn build
+yarn install --ignore-scripts && yarn build
 /tmp/halo-npm-audit.sh /srv/ai/vane
 ok "Vane built (axios pinned safe)"
 
@@ -399,7 +399,7 @@ if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone http
 sudo npm install -g pnpm
 # Pin axios to safe version via pnpm overrides
 pnpm pkg set pnpm.overrides.axios="1.14.0" 2>/dev/null || true
-pnpm install --frozen-lockfile && pnpm build
+pnpm install --frozen-lockfile --ignore-scripts && pnpm build
 /tmp/halo-npm-audit.sh /srv/ai/n8n
 ok "n8n built (axios pinned safe)"
 
