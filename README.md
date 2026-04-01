@@ -43,24 +43,64 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 
 ## Quick Install
 
-> **Important:** This stack compiles 18 components from source — Python, Node.js, llama.cpp, Qdrant, Caddy, and more. Due to the complexity, **always run a dry-run first** to catch problems before they happen.
+> **Important:** This stack compiles 18 components from source. Due to the complexity, **always run a dry-run first** to catch problems before they happen.
+
+### Requirements
+
+- AMD Strix Halo (Ryzen AI MAX+ 395)
+- Arch Linux (fresh `archinstall` recommended)
+- Internet connection (~25GB downloads)
+- 2-3 hours (compiling from source)
+
+### Step 1 — Clone
 
 ```bash
 git clone https://github.com/stampby/halo-ai.git
 cd halo-ai
+```
 
-# Step 1: Dry-run — validates all 17 steps without installing anything
+### Step 2 — Dry-run (recommended)
+
+```bash
 ./install.sh --dry-run
+```
 
-# Step 2: If dry-run passes, install for real
+This validates all 17 steps without touching your system. If it passes, proceed. If not, check the output for errors.
+
+### Step 3 — Install
+
+```bash
 ./install.sh
 ```
 
-The dry-run checks your system, verifies paths, and simulates the entire install. If something would fail, you'll see it here — not 2 hours into a real build.
+Follow the prompts. Defaults are sensible. Password will be auto-generated if left blank. The script will recommend the dry-run on launch — you can skip it if you already ran it.
 
-**Do not run as root.** The script uses sudo internally when needed.
+### Step 4 — Reboot and start
 
-All downloads are verified with SHA256 checksums. Python sources are GPG-verified when possible.
+```bash
+sudo reboot
+# After reboot:
+sudo systemctl start halo-llama-server halo-caddy
+# (full command shown at end of install)
+```
+
+### What NOT to do
+
+- **Do not run as root** — `./install.sh` not `sudo ./install.sh`
+- **Do not skip the dry-run** on first install
+- **Do not pipe curl to bash** — clone the repo first
+
+### Security
+
+- All downloads verified with **SHA256 checksums**
+- Python sources **GPG-verified** when possible
+- All services bound to `127.0.0.1` behind Caddy auth
+- SSH key-only, root login disabled, fail2ban active
+- Meek runs a **17-check security audit** every 24 hours
+
+### Re-running
+
+The installer is fully **idempotent** — safe to run multiple times. Existing configs are preserved, already-installed tools are skipped, secrets are not overwritten.
 
 ## Features
 
