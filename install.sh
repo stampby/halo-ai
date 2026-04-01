@@ -196,7 +196,9 @@ ok "Services to enable: ${SELECTED_SERVICES[*]}"
 
 # ── Base packages ──────────────────────────────────
 step "Installing build dependencies"
-sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv     sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac     opencl-headers ocl-icd opencl-clhpp
+sudo pacman -S --noconfirm --needed base-devel cmake ninja git python python-pip python-virtualenv \
+    sqlite vulkan-headers vulkan-icd-loader vulkan-radeon mariadb-libs grep snapper snap-pac \
+    opencl-headers ocl-icd opencl-clhpp wget
 
 # ── User groups ────────────────────────────────────
 step "GPU access & directory structure"
@@ -228,8 +230,9 @@ step "ROCm GPU runtime (~10 min download, ~2 min extract)"
 if [ "${NEED_ROCM:-}" = "1" ]; then
     command -v wget >/dev/null || sudo pacman -S --noconfirm --needed wget
     info "Downloading ROCm 7.13 for gfx1151..."
+    ROCM_URL="${ROCM_URL:-https://rocm.nightlies.amd.com/tarball/therock-dist-linux-gfx1151-7.13.0a20260323.tar.gz}"
     if cd /srv/ai/rocm 2>/dev/null && \
-       wget -q --show-progress 'https://rocm.nightlies.amd.com/tarball/therock-dist-linux-gfx1151-7.13.0a20260323.tar.gz' -O therock.tar.gz 2>/dev/null; then
+       wget -q --show-progress "$ROCM_URL" -O therock.tar.gz 2>/dev/null; then
         mkdir -p install && tar -xf therock.tar.gz -C install
         sudo ln -sfn /srv/ai/rocm/install /opt/rocm
         echo 'export ROCM_HOME=/opt/rocm
@@ -253,10 +256,12 @@ for VER in 3.12.13 3.13.3; do
     PREFIX=/opt/python$(echo "$MAJOR" | tr -d .)
     if [ -x "$PREFIX/bin/python$MAJOR" ]; then ok "Python $MAJOR already installed"; continue; fi
     cd /tmp
-    wget -q "https://www.python.org/ftp/python/$VER/Python-$VER.tar.xz"
-    tar xf Python-$VER.tar.xz && cd Python-$VER
+    wget -q "https://www.python.org/ftp/python/$VER/Python-$VER.tar.xz" || fail "Failed to download Python $VER"
+    [ -f "Python-$VER.tar.xz" ] || fail "Python $VER archive missing after download"
+    tar xf "Python-$VER.tar.xz" && cd "Python-$VER"
     ./configure --prefix="$PREFIX" --enable-optimizations -q
-    make -j$(nproc) -s && sudo make altinstall -s
+    make -j"$(nproc)" -s && sudo make altinstall -s
+    cd /tmp && rm -rf "Python-$VER" "Python-$VER.tar.xz"
     ok "Python $MAJOR compiled"
 done
 
@@ -269,9 +274,11 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
     git clone --depth 1 --branch v24.5.0 https://github.com/nodejs/node.git nodejs-src
     cd nodejs-src
     /opt/python313/bin/python3.13 ./configure --prefix=/usr/local
-    make -j$(nproc) -s && sudo make install -s
+    make -j"$(nproc)" -s && sudo make install -s
     sudo corepack enable
-    ok "Node.js $(node --version) compiled"
+    sudo npm install -g yarn
+    cd /tmp && rm -rf nodejs-src
+    ok "Node.js $(node --version) + yarn compiled"
 fi
 
 # ── Rust ───────────────────────────────────────────
@@ -285,8 +292,9 @@ fi
 # ── Go (for Caddy) ─────────────────────────────────
 if ! command -v go >/dev/null; then
     progress "Installing Go..."
-    cd /tmp && wget -q https://go.dev/dl/go1.24.3.linux-amd64.tar.gz
+    cd /tmp && wget -q https://go.dev/dl/go1.24.3.linux-amd64.tar.gz || fail "Failed to download Go"
     sudo tar -C /usr/local -xzf go1.24.3.linux-amd64.tar.gz
+    rm -f go1.24.3.linux-amd64.tar.gz
 fi
 export PATH=/usr/local/go/bin:~/go/bin:$PATH
 
@@ -336,7 +344,7 @@ step "Installing SearXNG + Open WebUI (~10 min)"
 info "Installing SearXNG..."
 cd /srv/ai/searxng
 [ -d .git ] || git clone https://github.com/searxng/searxng .
-python3 -m venv .venv && source .venv/bin/activate
+/opt/python312/bin/python3.12 -m venv .venv && source .venv/bin/activate
 pip install -q setuptools msgspec pyyaml typing_extensions Brotli lxml && pip install -q --no-build-isolation -e .
 deactivate
 ok "SearXNG installed"
@@ -427,8 +435,17 @@ echo 'SUBSYSTEM=="kfd", KERNEL=="kfd", TAG+="uaccess", GROUP="render", MODE="066
 SUBSYSTEM=="drm", KERNEL=="renderD*", TAG+="uaccess", GROUP="render", MODE="0660"' | sudo tee /etc/udev/rules.d/70-amdgpu.rules
 
 # Kernel param for GPU memory
-ENTRY=$(ls /boot/loader/entries/*.conf | head -1)
-grep -q 'ttm\.pages_limit' "$ENTRY" || sudo sed -i 's/^options /options ttm.pages_limit=30146560 /' "$ENTRY"
+# GPU memory — add kernel param to boot entry (systemd-boot)
+if ls /boot/loader/entries/*.conf >/dev/null 2>&1; then
+    ENTRY=$(ls -t /boot/loader/entries/*.conf | head -1)
+    if [ -f "$ENTRY" ] && ! grep -q 'ttm\.pages_limit' "$ENTRY"; then
+        sudo cp "$ENTRY" "${ENTRY}.bak"
+        sudo sed -i 's/^options /options ttm.pages_limit=30146560 /' "$ENTRY"
+        ok "Added ttm.pages_limit to $ENTRY (backup saved)"
+    fi
+else
+    warn "No systemd-boot entries found — add 'ttm.pages_limit=30146560' to your bootloader manually"
+fi
 
 # Disable sleep/suspend
 sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
@@ -444,7 +461,13 @@ AllowUsers $HALO_USER" | sudo tee /etc/ssh/sshd_config.d/90-halo-security.conf
 info "Installing firewall..."
 sudo pacman -S --noconfirm --needed nftables 2>/dev/null
 sudo cp /srv/ai/configs/system/nftables.conf /etc/nftables.conf
-sudo sed -i "s|xxx.xxx.xxx.0/24|$(ip route | grep 'src' | head -1 | awk '{print $1}')|g" /etc/nftables.conf
+LAN_SUBNET=$(ip -4 route show scope link | awk '/src/ {print $1; exit}')
+if [ -n "$LAN_SUBNET" ] && echo "$LAN_SUBNET" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$'; then
+    sudo sed -i "s|xxx.xxx.xxx.0/24|${LAN_SUBNET}|g" /etc/nftables.conf
+    ok "Firewall LAN subnet: $LAN_SUBNET"
+else
+    warn "Could not detect LAN subnet — edit /etc/nftables.conf manually (replace xxx.xxx.xxx.0/24)"
+fi
 sudo systemctl enable --now nftables 2>/dev/null
 ok "Firewall active (LAN-only SSH + HTTP)"
 
