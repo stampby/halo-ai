@@ -296,13 +296,37 @@ done
 
 # Post fresh audit
 payload=$(python3 -c "import json,sys; print(json.dumps({'content': sys.stdin.read()}))" <<< "$discord_msg")
-curl -s -X POST \
+
+# Unpin old audit
+old_pins=$(curl -s -H "Authorization: Bot $MEEK_TOKEN" \
+    "https://discord.com/api/v10/channels/$SECURITY_CHANNEL/pins" \
+    | python3 -c "
+import sys, json
+try:
+    for p in json.load(sys.stdin): print(p['id'])
+except: pass
+" 2>/dev/null)
+for pin_id in $old_pins; do
+    curl -s -X DELETE -H "Authorization: Bot $MEEK_TOKEN" \
+        "https://discord.com/api/v10/channels/$SECURITY_CHANNEL/pins/$pin_id" >/dev/null 2>&1
+    sleep 1
+done
+
+# Post fresh audit and pin it
+new_msg_id=$(curl -s -X POST \
     -H "Authorization: Bot $MEEK_TOKEN" \
     -H "Content-Type: application/json" \
     -d "$payload" \
-    "https://discord.com/api/v10/channels/$SECURITY_CHANNEL/messages" >/dev/null 2>&1
+    "https://discord.com/api/v10/channels/$SECURITY_CHANNEL/messages" \
+    | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null)
 
-echo "Posted to Discord #security"
+if [ -n "$new_msg_id" ]; then
+    sleep 1
+    curl -s -X PUT -H "Authorization: Bot $MEEK_TOKEN" \
+        "https://discord.com/api/v10/channels/$SECURITY_CHANNEL/pins/$new_msg_id" >/dev/null 2>&1
+fi
+
+echo "Posted and pinned to Discord #security"
 
 # ── Weekly GitHub Archive ──────────────────────────────
 
