@@ -252,13 +252,15 @@ for VER in 3.12.13 3.13.3; do
     MAJOR=$(echo "$VER" | cut -d. -f1-2)
     PREFIX=/opt/python$(echo "$MAJOR" | tr -d .)
     if [ -x "$PREFIX/bin/python$MAJOR" ]; then ok "Python $MAJOR already installed"; continue; fi
-    cd /tmp
+    BUILD_DIR=$(mktemp -d /tmp/halo-python-XXXXXX)
+    cd "$BUILD_DIR"
     wget -q "https://www.python.org/ftp/python/$VER/Python-$VER.tar.xz" || fail "Failed to download Python $VER"
     [ -f "Python-$VER.tar.xz" ] || fail "Python $VER archive missing after download"
     tar xf "Python-$VER.tar.xz" && cd "Python-$VER"
     ./configure --prefix="$PREFIX" --enable-optimizations -q
-    make -j"$(nproc)" -s && sudo make altinstall -s
-    cd /tmp && rm -rf "Python-$VER" "Python-$VER.tar.xz"
+    make -j"$(nproc)" -s && sudo make altinstall -s || fail "Python $VER build failed"
+    # Cleanup — non-fatal
+    rm -rf "$BUILD_DIR" 2>/dev/null || true
     ok "Python $MAJOR compiled"
 done
 
@@ -266,15 +268,15 @@ done
 step "Building Node.js 24 (~20 min)"
 if ! node --version 2>/dev/null | grep -q "v24"; then
     progress "Compiling from source — this takes a while..."
-    cd /tmp
-    [ -d nodejs-src ] && rm -rf nodejs-src
-    git clone --depth 1 --branch v24.5.0 https://github.com/nodejs/node.git nodejs-src
-    cd nodejs-src
+    NODE_DIR=$(mktemp -d /tmp/halo-node-XXXXXX)
+    cd "$NODE_DIR"
+    git clone --depth 1 --branch v24.5.0 https://github.com/nodejs/node.git src
+    cd src
     /opt/python313/bin/python3.13 ./configure --prefix=/usr/local
-    make -j"$(nproc)" -s && sudo make install -s
+    make -j"$(nproc)" -s && sudo make install -s || fail "Node.js build failed"
     sudo corepack enable
     sudo npm install -g yarn
-    cd /tmp && rm -rf nodejs-src
+    rm -rf "$NODE_DIR" 2>/dev/null || true
     ok "Node.js $(node --version) + yarn compiled"
 fi
 
