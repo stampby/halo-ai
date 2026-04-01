@@ -43,11 +43,24 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 
 ## Quick Install
 
+> **Important:** This stack compiles 18 components from source — Python, Node.js, llama.cpp, Qdrant, Caddy, and more. Due to the complexity, **always run a dry-run first** to catch problems before they happen.
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | bash
+git clone https://github.com/stampby/halo-ai.git
+cd halo-ai
+
+# Step 1: Dry-run — validates all 17 steps without installing anything
+./install.sh --dry-run
+
+# Step 2: If dry-run passes, install for real
+./install.sh
 ```
 
-Interactive installer — username, passwords, hostname, which services to enable. Sensible defaults. Default Caddy password is `Caddy` — change it immediately. *"Choose wisely."*
+The dry-run checks your system, verifies paths, and simulates the entire install. If something would fail, you'll see it here — not 2 hours into a real build.
+
+**Do not run as root.** The script uses sudo internally when needed.
+
+All downloads are verified with SHA256 checksums. Python sources are GPG-verified when possible.
 
 ## Features
 
