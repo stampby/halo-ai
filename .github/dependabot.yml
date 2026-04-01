@@ -1,0 +1,43 @@
+version: 2
+updates:
+  # Python (pip) — dashboard-api, discord-bots, kokoro, comfyui
+  - package-ecosystem: "pip"
+    directory: "/dashboard-api"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+
+  - package-ecosystem: "pip"
+    directory: "/discord-bots"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+
+  # npm — dashboard-ui, vane
+  - package-ecosystem: "npm"
+    directory: "/dashboard-ui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
