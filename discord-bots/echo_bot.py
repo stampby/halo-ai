@@ -345,12 +345,20 @@ class EchoBot(HaloBot):
 
     async def on_ready(self):
         await super().on_ready()
-        # Sync slash commands with Discord
+        # Sync slash commands ONLY to home guild — not globally
+        from bot_base import HaloBot
+        home = discord.Object(id=HaloBot.HOME_GUILD_ID)
         try:
-            synced = await self.tree.sync()
-            print(f"Echo: synced {len(synced)} slash commands")
+            self.tree.clear_commands(guild=None)  # Remove global commands
+            await self.tree.sync(guild=None)       # Push empty global
+            self.tree.copy_global_to(guild=home)
+            synced = await self.tree.sync(guild=home)
+            print(f"Echo: synced {len(synced)} slash commands (home guild only)")
         except Exception as e:
             print(f"Echo: failed to sync commands: {e}")
+
+        # Clean up any messages Echo posted on external servers
+        await self._cleanup_external_posts()
 
         # Resume whitelist timer if one was active
         if self._wl_state.get("open"):
@@ -363,9 +371,40 @@ class EchoBot(HaloBot):
                 # Deadline already passed while bot was down — close now
                 asyncio.create_task(self._auto_close_whitelist(0))
 
+    async def _cleanup_external_posts(self):
+        """Delete all messages Echo posted on external servers."""
+        import asyncio
+        from bot_base import HaloBot
+        deleted = 0
+        for guild in self.guilds:
+            if guild.id == HaloBot.HOME_GUILD_ID:
+                continue
+            print(f"Echo: cleaning up posts on {guild.name} ({guild.id})...")
+            for channel in guild.text_channels:
+                try:
+                    async for msg in channel.history(limit=100):
+                        if msg.author.id == self.user.id:
+                            try:
+                                await msg.delete()
+                                deleted += 1
+                                await asyncio.sleep(1)
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+        if deleted:
+            print(f"Echo: deleted {deleted} posts from external servers")
+        else:
+            print("Echo: no external posts to clean up")
+
     async def on_member_join(self, member):
         """Welcome new members — DM first, then a short tag in #welcome."""
         if member.bot:
+            return
+
+        # Only greet on our home server
+        from bot_base import HaloBot
+        if member.guild.id != HaloBot.HOME_GUILD_ID:
             return
 
         # --- DM welcome (the real welcome) ---
