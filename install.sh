@@ -62,7 +62,7 @@ fi
 
 # ── Halo AI branded output ────────────────────────
 STEP_CURRENT=0
-STEP_TOTAL=17
+STEP_TOTAL=18
 
 step() {
     STEP_CURRENT=$((STEP_CURRENT + 1))
@@ -937,7 +937,7 @@ ok "Landing page created"
 
 # Add hostname + subdomains to /etc/hosts
 if ! grep -qF "$HALO_HOSTNAME" /etc/hosts 2>/dev/null; then
-    echo "127.0.0.1    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME" | sudo tee -a /etc/hosts
+    echo "127.0.0.1    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME gaia.$HALO_HOSTNAME" | sudo tee -a /etc/hosts
     ok "Hostname and subdomains added to /etc/hosts"
 fi
 
@@ -1066,6 +1066,6 @@ echo -e "  ${DIM}API key: /srv/ai/dashboard-api/data/dashboard-api-key.txt${NC}"
 echo ''
 echo -e "  ${DIM}Add this to /etc/hosts on other devices to access from the LAN:${NC}"
 LAN_IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+')
-echo -e "  ${DIM}$LAN_IP    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME${NC}"
+echo -e "  ${DIM}$LAN_IP    $HALO_HOSTNAME chat.$HALO_HOSTNAME research.$HALO_HOSTNAME search.$HALO_HOSTNAME n8n.$HALO_HOSTNAME comfyui.$HALO_HOSTNAME gaia.$HALO_HOSTNAME${NC}"
 echo ''
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"

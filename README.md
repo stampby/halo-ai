@@ -307,13 +307,23 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | [Mixer](https://github.com/stampby/mixer) | SSH mesh snapshots — distributed backups, no single point of failure [Kansas City Shuffle] |
 | [Changelog](CHANGELOG.md) | Version history |
 
-## [Screenshots](docs/SCREENSHOTS.md)
+## [Screenshots](docs/SCREENSHOTS.md) · [Tutorials & Videos](#tutorials--videos)
 
-## Tutorials
+## Tutorials & Videos
 
-Video walkthroughs coming soon. First video is live:
-
-- **[halo ai on usb](https://youtu.be/0OIQANS04x4)** — full stack on a USB SSD, plug in and boot
+| Video | Description | Link |
+|-------|-------------|------|
+| **halo ai on usb** | Full stack on a USB SSD — plug in, boot, talk | [Watch](https://youtu.be/0OIQANS04x4) |
+| The Vision | What halo-ai is and why | coming soon |
+| Hardware Setup | Mesh wiring, 4 machines, SSH keys | coming soon |
+| The Install Script | 42 services compiled from source | coming soon |
+| Security | 17-check audit, supply chain protection | coming soon |
+| Lemonade + llama.cpp | Unified API, 91 tok/s, Vulkan + FA | coming soon |
+| The Agents | 17 autonomous agents, 98 tools | coming soon |
+| Man Cave | Control center, freeze/thaw, stack protection | coming soon |
+| Voice & Audio | whisper.cpp, Kokoro, voice cloning, SM7B chain | coming soon |
+| The Mesh | 4 machines, SSH ring, mixer snapshots | coming soon |
+| Full Autonomous Demo | Tag → agents → deploy, zero human | coming soon |
 
 ## Voice Talent
 
