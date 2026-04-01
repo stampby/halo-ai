@@ -5,6 +5,7 @@ Each agent subclasses this with their persona and topic routing.
 """
 
 import os
+import time
 import logging
 from openai import AsyncOpenAI
 import discord
@@ -107,6 +108,9 @@ class HaloBot(commands.Bot):
         self.llm = AsyncOpenAI(base_url=LLM_URL, api_key="none")
         self.history: dict[int, list[dict]] = {}
         self.max_history = 10
+        # Cooldown: one response per channel per 30 seconds per bot
+        self._last_response: dict[int, float] = {}
+        self._cooldown = 30
         # Get this agent's docs (or fallback to all docs)
         agent_doc_list = AGENT_DOCS.get(self.name, ALL_DOCS)
         docs_str = " | ".join(f"[{name}]({url})" for name, url in agent_doc_list)
@@ -123,6 +127,8 @@ class HaloBot(commands.Bot):
 
     # Registry of all active bots — used for collision avoidance
     _all_bots: list["HaloBot"] = []
+    # Track which messages have already been claimed by a bot — one response per message
+    _claimed_messages: dict[int, str] = {}
 
     @classmethod
     def register(cls, bot: "HaloBot"):
@@ -140,6 +146,11 @@ class HaloBot(commands.Bot):
                     return True
         return False
 
+    def _on_cooldown(self, channel_id: int) -> bool:
+        """Check if this bot is on cooldown for this channel."""
+        last = self._last_response.get(channel_id, 0)
+        return (time.time() - last) < self._cooldown
+
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
@@ -147,16 +158,25 @@ class HaloBot(commands.Bot):
         content_lower = message.content.lower()
         directly_mentioned = self.user.mentioned_in(message)
 
-        # Direct mention always wins — respond regardless
+        # Direct mention always wins — no cooldown, no claim check
         if directly_mentioned:
+            HaloBot._claimed_messages[message.id] = self.name
             async with message.channel.typing():
                 response = await self.think(message)
             if response:
-                for chunk in [response[i:i+1900] for i in range(0, len(response), 1900)]:
-                    await message.reply(chunk, mention_author=False)
+                await message.reply(response[:1900], mention_author=False)
+            self._last_response[message.channel.id] = time.time()
             return
 
-        # Topic match — but only if no other specialist covers it
+        # If another bot already claimed this message, back off
+        if message.id in HaloBot._claimed_messages:
+            return
+
+        # Cooldown — don't spam the channel
+        if self._on_cooldown(message.channel.id):
+            return
+
+        # Topic match
         should_respond = False
         if self.topics:
             for topic in self.topics:
@@ -167,16 +187,26 @@ class HaloBot(commands.Bot):
         if not should_respond:
             return
 
-        # Echo is the generalist — she yields to specialists
+        # Echo yields to specialists
         if self.name == "echo" and self._another_bot_owns_this(content_lower):
             return
+
+        # Claim — one bot per message
+        if message.id in HaloBot._claimed_messages:
+            return
+        HaloBot._claimed_messages[message.id] = self.name
+        # Prevent memory leak
+        if len(HaloBot._claimed_messages) > 100:
+            oldest = list(HaloBot._claimed_messages.keys())[:50]
+            for k in oldest:
+                del HaloBot._claimed_messages[k]
 
         async with message.channel.typing():
             response = await self.think(message)
 
         if response:
-            for chunk in [response[i:i+1900] for i in range(0, len(response), 1900)]:
-                await message.reply(chunk, mention_author=False)
+            await message.reply(response[:1900], mention_author=False)
+        self._last_response[message.channel.id] = time.time()
 
     async def think(self, message: discord.Message) -> str:
         """Process a message through the LLM with conversation history."""

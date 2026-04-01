@@ -191,31 +191,28 @@ class HalBot(HaloBot):
                         f"Answered {message.author.display_name} directly")
 
     async def _status_cmd(self, interaction: discord.Interaction):
-        """Full system status."""
-        embed = discord.Embed(title="System Status", color=self.color)
-        embed.add_field(name="Inference", value="109 tok/s — Qwen3-30B-A3B", inline=True)
-        embed.add_field(name="Backend", value="Vulkan + Flash Attention", inline=True)
-        embed.add_field(name="GPU", value="Radeon 8060S (gfx1151)", inline=True)
-        embed.add_field(name="Memory", value="128GB LPDDR5x-8000", inline=True)
-        embed.add_field(name="Agents", value="7 online", inline=True)
-        embed.add_field(name="Cloud", value="Zero", inline=True)
-        embed.set_footer(text="I am the one who knocks. — Halo")
-        await interaction.response.send_message(embed=embed)
+        """Full system status — plain text."""
+        msg = (
+            "**System Status**\n"
+            "Inference: 109 tok/s — Qwen3-30B-A3B\n"
+            "Backend: Vulkan + Flash Attention\n"
+            "GPU: Radeon 8060S (gfx1151)\n"
+            "Memory: 128GB LPDDR5x-8000\n"
+            "Agents: 7 online\n"
+            "Cloud: Zero\n"
+            "*I am the one who knocks. — Halo*"
+        )
+        await interaction.response.send_message(msg)
 
     async def _family_cmd(self, interaction: discord.Interaction):
-        """Show all online family members."""
-        embed = discord.Embed(
-            title="The Family",
-            description="Who's working right now.",
-            color=self.color,
-        )
+        """Show all online family members — plain text."""
         online = []
         for member in interaction.guild.members:
             if member.bot and member.status != discord.Status.offline:
-                online.append(f"**{member.display_name}**")
-        embed.add_field(name="Online", value="\n".join(online) if online else "Checking...", inline=False)
-        embed.set_footer(text="The family never sleeps.")
-        await interaction.response.send_message(embed=embed)
+                online.append(f"• **{member.display_name}**")
+        names = "\n".join(online) if online else "Checking..."
+        msg = f"**The Family**\n{names}\n*The family never sleeps.*"
+        await interaction.response.send_message(msg)
 
     async def on_ready(self):
         await super().on_ready()
