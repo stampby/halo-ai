@@ -212,9 +212,9 @@ class HaloBot(commands.Bot):
         if message.author.bot:
             return
 
-        # External servers — only respond to direct @mentions, nothing else
+        # External servers — only respond if bot is directly @mentioned by ID
         if message.guild and message.guild.id != self.HOME_GUILD_ID:
-            if self.user.mentioned_in(message):
+            if self.user and self.user.id and f"<@{self.user.id}>" in message.content:
                 async with message.channel.typing():
                     response = await self.think(message)
                 if response:
