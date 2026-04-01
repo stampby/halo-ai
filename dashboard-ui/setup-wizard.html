@@ -109,7 +109,7 @@
     </div>
     <div class="card">
       <h2>Welcome to your AI stack</h2>
-      <p class="subtitle">109 tok/s. Zero containers. 115GB GPU memory. Compiled from source. Let's get you set up.</p>
+      <p class="subtitle">91 tok/s. Zero containers. 123GB GPU memory. Compiled from source. Let's get you set up.</p>
       <div class="actions">
         <span></span>
         <button class="btn btn-primary" onclick="goTo(1)">Get started</button>
@@ -257,7 +257,7 @@ async function detectHardware() {
     document.getElementById('hw-gpu').classList.add('ok');
     document.getElementById('hw-mem').textContent = '128 GB LPDDR5X';
     document.getElementById('hw-mem').classList.add('ok');
-    document.getElementById('hw-vram').textContent = '115 GB GTT';
+    document.getElementById('hw-vram').textContent = '123 GB GTT';
     document.getElementById('hw-vram').classList.add('ok');
     document.getElementById('hw-disk').textContent = 'NVMe detected';
     document.getElementById('hw-disk').classList.add('ok');
@@ -298,7 +298,7 @@ async function sendChat() {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         model: 'q',
-        messages: [{role:'system',content:'You are halo-ai, a friendly AI assistant running locally at 109 tok/s on AMD Strix Halo. Keep responses short and helpful.'},{role:'user',content:msg}],
+        messages: [{role:'system',content:'You are halo-ai, a friendly AI assistant running locally at 91 tok/s on AMD Strix Halo. Keep responses short and helpful.'},{role:'user',content:msg}],
         max_tokens: 200, temperature: 0.7
       })
     });

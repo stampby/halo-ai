@@ -10,7 +10,7 @@
 
 ### The bare-metal AI stack for AMD Strix Halo
 
-**87 tok/s. Zero containers. 115GB GPU memory. Compiled from source. I know kung fu.**
+**91 tok/s. 42 services. 123GB GPU memory. Compiled from source. I know kung fu.**
 
 *built by CLI — stamped by the architect*
 
@@ -35,8 +35,8 @@ A complete AI platform for the **AMD Ryzen AI MAX+ 395** — LLM inference, chat
 
 ## Why Bare Metal?
 
-- **Containers add 15-20% overhead** on GPU workloads. When you have 115GB of unified memory on a single chip, every watt and every byte should go to inference, not orchestration. *"Do not try and bend the spoon. Instead, only try to realize the truth: there is no container."*
-- **Compiled from source** means native gfx1151 optimizations that pre-built binaries miss. That's where 87 tok/s comes from.
+- **Containers add 15-20% overhead** on GPU workloads. When you have 123GB of unified memory on a single chip, every watt and every byte should go to inference, not orchestration. *"Do not try and bend the spoon. Instead, only try to realize the truth: there is no container."*
+- **Compiled from source** means native gfx1151 optimizations that pre-built binaries miss. That's where 91 tok/s comes from.
 - **No timers. No cron. Total AI.** Agents don't check on a schedule — they watch conditions and act when something changes. Service goes down? Detected and repaired before you notice. GPU overheats? Reported the moment it happens. Not every 30 seconds. *The moment.* I'm sorry Dave, but this stack doesn't sleep.
 - **Survives Arch rolling release.** Freeze the stack, let pacman update, agents detect if anything broke, thaw to rollback in 30 seconds. This is why halo-ai runs on Arch without fear. *"It's just a flesh wound."*
 - **You own the whole stack.** No package manager decides when your AI server goes down. *"My precious."*
@@ -107,7 +107,7 @@ The installer is fully **idempotent** — safe to run multiple times. Existing c
 ### AI & Inference
 - **LLM chat** — [Open WebUI](https://github.com/open-webui/open-webui) with RAG, multi-model, document upload
 - **Deep research** — [Vane](https://github.com/ItzCrazyKns/Vane) with cited sources and private search
-- **Image generation** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) on 115GB GPU, SDXL, Flux
+- **Image generation** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) on 123GB GPU, SDXL, Flux
 - **Video generation** — [Wan2.1](https://github.com/Wan-Video/Wan2.1) on ROCm 6.3
 - **Music generation** — [MusicGen](https://github.com/facebookresearch/audiocraft) by Meta, local GPU inference
 - **Speech-to-text** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp) compiled for gfx1151
@@ -216,8 +216,10 @@ All services bind to `127.0.0.1` — access via Caddy reverse proxy.
 
 | Model | Speed | VRAM |
 |-------|-------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
+| Qwen3-235B-A22B (Frontier MoE) | ~8 tok/s | 95 GB |
+| GPT-OSS-120B (Frontier Dense) | ~21 tok/s | 59 GB |
 
 Full benchmarks with thermals, memory, and backend comparisons: [BENCHMARKS.md](BENCHMARKS.md)
 
@@ -282,10 +284,10 @@ Full architecture details: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 | 3 | Arch Linux Install | Base OS, btrfs, first boot | coming soon |
 | 4 | The Install Script | 33 services compiled from source | coming soon |
 | 5 | Security | Meek's 10 tools, hardened SSH, deny-all model | coming soon |
-| 6 | Lemonade + llama.cpp | Unified API, 109 tok/s, Vulkan + FA | coming soon |
+| 6 | Lemonade + llama.cpp | Unified API, 91 tok/s, Vulkan + FA | coming soon |
 | 7 | Chat + RAG | Open WebUI, document upload, vector search | coming soon |
 | 8 | Deep Research | Vane, cited sources, private search | coming soon |
-| 9 | Image Generation | ComfyUI on 115GB GPU | coming soon |
+| 9 | Image Generation | ComfyUI on 123GB GPU | coming soon |
 | 10 | Voice | whisper.cpp, Kokoro TTS, 54 voices | coming soon |
 | 11 | Workflows | n8n automation, GitHub webhooks | coming soon |
 | 12 | The Agents | Gaia, 17 agents, 78 tools, management | coming soon |

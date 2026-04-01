@@ -211,9 +211,9 @@ If `/etc/profile.d/rocm.sh` does not exist, ROCm was not installed. Check that `
 ls -la /opt/rocm
 ```
 
-### GPU memory not showing 115GB
+### GPU memory not showing 123GB
 
-The AMD Strix Halo has 128GB unified memory, but the GPU needs the kernel parameter `ttm.pages_limit=30146560` to expose the full 115GB GTT (Graphics Translation Table) region.
+The AMD Strix Halo has 128GB unified memory, but the GPU needs the kernel parameter `ttm.pages_limit=30146560` to expose the full 123GB GTT (Graphics Translation Table) region.
 
 **Check current kernel parameters:**
 
@@ -515,7 +515,7 @@ Expected performance on Strix Halo:
 
 | Model | Expected Speed |
 |-------|---------------|
-| Qwen3-30B-A3B (MoE, Q4_K_M) | ~87 tok/s |
+| Qwen3-30B-A3B (MoE, Q4_K_M) | ~91 tok/s |
 | Llama 3 70B | ~18 tok/s |
 | Llama 3 70B Q8 | ~10 tok/s |
 
@@ -567,7 +567,7 @@ rocm-smi --showpids
 - Use a smaller quantization (e.g., Q4_K_M instead of Q8_0)
 - Use a smaller model
 - Ensure no other GPU process is consuming memory
-- Verify the 115GB GTT is enabled (see [GPU memory not showing 115GB](#gpu-memory-not-showing-115gb))
+- Verify the 123GB GTT is enabled (see [GPU memory not showing 123GB](#gpu-memory-not-showing-123gb))
 
 The `-ngl 99` flag in the service file offloads all layers to GPU. If you are running out of VRAM, you can reduce this number to offload fewer layers (remaining layers run on CPU):
 

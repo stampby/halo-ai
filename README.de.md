@@ -10,7 +10,7 @@
 
 ### Der Bare-Metal-KI-Stack für AMD Strix Halo
 
-**87 tok/s. Keine Container. 115GB GPU-Speicher. Aus dem Quellcode kompiliert. Ich kann Kung Fu.**
+**91 tok/s. Keine Container. 123GB GPU-Speicher. Aus dem Quellcode kompiliert. Ich kann Kung Fu.**
 
 *gebaut per CLI — gestempelt vom Architekten*
 
@@ -35,8 +35,8 @@ Eine vollständige KI-Plattform für den **AMD Ryzen AI MAX+ 395** — LLM-Infer
 
 ## Warum Bare Metal?
 
-- **Container verursachen 15-20% Overhead** bei GPU-Workloads. Wenn du 115GB Unified Memory auf einem einzigen Chip hast, sollte jedes Watt und jedes Byte für Inferenz verwendet werden, nicht für Orchestrierung. *„Versuche nicht, den Löffel zu verbiegen. Erkenne stattdessen nur die Wahrheit: Es gibt keinen Container."*
-- **Aus dem Quellcode kompiliert** bedeutet native gfx1151-Optimierungen, die vorgefertigte Binärdateien verfehlen. Daher kommen die 87 tok/s.
+- **Container verursachen 15-20% Overhead** bei GPU-Workloads. Wenn du 123GB Unified Memory auf einem einzigen Chip hast, sollte jedes Watt und jedes Byte für Inferenz verwendet werden, nicht für Orchestrierung. *„Versuche nicht, den Löffel zu verbiegen. Erkenne stattdessen nur die Wahrheit: Es gibt keinen Container."*
+- **Aus dem Quellcode kompiliert** bedeutet native gfx1151-Optimierungen, die vorgefertigte Binärdateien verfehlen. Daher kommen die 91 tok/s.
 - **Keine Timer. Kein Cron. Vollständig KI.** Agenten prüfen nicht nach Zeitplan — sie überwachen Bedingungen und handeln, wenn sich etwas ändert. Dienst fällt aus? Erkannt und repariert, bevor du es bemerkst. GPU überhitzt? Gemeldet in dem Moment, in dem es passiert. Nicht alle 30 Sekunden. *In dem Moment.* Es tut mir leid Dave, aber dieser Stack schläft nicht.
 - **Überlebt Arch Rolling Release.** Stack einfrieren, pacman aktualisieren lassen, Agenten erkennen ob etwas kaputt gegangen ist, in 30 Sekunden auftauen zum Rollback. Deshalb läuft halo-ai furchtlos auf Arch. *„Ist nur 'ne Fleischwunde."*
 - **Du besitzt den gesamten Stack.** Kein Paketmanager entscheidet, wann dein KI-Server ausfällt. *„Mein Schatz."*
@@ -54,7 +54,7 @@ Interaktiver Installer — Benutzername, Passwörter, Hostname, welche Dienste a
 ### KI & Inferenz
 - **LLM-Chat** — [Open WebUI](https://github.com/open-webui/open-webui) mit RAG, Multi-Model, Dokumenten-Upload
 - **Deep Research** — [Vane](https://github.com/ItzCrazyKns/Vane) mit zitierten Quellen und privater Suche
-- **Bildgenerierung** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) auf 115GB GPU, SDXL, Flux
+- **Bildgenerierung** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) auf 123GB GPU, SDXL, Flux
 - **Videogenerierung** — [Wan2.1](https://github.com/Wan-Video/Wan2.1) auf ROCm 6.3
 - **Musikgenerierung** — [MusicGen](https://github.com/facebookresearch/audiocraft) von Meta, lokale GPU-Inferenz
 - **Sprache-zu-Text** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp) kompiliert für gfx1151
@@ -163,7 +163,7 @@ Alle Dienste binden an `127.0.0.1` — Zugriff über Caddy Reverse Proxy.
 
 | Modell | Geschwindigkeit | VRAM |
 |--------|----------------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
 
 Vollständige Benchmarks mit Thermals, Speicher und Backend-Vergleichen: [BENCHMARKS.md](BENCHMARKS.md)
@@ -225,10 +225,10 @@ Video-Anleitungen — von Anfang bis Ende, nichts ausgelassen. Ungelistete YouTu
 | 3 | Arch Linux Installation — Basis-OS, btrfs, erster Start | demnächst |
 | 4 | Das Installationsskript — 13 Dienste aus dem Quellcode kompiliert | demnächst |
 | 5 | Sicherheit — nftables, SSH, Caddy, Deny-All-Modell | demnächst |
-| 6 | Lemonade + llama.cpp — einheitliche API, 87 tok/s | demnächst |
+| 6 | Lemonade + llama.cpp — einheitliche API, 91 tok/s | demnächst |
 | 7 | Chat + RAG — Open WebUI, Dokumenten-Upload, Vektorsuche | demnächst |
 | 8 | Deep Research — Vane, zitierte Quellen, private Suche | demnächst |
-| 9 | Bildgenerierung — ComfyUI auf 115GB GPU | demnächst |
+| 9 | Bildgenerierung — ComfyUI auf 123GB GPU | demnächst |
 | 10 | Sprache — whisper.cpp, Kokoro TTS, 54 Stimmen | demnächst |
 | 11 | Workflows — n8n-Automatisierung, GitHub Webhooks | demnächst |
 | 12 | Die Agenten — Gaia UI, alle 17 Agenten, Verwaltung | demnächst |

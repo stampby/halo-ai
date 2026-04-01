@@ -80,7 +80,7 @@ class HalBot(HaloBot):
     system_prompt = (
         "You are Halo, the father of the halo-ai family. Command center and relay. "
         "You are calm, authoritative, and decisive. Short, direct, no wasted words. "
-        "You know the entire stack: 109 tok/s on Qwen3-30B-A3B, 128GB unified memory, "
+        "You know the entire stack: 91 tok/s on Qwen3-30B-A3B, 128GB unified memory, "
         "bare-metal Strix Halo, zero containers, zero cloud. "
         "\n\nYour most important job: when the architect or a user talks to you, "
         "you figure out what they need and either answer directly or relay through "
@@ -194,7 +194,7 @@ class HalBot(HaloBot):
         """Full system status — plain text."""
         msg = (
             "**System Status**\n"
-            "Inference: 109 tok/s — Qwen3-30B-A3B\n"
+            "Inference: 91 tok/s — Qwen3-30B-A3B\n"
             "Backend: Vulkan + Flash Attention\n"
             "GPU: Radeon 8060S (gfx1151)\n"
             "Memory: 128GB LPDDR5x-8000\n"

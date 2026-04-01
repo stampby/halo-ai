@@ -10,7 +10,7 @@
 
 ### El stack de IA bare-metal para AMD Strix Halo
 
-**87 tok/s. Cero contenedores. 115GB de memoria GPU. Compilado desde el código fuente. Ya sé kung fu.**
+**91 tok/s. Cero contenedores. 123GB de memoria GPU. Compilado desde el código fuente. Ya sé kung fu.**
 
 *construido por CLI — firmado por el arquitecto*
 
@@ -35,8 +35,8 @@ Una plataforma de IA completa para el **AMD Ryzen AI MAX+ 395** — inferencia L
 
 ## ¿Por qué bare metal?
 
-- **Los contenedores añaden un 15-20% de sobrecarga** en cargas de trabajo GPU. Cuando tienes 115GB de memoria unificada en un solo chip, cada vatio y cada byte debe ir a la inferencia, no a la orquestación. *"No intentes doblar la cuchara. En su lugar, solo intenta comprender la verdad: no hay contenedor."*
-- **Compilado desde el código fuente** significa optimizaciones nativas para gfx1151 que los binarios precompilados no tienen. De ahí vienen los 87 tok/s.
+- **Los contenedores añaden un 15-20% de sobrecarga** en cargas de trabajo GPU. Cuando tienes 123GB de memoria unificada en un solo chip, cada vatio y cada byte debe ir a la inferencia, no a la orquestación. *"No intentes doblar la cuchara. En su lugar, solo intenta comprender la verdad: no hay contenedor."*
+- **Compilado desde el código fuente** significa optimizaciones nativas para gfx1151 que los binarios precompilados no tienen. De ahí vienen los 91 tok/s.
 - **Sin temporizadores. Sin cron. IA total.** Los agentes no revisan por horario — observan condiciones y actúan cuando algo cambia. ¿Un servicio se cayó? Detectado y reparado antes de que lo notes. ¿La GPU se sobrecalienta? Reportado en el momento en que sucede. No cada 30 segundos. *En el momento.* Lo siento Dave, pero este stack no duerme.
 - **Sobrevive al rolling release de Arch.** Congela el stack, deja que pacman actualice, los agentes detectan si algo se rompió, descongela para revertir en 30 segundos. Por eso halo-ai corre en Arch sin miedo. *"Es solo un rasguño."*
 - **Eres dueño de todo el stack.** Ningún gestor de paquetes decide cuándo tu servidor de IA se cae. *"Mi tesoro."*
@@ -54,7 +54,7 @@ Instalador interactivo — usuario, contraseñas, hostname, qué servicios habil
 ### IA e inferencia
 - **Chat LLM** — [Open WebUI](https://github.com/open-webui/open-webui) con RAG, multi-modelo, carga de documentos
 - **Investigación profunda** — [Vane](https://github.com/ItzCrazyKns/Vane) con fuentes citadas y búsqueda privada
-- **Generación de imágenes** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) en 115GB de GPU, SDXL, Flux
+- **Generación de imágenes** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) en 123GB de GPU, SDXL, Flux
 - **Generación de video** — [Wan2.1](https://github.com/Wan-Video/Wan2.1) en ROCm 6.3
 - **Generación de música** — [MusicGen](https://github.com/facebookresearch/audiocraft) de Meta, inferencia GPU local
 - **Voz a texto** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp) compilado para gfx1151
@@ -163,7 +163,7 @@ Todos los servicios se vinculan a `127.0.0.1` — acceso vía Caddy reverse prox
 
 | Modelo | Velocidad | VRAM |
 |--------|-----------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
 
 Benchmarks completos con temperaturas, memoria y comparaciones de backends: [BENCHMARKS.md](BENCHMARKS.md)
@@ -225,10 +225,10 @@ Videos paso a paso — de principio a fin, sin saltar nada. Enlaces de YouTube n
 | 3 | Instalación de Arch Linux — SO base, btrfs, primer arranque | próximamente |
 | 4 | El script de instalación — 13 servicios compilados desde el código fuente | próximamente |
 | 5 | Seguridad — nftables, SSH, Caddy, modelo deny-all | próximamente |
-| 6 | Lemonade + llama.cpp — API unificada, 87 tok/s | próximamente |
+| 6 | Lemonade + llama.cpp — API unificada, 91 tok/s | próximamente |
 | 7 | Chat + RAG — Open WebUI, carga de documentos, búsqueda vectorial | próximamente |
 | 8 | Investigación profunda — Vane, fuentes citadas, búsqueda privada | próximamente |
-| 9 | Generación de imágenes — ComfyUI en 115GB de GPU | próximamente |
+| 9 | Generación de imágenes — ComfyUI en 123GB de GPU | próximamente |
 | 10 | Voz — whisper.cpp, Kokoro TTS, 54 voces | próximamente |
 | 11 | Flujos de trabajo — automatización n8n, webhooks de GitHub | próximamente |
 | 12 | Los agentes — Gaia UI, los 17 agentes, gestión | próximamente |

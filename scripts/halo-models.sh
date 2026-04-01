@@ -7,21 +7,21 @@ MODELS_DIR="/srv/ai/models"
 SERVICE="halo-llama-server.service"
 UNIT="/etc/systemd/system/$SERVICE"
 
-# Models curated for 115GB GTT Strix Halo
+# Models curated for 123GB GTT Strix Halo
 declare -A CATALOG
-CATALOG["qwen3-30b-a3b"]="unsloth/Qwen3-30B-A3B-GGUF|Qwen3-30B-A3B-Q4_K_M.gguf|18G|~109 tok/s|Best balance of speed and quality (MoE)"
+CATALOG["qwen3-30b-a3b"]="unsloth/Qwen3-30B-A3B-GGUF|Qwen3-30B-A3B-Q4_K_M.gguf|18G|~91 tok/s|Best balance of speed and quality (MoE)"
 CATALOG["qwen3-coder-30b"]="unsloth/Qwen3-Coder-30B-A3B-GGUF|Qwen3-Coder-30B-A3B-Q4_K_M.gguf|18G|~100 tok/s|Code-focused MoE — ideal for Copilot"
 CATALOG["llama3-8b"]="bartowski/Meta-Llama-3.1-8B-Instruct-GGUF|Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf|5G|~120 tok/s|Fast small model"
 CATALOG["llama3-70b"]="bartowski/Meta-Llama-3.1-70B-Instruct-GGUF|Meta-Llama-3.1-70B-Instruct-Q4_K_M.gguf|40G|~18 tok/s|Large dense model"
 CATALOG["llama3-70b-q8"]="bartowski/Meta-Llama-3.1-70B-Instruct-GGUF|Meta-Llama-3.1-70B-Instruct-Q8_0.gguf|70G|~10 tok/s|70B at highest quality — only Strix Halo can fit this"
-CATALOG["deepseek-v3"]="bartowski/DeepSeek-V3-0324-GGUF|DeepSeek-V3-0324-Q4_K_M.gguf|95G|~8 tok/s|Frontier MoE — pushes 115GB limit"
+CATALOG["deepseek-v3"]="bartowski/DeepSeek-V3-0324-GGUF|DeepSeek-V3-0324-Q4_K_M.gguf|95G|~8 tok/s|Frontier MoE — pushes 123GB limit"
 CATALOG["gemma3-27b"]="bartowski/gemma-3-27b-it-GGUF|gemma-3-27b-it-Q4_K_M.gguf|16G|~45 tok/s|Google's best open model"
 CATALOG["mistral-small"]="bartowski/Mistral-Small-3.1-24B-Instruct-2503-GGUF|Mistral-Small-3.1-24B-Instruct-2503-Q4_K_M.gguf|14G|~50 tok/s|Fast and capable"
 CATALOG["qwen3-235b"]="ubergarm/Qwen3-235B-A22B-GGUF|Qwen3-235B-A22B-UD-Q2_K_XL.gguf|95G|~8 tok/s|Frontier 235B MoE — peak intelligence"
-CATALOG["gpt-oss-120b"]="bartowski/GPT-OSS-120B-GGUF|GPT-OSS-120B-Q4_K_M.gguf|59G|~21 tok/s|Frontier dense — fits comfortably in 115GB"
+CATALOG["gpt-oss-120b"]="bartowski/GPT-OSS-120B-GGUF|GPT-OSS-120B-Q4_K_M.gguf|59G|~21 tok/s|Frontier dense — fits comfortably in 123GB"
 
 list_catalog() {
-    echo "Available models for Strix Halo (115GB GTT):"
+    echo "Available models for Strix Halo (123GB GTT):"
     echo ""
     printf "%-22s %-6s %-12s %s\n" "NAME" "SIZE" "SPEED" "DESCRIPTION"
     printf "%-22s %-6s %-12s %s\n" "----" "----" "-----" "-----------"

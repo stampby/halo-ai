@@ -97,7 +97,7 @@ async def on_ready():
         try:
             await welcome_ch.send(
                 "**Welcome to the halo-ai family.**\n\n"
-                "109 tok/s. 33 services. 17 agents. 98 tools. Zero cloud. "
+                "91 tok/s. 33 services. 17 agents. 98 tools. Zero cloud. "
                 "Everything compiled from source on bare metal.\n\n"
                 "I'm **Echo** -- the voice of the family. Ask me anything about "
                 "the stack, the agents, or how to get started.\n\n"

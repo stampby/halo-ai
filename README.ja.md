@@ -10,7 +10,7 @@
 
 ### AMD Strix Halo のためのベアメタルAIスタック
 
-**87 tok/s。コンテナなし。115GB GPUメモリ。ソースからコンパイル。カンフーを習得した。**
+**91 tok/s。コンテナなし。123GB GPUメモリ。ソースからコンパイル。カンフーを習得した。**
 
 *CLIで構築 — アーキテクトが刻印*
 
@@ -35,8 +35,8 @@
 
 ## なぜベアメタルなのか？
 
-- **コンテナはGPUワークロードで15-20%のオーバーヘッド**を生む。1チップに115GBの統合メモリがあるなら、すべてのワットとバイトはオーケストレーションではなく推論に使うべきだ。*「スプーンを曲げようとするな。代わりに、真実を悟れ。コンテナなど存在しない。」*
-- **ソースからコンパイル**することで、ビルド済みバイナリでは得られないネイティブgfx1151最適化を実現。87 tok/sの秘密はここにある。
+- **コンテナはGPUワークロードで15-20%のオーバーヘッド**を生む。1チップに123GBの統合メモリがあるなら、すべてのワットとバイトはオーケストレーションではなく推論に使うべきだ。*「スプーンを曲げようとするな。代わりに、真実を悟れ。コンテナなど存在しない。」*
+- **ソースからコンパイル**することで、ビルド済みバイナリでは得られないネイティブgfx1151最適化を実現。91 tok/sの秘密はここにある。
 - **タイマーなし。cronなし。完全AI。** エージェントはスケジュールでチェックしない — 状態を監視し、変化があれば行動する。サービスがダウン？気づく前に検出・修復済み。GPUがオーバーヒート？30秒ごとではない。*その瞬間に*報告される。申し訳ないがデイブ、このスタックは眠らない。
 - **Archのローリングリリースに耐える。** スタックをフリーズし、pacmanにアップデートさせ、エージェントが何か壊れたか検出し、30秒でロールバックにthaw。これがhalo-aiが恐れなくArchで動く理由だ。*「かすり傷だ。」*
 - **スタック全体を所有する。** パッケージマネージャーがAIサーバーの停止時期を決めることはない。*「いとしいしと。」*
@@ -54,7 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 ### AI & 推論
 - **LLMチャット** — [Open WebUI](https://github.com/open-webui/open-webui)、RAG、マルチモデル、ドキュメントアップロード対応
 - **ディープリサーチ** — [Vane](https://github.com/ItzCrazyKns/Vane)、引用付きソースとプライベート検索
-- **画像生成** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI)、115GB GPU上で SDXL、Flux
+- **画像生成** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI)、123GB GPU上で SDXL、Flux
 - **動画生成** — [Wan2.1](https://github.com/Wan-Video/Wan2.1)、ROCm 6.3上で動作
 - **音楽生成** — [MusicGen](https://github.com/facebookresearch/audiocraft)（Meta製）、ローカルGPU推論
 - **音声認識** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp)、gfx1151向けコンパイル
@@ -163,7 +163,7 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 
 | モデル | 速度 | VRAM |
 |-------|-------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
 
 サーマル、メモリ、バックエンド比較を含む完全なベンチマーク: [BENCHMARKS.md](BENCHMARKS.md)
@@ -225,10 +225,10 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 | 3 | Arch Linuxインストール — ベースOS、btrfs、初回起動 | 近日公開 |
 | 4 | インストールスクリプト — ソースからコンパイルした13サービス | 近日公開 |
 | 5 | セキュリティ — nftables、SSH、Caddy、全拒否モデル | 近日公開 |
-| 6 | Lemonade + llama.cpp — 統合API、87 tok/s | 近日公開 |
+| 6 | Lemonade + llama.cpp — 統合API、91 tok/s | 近日公開 |
 | 7 | チャット + RAG — Open WebUI、ドキュメントアップロード、ベクトル検索 | 近日公開 |
 | 8 | ディープリサーチ — Vane、引用付きソース、プライベート検索 | 近日公開 |
-| 9 | 画像生成 — 115GB GPU上のComfyUI | 近日公開 |
+| 9 | 画像生成 — 123GB GPU上のComfyUI | 近日公開 |
 | 10 | 音声 — whisper.cpp、Kokoro TTS、54音声 | 近日公開 |
 | 11 | ワークフロー — n8n自動化、GitHub Webhook | 近日公開 |
 | 12 | エージェント — Gaia UI、全17エージェント、管理 | 近日公開 |

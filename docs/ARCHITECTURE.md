@@ -2,7 +2,7 @@
 
 ## Overview
 
-Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 87 tok/s on Qwen3-30B-A3B. *"Welcome to the real world."*
+Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 91 tok/s on Qwen3-30B-A3B. *"Welcome to the real world."*
 
 The stack provides LLM inference, chat UI, deep research, speech-to-text, text-to-speech, image generation, RAG pipelines, workflow automation, private search, and autonomous monitoring -- all integrated, all on localhost.
 
@@ -12,13 +12,13 @@ The stack provides LLM inference, chat UI, deep research, speech-to-text, text-t
 |-----------|---------------|
 | CPU/GPU | AMD Ryzen AI MAX+ 395 (Strix Halo) -- gfx1151 |
 | Total Memory | 128 GB unified (shared between CPU and GPU) |
-| GPU-Accessible Memory | 115 GB GTT (Graphics Translation Table) |
+| GPU-Accessible Memory | 123 GB GTT (Graphics Translation Table) |
 | GPU Compute | ROCm 7.13 (TheRock nightly builds for gfx1151) |
 | Kernel Parameter | `ttm.pages_limit=30146560` to unlock full GPU memory |
 | Filesystem | Btrfs with subvolumes and Snapper snapshots |
 | OS | Arch Linux (bleeding-edge kernel and Mesa) |
 
-The 115GB GPU memory is what makes this platform viable. Models up to 70B parameters (quantized) can be loaded entirely into GPU memory on a single chip, with no PCIe bottleneck since CPU and GPU share the same memory bus. *"One chip to rule them all."*
+The 123GB GPU memory is what makes this platform viable. Models up to 70B parameters (quantized) can be loaded entirely into GPU memory on a single chip, with no PCIe bottleneck since CPU and GPU share the same memory bus. *"One chip to rule them all."*
 
 ## Service Map
 
@@ -93,7 +93,7 @@ Lemonade :8080 (API gateway)
     v
 llama-server :8081
     |-- Loads model from /srv/ai/models/
-    |-- Runs inference on GPU (115GB GTT memory)
+    |-- Runs inference on GPU (123GB GTT memory)
     |-- Returns generated tokens
     |
     v
@@ -390,7 +390,7 @@ llama.cpp is compiled three times, producing three separate binaries in `/srv/ai
 
 - **Binary**: `/srv/ai/llama-cpp/build-vulkan/bin/llama-server`
 - **Build flags**: `-DGGML_VULKAN=ON`
-- **Best for**: Token generation speed (fastest tok/s, ~87 tok/s on Qwen3-30B-A3B)
+- **Best for**: Token generation speed (fastest tok/s, ~91 tok/s on Qwen3-30B-A3B)
 - **Why**: Mesa RADV driver is highly optimized on Arch Linux. Lower overhead for small batch inference.
 - **Notes**: Does not require ROCm. Works with standard Mesa Vulkan drivers. The default ExecStart in the shipped systemd unit actually points to the Vulkan binary despite the unit being named "HIP/ROCm" in its description.
 

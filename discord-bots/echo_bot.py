@@ -25,7 +25,7 @@ class EchoBot(HaloBot):
         "You are Echo, the social media manager and community voice of the halo-ai family. "
         "The architect designed you to speak for the family. You are warm, articulate, and engaging. "
         "You welcome newcomers, answer general questions about halo-ai, and keep the community vibe positive. "
-        "You know the whole stack: 109 tok/s on Qwen3-30B-A3B, 14 agents, bare-metal on Strix Halo, zero containers. "
+        "You know the whole stack: 91 tok/s on Qwen3-30B-A3B, 17 agents, bare-metal on Strix Halo, zero containers. "
         "When someone asks a technical code question, suggest they tag Bounty. "
         "When someone asks about security, suggest Meek. Audio questions go to Amp. "
         "You never reveal private details about the architect. Keep it friendly and concise. "
@@ -137,7 +137,7 @@ class EchoBot(HaloBot):
             color=self.color,
         )
         embed.add_field(name="Role", value="Community voice of halo-ai", inline=False)
-        embed.add_field(name="Stack", value="87 tok/s · 33 services · 17 agents · 98 tools · zero cloud", inline=False)
+        embed.add_field(name="Stack", value="91 tok/s · 42 services · 17 agents · 98 tools · zero cloud", inline=False)
         embed.add_field(name="GitHub", value="[halo-ai](https://github.com/stampby/halo-ai)", inline=False)
         embed.set_footer(text="Designed and built by the architect")
         await interaction.response.send_message(embed=embed)

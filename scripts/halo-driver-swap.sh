@@ -149,7 +149,7 @@ case "${1:-status}" in
         echo ""
         echo "Usage: $0 {vulkan|hip|opencl|status|list|bench}"
         echo ""
-        echo "  vulkan  - Switch to Vulkan (RADV) — fastest generation (~109 tok/s)"
+        echo "  vulkan  - Switch to Vulkan (RADV) — fastest generation (~91 tok/s)"
         echo "  hip     - Switch to HIP (ROCm) — fastest prompt processing, best for long context"
         echo "  opencl  - Switch to OpenCL (ROCm) — general GPU compute"
         echo "  status  - Show current backend and speed"

@@ -10,7 +10,7 @@
 
 ### AMD Strix Halo를 위한 베어메탈 AI 스택
 
-**87 tok/s. 컨테이너 제로. 115GB GPU 메모리. 소스에서 직접 컴파일. 나는 쿵후를 안다.**
+**91 tok/s. 컨테이너 제로. 123GB GPU 메모리. 소스에서 직접 컴파일. 나는 쿵후를 안다.**
 
 *CLI로 구축 — 아키텍트가 각인*
 
@@ -35,8 +35,8 @@
 
 ## 왜 베어메탈인가?
 
-- **컨테이너는 GPU 워크로드에 15-20% 오버헤드를 추가합니다.** 단일 칩에 115GB 통합 메모리가 있을 때, 모든 와트와 바이트는 오케스트레이션이 아닌 추론에 사용되어야 합니다. *"숟가락을 구부리려 하지 마라. 대신 진실을 깨달으려 해라: 컨테이너는 없다."*
-- **소스에서 컴파일**하면 사전 빌드된 바이너리가 놓치는 네이티브 gfx1151 최적화를 적용할 수 있습니다. 87 tok/s는 거기서 나옵니다.
+- **컨테이너는 GPU 워크로드에 15-20% 오버헤드를 추가합니다.** 단일 칩에 123GB 통합 메모리가 있을 때, 모든 와트와 바이트는 오케스트레이션이 아닌 추론에 사용되어야 합니다. *"숟가락을 구부리려 하지 마라. 대신 진실을 깨달으려 해라: 컨테이너는 없다."*
+- **소스에서 컴파일**하면 사전 빌드된 바이너리가 놓치는 네이티브 gfx1151 최적화를 적용할 수 있습니다. 91 tok/s는 거기서 나옵니다.
 - **타이머 없음. Cron 없음. 완전한 AI.** 에이전트는 일정에 따라 확인하지 않습니다 — 조건을 감시하고 변화가 있을 때 행동합니다. 서비스가 다운되면? 당신이 알아차리기 전에 감지하고 복구합니다. GPU가 과열되면? 발생하는 그 순간 보고합니다. 30초마다가 아닙니다. *그 순간.* 미안하지만 Dave, 이 스택은 잠들지 않습니다.
 - **Arch 롤링 릴리스에서도 생존합니다.** 스택을 동결하고, pacman이 업데이트하게 하고, 에이전트가 문제를 감지하면 30초 만에 롤백합니다. 이것이 halo-ai가 두려움 없이 Arch에서 실행되는 이유입니다. *"이건 그저 가벼운 상처일 뿐."*
 - **전체 스택을 소유합니다.** 패키지 매니저가 AI 서버의 다운 시점을 결정하지 않습니다. *"나의 보물."*
@@ -54,7 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 ### AI 및 추론
 - **LLM 채팅** — RAG, 멀티 모델, 문서 업로드가 포함된 [Open WebUI](https://github.com/open-webui/open-webui)
 - **심층 연구** — 출처 인용과 비공개 검색이 가능한 [Vane](https://github.com/ItzCrazyKns/Vane)
-- **이미지 생성** — 115GB GPU의 [ComfyUI](https://github.com/comfyanonymous/ComfyUI), SDXL, Flux
+- **이미지 생성** — 123GB GPU의 [ComfyUI](https://github.com/comfyanonymous/ComfyUI), SDXL, Flux
 - **영상 생성** — ROCm 6.3 기반 [Wan2.1](https://github.com/Wan-Video/Wan2.1)
 - **음악 생성** — Meta의 [MusicGen](https://github.com/facebookresearch/audiocraft), 로컬 GPU 추론
 - **음성-텍스트 변환** — gfx1151용으로 컴파일된 [whisper.cpp](https://github.com/ggerganov/whisper.cpp)
@@ -163,7 +163,7 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 
 | 모델 | 속도 | VRAM |
 |-------|-------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
 
 열, 메모리, 백엔드 비교가 포함된 전체 벤치마크: [BENCHMARKS.md](BENCHMARKS.md)
@@ -225,10 +225,10 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 | 3 | Arch Linux 설치 — 기본 OS, btrfs, 첫 부팅 | 준비 중 |
 | 4 | 설치 스크립트 — 소스에서 컴파일된 13개 서비스 | 준비 중 |
 | 5 | 보안 — nftables, SSH, Caddy, 전면 차단 모델 | 준비 중 |
-| 6 | Lemonade + llama.cpp — 통합 API, 87 tok/s | 준비 중 |
+| 6 | Lemonade + llama.cpp — 통합 API, 91 tok/s | 준비 중 |
 | 7 | 채팅 + RAG — Open WebUI, 문서 업로드, 벡터 검색 | 준비 중 |
 | 8 | 심층 연구 — Vane, 출처 인용, 비공개 검색 | 준비 중 |
-| 9 | 이미지 생성 — 115GB GPU의 ComfyUI | 준비 중 |
+| 9 | 이미지 생성 — 123GB GPU의 ComfyUI | 준비 중 |
 | 10 | 음성 — whisper.cpp, Kokoro TTS, 54개 음성 | 준비 중 |
 | 11 | 워크플로우 — n8n 자동화, GitHub 웹훅 | 준비 중 |
 | 12 | 에이전트 — Gaia UI, 17개 전체 에이전트, 관리 | 준비 중 |

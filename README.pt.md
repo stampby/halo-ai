@@ -10,7 +10,7 @@
 
 ### A stack de IA bare-metal para AMD Strix Halo
 
-**87 tok/s. Zero containers. 115GB de memória GPU. Compilado a partir do código-fonte. Eu sei kung fu.**
+**91 tok/s. Zero containers. 123GB de memória GPU. Compilado a partir do código-fonte. Eu sei kung fu.**
 
 *construído por CLI — carimbado pelo arquiteto*
 
@@ -35,8 +35,8 @@ Uma plataforma de IA completa para o **AMD Ryzen AI MAX+ 395** — inferência L
 
 ## Por que Bare Metal?
 
-- **Containers adicionam 15-20% de overhead** em cargas de trabalho GPU. Quando você tem 115GB de memória unificada em um único chip, cada watt e cada byte devem ir para inferência, não para orquestração. *"Não tente entortar a colher. Em vez disso, apenas tente perceber a verdade: não existe container."*
-- **Compilado a partir do código-fonte** significa otimizações nativas gfx1151 que binários pré-compilados não alcançam. É daí que vêm os 87 tok/s.
+- **Containers adicionam 15-20% de overhead** em cargas de trabalho GPU. Quando você tem 123GB de memória unificada em um único chip, cada watt e cada byte devem ir para inferência, não para orquestração. *"Não tente entortar a colher. Em vez disso, apenas tente perceber a verdade: não existe container."*
+- **Compilado a partir do código-fonte** significa otimizações nativas gfx1151 que binários pré-compilados não alcançam. É daí que vêm os 91 tok/s.
 - **Sem timers. Sem cron. IA total.** Os agentes não verificam em um cronograma — eles observam condições e agem quando algo muda. Serviço caiu? Detectado e reparado antes de você perceber. GPU superaqueceu? Reportado no momento em que acontece. Não a cada 30 segundos. *No momento.* Desculpe Dave, mas essa stack não dorme.
 - **Sobrevive ao rolling release do Arch.** Congele a stack, deixe o pacman atualizar, os agentes detectam se algo quebrou, descongele para rollback em 30 segundos. É por isso que o halo-ai roda no Arch sem medo. *"É apenas um arranhão."*
 - **Você é dono de toda a stack.** Nenhum gerenciador de pacotes decide quando seu servidor de IA cai. *"Meu precioso."*
@@ -54,7 +54,7 @@ Instalador interativo — nome de usuário, senhas, hostname, quais serviços ha
 ### IA & Inferência
 - **Chat LLM** — [Open WebUI](https://github.com/open-webui/open-webui) com RAG, multi-modelo, upload de documentos
 - **Pesquisa profunda** — [Vane](https://github.com/ItzCrazyKns/Vane) com fontes citadas e busca privada
-- **Geração de imagens** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) em 115GB GPU, SDXL, Flux
+- **Geração de imagens** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI) em 123GB GPU, SDXL, Flux
 - **Geração de vídeo** — [Wan2.1](https://github.com/Wan-Video/Wan2.1) em ROCm 6.3
 - **Geração de música** — [MusicGen](https://github.com/facebookresearch/audiocraft) da Meta, inferência local na GPU
 - **Fala para texto** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp) compilado para gfx1151
@@ -163,7 +163,7 @@ Todos os serviços fazem bind em `127.0.0.1` — acesso via reverse proxy Caddy.
 
 | Modelo | Velocidade | VRAM |
 |--------|-----------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
 
 Benchmarks completos com temperaturas, memória e comparações de backends: [BENCHMARKS.md](BENCHMARKS.md)
@@ -225,10 +225,10 @@ Vídeos passo a passo — do início ao fim, sem pular nada. Links não listados
 | 3 | Instalação do Arch Linux — SO base, btrfs, primeiro boot | em breve |
 | 4 | O Script de Instalação — 13 serviços compilados a partir do código-fonte | em breve |
 | 5 | Segurança — nftables, SSH, Caddy, modelo deny-all | em breve |
-| 6 | Lemonade + llama.cpp — API unificada, 87 tok/s | em breve |
+| 6 | Lemonade + llama.cpp — API unificada, 91 tok/s | em breve |
 | 7 | Chat + RAG — Open WebUI, upload de documentos, busca vetorial | em breve |
 | 8 | Pesquisa Profunda — Vane, fontes citadas, busca privada | em breve |
-| 9 | Geração de Imagens — ComfyUI em 115GB GPU | em breve |
+| 9 | Geração de Imagens — ComfyUI em 123GB GPU | em breve |
 | 10 | Voz — whisper.cpp, Kokoro TTS, 54 vozes | em breve |
 | 11 | Workflows — automação n8n, webhooks GitHub | em breve |
 | 12 | Os Agentes — Gaia UI, todos os 17 agentes, gerenciamento | em breve |

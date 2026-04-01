@@ -10,7 +10,7 @@
 
 ### 面向 AMD Strix Halo 的裸机 AI 堆栈
 
-**87 tok/s。零容器。115GB GPU 显存。从源码编译。我会功夫了。**
+**91 tok/s。零容器。123GB GPU 显存。从源码编译。我会功夫了。**
 
 *由 CLI 构建 — 由架构师盖章*
 
@@ -35,8 +35,8 @@
 
 ## 为什么选择裸机？
 
-- **容器在 GPU 工作负载上增加 15-20% 的开销。** 当你在一颗芯片上拥有 115GB 统一内存时，每一瓦和每一字节都应该用于推理，而不是编排。*"不要试图弯曲勺子。相反，只需试着认清真相：没有容器。"*
-- **从源码编译** 意味着预编译二进制文件所缺失的原生 gfx1151 优化。这就是 87 tok/s 的由来。
+- **容器在 GPU 工作负载上增加 15-20% 的开销。** 当你在一颗芯片上拥有 123GB 统一内存时，每一瓦和每一字节都应该用于推理，而不是编排。*"不要试图弯曲勺子。相反，只需试着认清真相：没有容器。"*
+- **从源码编译** 意味着预编译二进制文件所缺失的原生 gfx1151 优化。这就是 91 tok/s 的由来。
 - **没有定时器。没有 cron。完全 AI 化。** 代理不会按计划检查 — 它们监视条件并在变化发生时采取行动。服务宕机？在你注意到之前就已检测并修复。GPU 过热？事件发生的*那一刻*就会报告。不是每 30 秒。*那一刻。* 抱歉 Dave，这个堆栈不会睡觉。
 - **在 Arch 滚动更新中存活。** 冻结堆栈，让 pacman 更新，代理检测是否有任何故障，30 秒内回滚解冻。这就是 halo-ai 能在 Arch 上无畏运行的原因。*"不过是皮外伤。"*
 - **你拥有整个堆栈。** 没有包管理器来决定你的 AI 服务器何时停机。*"我的宝贝。"*
@@ -54,7 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 ### AI 与推理
 - **LLM 聊天** — [Open WebUI](https://github.com/open-webui/open-webui)，支持 RAG、多模型、文档上传
 - **深度研究** — [Vane](https://github.com/ItzCrazyKns/Vane)，带引用来源和隐私搜索
-- **图像生成** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI)，115GB GPU，SDXL，Flux
+- **图像生成** — [ComfyUI](https://github.com/comfyanonymous/ComfyUI)，123GB GPU，SDXL，Flux
 - **视频生成** — [Wan2.1](https://github.com/Wan-Video/Wan2.1)，基于 ROCm 6.3
 - **音乐生成** — Meta 的 [MusicGen](https://github.com/facebookresearch/audiocraft)，本地 GPU 推理
 - **语音转文字** — [whisper.cpp](https://github.com/ggerganov/whisper.cpp)，为 gfx1151 编译
@@ -163,7 +163,7 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 
 | 模型 | 速度 | 显存 |
 |------|------|------|
-| Qwen3-30B-A3B (MoE) | **87 tok/s** | 18 GB |
+| Qwen3-30B-A3B (MoE) | **83-91 tok/s** | 18 GB |
 | Llama 3 70B | ~18 tok/s | 40 GB |
 
 完整基准测试，包含温度、内存和后端对比：[BENCHMARKS.md](BENCHMARKS.md)
@@ -225,10 +225,10 @@ curl -fsSL https://raw.githubusercontent.com/stampby/halo-ai/main/install.sh | b
 | 3 | Arch Linux 安装 — 基础系统，btrfs，首次启动 | 即将推出 |
 | 4 | 安装脚本 — 13 项从源码编译的服务 | 即将推出 |
 | 5 | 安全 — nftables、SSH、Caddy、全拒绝模型 | 即将推出 |
-| 6 | Lemonade + llama.cpp — 统一 API，87 tok/s | 即将推出 |
+| 6 | Lemonade + llama.cpp — 统一 API，91 tok/s | 即将推出 |
 | 7 | 聊天 + RAG — Open WebUI，文档上传，向量搜索 | 即将推出 |
 | 8 | 深度研究 — Vane，引用来源，隐私搜索 | 即将推出 |
-| 9 | 图像生成 — ComfyUI，115GB GPU | 即将推出 |
+| 9 | 图像生成 — ComfyUI，123GB GPU | 即将推出 |
 | 10 | 语音 — whisper.cpp、Kokoro TTS、54 种语音 | 即将推出 |
 | 11 | 工作流 — n8n 自动化，GitHub Webhooks | 即将推出 |
 | 12 | 代理 — Gaia 界面，全部 17 个代理，管理 | 即将推出 |

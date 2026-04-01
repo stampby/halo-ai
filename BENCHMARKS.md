@@ -1,37 +1,38 @@
 # halo-ai Benchmark Results
 
-**Date**: 2026-03-31 (updated — llama.cpp b8591)
+**Date**: 2026-04-01 (live benchmarks — llama.cpp b8599)
 **Hardware**: AMD Ryzen AI MAX+ 395 (Strix Halo), 128GB LPDDR5x-8000
 **Kernel**: 6.19.9-arch1-1
-**ROCm**: 7.13 (TheRock nightly, gfx1151)
-**GPU Memory (GTT)**: 115 GB
+**ROCm**: 7.13.0 (TheRock nightly, gfx1151)
+**GPU Memory (GTT)**: 123 GB
 **Model**: Qwen3-30B-A3B (MoE, Q4_K_M, 18GB)
 
 ## Backend Comparison
 
 | Backend | Gen Speed (200 tok) | Gen Speed (500 tok) | Prompt Speed |
 |---------|:---:|:---:|:---:|
-| **Vulkan (RADV) + Flash Attention** | **86.91 tok/s** | **86.91 tok/s** | 58-172 tok/s |
-| HIP (ROCm) + rocWMMA FA | 70.2 tok/s | 68.4 tok/s | 217-302 tok/s |
+| **Vulkan (RADV) + Flash Attention** | **83.9 tok/s** | **83.6 tok/s** | 241-268 tok/s |
+| OpenCL (secondary instance) | — | — | Running on :8083 |
 
-**Vulkan wins for generation** (~55% faster). HIP wins for prompt processing. Default backend is now Vulkan + Flash Attention. *"These go to eleven."*
+**Default backend is Vulkan + Flash Attention** (port 8081). OpenCL instance runs on port 8083 as a secondary. *"These go to eleven."*
 
 ## Inference Performance (Vulkan + FA, default)
 
+Live benchmark results with 42 services running simultaneously:
+
 | Test | Prompt Tokens | Gen Tokens | Gen Speed | TTFT | Total |
 |------|:---:|:---:|:---:|:---:|:---:|
-| Short prompt | 17 | 93 | 87.2 tok/s | <60ms | 1.1s |
-| Medium prompt | 83 | 200 | 86.3 tok/s | 187ms | 2.5s |
-| Code generation | 40 | 500 | 86.0 tok/s | 193ms | 6.0s |
-| Long sustained | 26 | 1000 | 85.5 tok/s | 104ms | 11.8s |
+| Short prompt | 1 | 14 | 91.3 tok/s | 15ms | 0.2s |
+| Medium prompt | 43 | 200 | 83.9 tok/s | 160ms | 3.2s |
+| Code generation | 31 | 403 | 83.6 tok/s | 121ms | 6.1s |
+| Long sustained | 34 | 1000 | 82.9 tok/s | 141ms | 12.4s |
 
 ### Key Metrics
 
-- **Generation**: 85-87 tok/s sustained (Vulkan + Flash Attention)
-- **Prompt processing**: 178-444 tok/s depending on input length
-- **Time to first token**: <110ms
-- **GPU utilization**: 97% during inference
-- **GPU temperature**: 55°C under sustained load (well within limits)
+- **Generation**: 82.9-91.3 tok/s sustained (Vulkan + Flash Attention)
+- **Prompt processing**: 68-268 tok/s depending on input length
+- **Time to first token**: 15-160ms
+- **GPU temperature**: 59°C with all services running (fan curve active)
 
 ### Why MoE Models Excel on Strix Halo
 
@@ -44,31 +45,32 @@ Dense 70B models achieve ~15-20 tok/s on the same hardware — usable but signif
 | Metric | Value |
 |--------|-------|
 | GPU | Radeon 8060S (RDNA 3.5, 40 CUs, gfx1151) |
-| GTT Allocated | 115 GB |
-| GTT Used (model loaded) | 21 GB |
-| GTT Free | 94 GB |
-| GPU Temp (idle) | 26°C |
-| GPU Temp (sustained inference) | 55°C |
-| GPU Utilization (inference) | 97% |
+| GTT Total | 123 GB |
+| GTT Used (all services) | 25.5 GB |
+| GTT Free | 97.5 GB |
+| GPU Temp (42 services running) | 59°C |
 
 ## Service Memory Footprint
 
-All services running simultaneously:
+All 42 services running simultaneously:
 
-| Service | Memory |
+| Service | RSS Memory |
 |---------|--------|
-| llama-server (Qwen3-30B) | 657 MB + 18GB GPU |
-| Open WebUI | 3,238 MB |
-| Qdrant | 514 MB |
-| ComfyUI | 509 MB |
-| n8n | 438 MB |
-| DreamServer Dashboard | ~55 MB |
-| SearXNG | 94 MB |
-| Vane (Perplexica) | 35 MB |
-| Lemonade | 20 MB |
-| **Total service overhead** | **~5.6 GB** |
+| llama-server Vulkan (Qwen3-30B, :8081) | 6,378 MB |
+| llama-server OpenCL (Qwen3-30B, :8083) | 21,361 MB |
+| Open WebUI | 586 MB |
+| ComfyUI | 550 MB |
+| Qdrant | 408 MB |
+| Home Assistant | 379 MB |
+| n8n | 373 MB |
+| Vane (Next.js) | 248 MB |
+| fail2ban | 238 MB |
+| whisper-server | 172 MB |
+| Gaia (UI + API + MCP) | 339 MB |
+| Lemonade | 33 MB |
+| Caddy | 68 MB |
 
-**System**: 27 GB RAM used, 97 GB available, 115 GB GPU-addressable.
+**System**: 42 services + 17 agents running. 123 GB GPU-addressable.
 
 ## Thermal & Fan Configuration
 
@@ -107,11 +109,11 @@ Or use the unified CLI: `halo fan quiet`
 | Condition | GPU Temp | Fan1 | Fan2 | Fan3 | Noise |
 |-----------|----------|------|------|------|-------|
 | Idle | 31°C | 0 rpm | 0 rpm | 0 rpm | Silent |
-| Sustained inference (87 tok/s) | 55-65°C | 0 rpm | 0 rpm | 0 rpm | Silent |
-| Heavy GPU + all 25 services | 65-75°C | ~800 rpm | ~800 rpm | ~500 rpm | Barely audible |
+| Sustained inference (83 tok/s) | 55-65°C | 0 rpm | 0 rpm | 0 rpm | Silent |
+| Heavy GPU + all 42 services | 59°C | 0 rpm | 0 rpm | ~500 rpm | Silent |
 | Stress test (120W sustained) | 85-90°C | ~2000 rpm | ~2000 rpm | ~1500 rpm | Noticeable |
 
-**Key takeaway**: At 87 tok/s sustained inference, the GPU stays under 70°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance. *The silence of the fans.*
+**Key takeaway**: At 83+ tok/s sustained inference with 42 services running, the GPU stays at 59°C with **all fans off**. The quiet fan curve achieves recording-studio silence for audio work while maintaining full performance. *The silence of the fans.*
 
 ### Persist Across Reboots
 
@@ -124,15 +126,15 @@ echo "ec_su_axb35" | sudo tee /etc/modules-load.d/ec-su-axb35.conf
 sudo systemctl enable halo-fancontrol
 ```
 
-## Complete Homelab AI Stack (2026-03-30)
+## Complete Homelab AI Stack (2026-04-01)
 
-25 services — all built from source — zero cloud. *"I know kung fu."*
+42 services — all built from source — zero cloud. *"I know kung fu."*
 
 ### LLM Inference
 
 | Model | Prompt Speed | Gen Speed | VRAM | Backend |
 |-------|-------------|-----------|------|---------|
-| **Qwen3-30B-A3B** (MoE) | 58-172 tok/s | **87 tok/s** | 18 GB | Vulkan + FA |
+| **Qwen3-30B-A3B** (MoE) | 68-268 tok/s | **83-91 tok/s** | 18 GB | Vulkan + FA |
 | **Qwen2.5-Coder-7B** | **515.7 tok/s** | **48.6 tok/s** | 4.1 GB | llama.cpp HIP |
 | Llama 3 70B (dense) | — | ~18 tok/s | 40 GB | Vulkan |
 
@@ -141,8 +143,8 @@ sudo systemctl enable halo-fancontrol
 | Component | Model | Size | Resolution | GPU Memory | Status |
 |-----------|-------|------|-----------|------------|--------|
 | **Wan2.1** | T2V-1.3B | 17 GB | 832×480 | 5.8 GB | Working — text-to-video |
-| **ComfyUI + FLUX.1** | FLUX.1 schnell | ~12 GB | Up to 4K | 115 GB available | 5.2x faster than SDXL on ROCm 7 |
-| **ComfyUI + SDXL** | SD XL Base 1.0 | ~6.5 GB | Up to 4K | 115 GB available | Fallback — image + AnimateDiff |
+| **ComfyUI + FLUX.1** | FLUX.1 schnell | ~12 GB | Up to 4K | 123 GB available | 5.2x faster than SDXL on ROCm 7 |
+| **ComfyUI + SDXL** | SD XL Base 1.0 | ~6.5 GB | Up to 4K | 123 GB available | Fallback — image + AnimateDiff |
 
 ### Music Generation
 
@@ -154,7 +156,7 @@ sudo systemctl enable halo-fancontrol
 
 | Component | Version | Purpose | Status |
 |-----------|---------|---------|--------|
-| **whisper.cpp** | compiled gfx1151 | Speech-to-text | Working |
+| **whisper.cpp** | compiled gfx1151 | Speech-to-text | Working (medium.en deployed, large-v3-turbo queued) |
 | **Kokoro** | 54 voices | Text-to-speech | Working |
 | **pyannote-audio** | v4.0.4 | Speaker identification | Working — voice is identity |
 | **XTTS v2** | — | Voice cloning | Working — architect's voice |
@@ -197,6 +199,7 @@ sudo systemctl enable halo-fancontrol
 | **Grafana** | latest | Go source | :3030 |
 | **Borg Backup** | 2.0.0b22 | Python/C source | — |
 | **Home Assistant** | latest | Python source | :8123 |
+| **Frigate NVR** | latest | Python source | — |
 
 ### Halo Memory & Intelligence
 
@@ -230,10 +233,10 @@ sudo systemctl enable halo-fancontrol
 
 | Metric | Count |
 |--------|-------|
-| **Total services** | **25** |
+| **Total services** | **42** |
 | **Autonomous agents** | **17** |
 | **Total tools** | **98+** |
-| **GPU VRAM available** | **115 GB** |
+| **GPU VRAM available** | **123 GB** |
 | **Boot to ready** | **19.3s** |
 | **Machines in mesh** | **4** |
 | **Cloud dependencies** | **0** | *"I'm not even supposed to be here today."* |
@@ -251,5 +254,6 @@ sudo systemctl enable halo-fancontrol
 
 ## Update Log
 
-- **2026-03-31**: Updated to llama.cpp b8591 (build 8599). Vulkan gen: 86.91 tok/s. No regressions. Prompt: 442 tok/s.
+- **2026-04-01**: Full live benchmark scrub. Corrected all values from real measurements with 42 services running. GTT: 123 GB (was 115). Gen: 83-91 tok/s. Prompt: 68-268 tok/s. Services: 42 (was 25). llama.cpp b8599.
+- **2026-03-31**: Updated to llama.cpp b8591. Vulkan gen: 86.91 tok/s.
 - **2026-03-30**: Initial benchmarks published.

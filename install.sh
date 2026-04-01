@@ -87,7 +87,7 @@ cat << 'BANNER'
   ║>>  H  A  L  O  ═══════  A  I  >>║
   ╠═══════════════════════════════════╣
   ║>>  bare-metal ai stack         >>║
-  ║>>  gfx1151 │ 109t/s │ 115GB   >>║
+  ║>>  gfx1151 │  91t/s │ 123GB   >>║
   ╚═══════════════════════════════════╝
 BANNER
 echo -e "${NC}"
@@ -648,11 +648,11 @@ step "Downloading AI models"
 # LLM — Qwen3-30B-A3B (best speed/quality for Strix Halo)
 if [ ! -f /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf ]; then
     info "Downloading Qwen3-30B-A3B (~18GB)..."
-    progress "This is the main LLM — 109 tok/s on Strix Halo"
+    progress "This is the main LLM — 91 tok/s on Strix Halo"
     wget -q --show-progress 'https://huggingface.co/bartowski/Qwen3-30B-A3B-GGUF/resolve/main/Qwen3-30B-A3B-Q4_K_M.gguf' \
         -O /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf 2>/dev/null || \
         warn "LLM download failed — download manually: halo-models.sh download qwen3-30b"
-    [ -f /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf ] && ok "Qwen3-30B-A3B ready (18GB, 109 tok/s)"
+    [ -f /srv/ai/models/qwen3-30b-a3b-q4_k_m.gguf ] && ok "Qwen3-30B-A3B ready (18GB, 91 tok/s)"
 else
     ok "LLM model already present"
 fi
@@ -913,7 +913,7 @@ body { background: #0d1117; color: #fff; font-family: system-ui, -apple-system, 
     <a class="card" target="_blank" href="https://github.com/stampby/echo"><h3><span class="dot on"></span>Echo</h3><p>Social media — she speaks for the family</p></a>
 </div>
 <div class="footer">
-    <p>109 tok/s &middot; 115GB GPU &middot; zero containers &middot; <a href="https://github.com/stampby/halo-ai">GitHub</a></p>
+    <p>91 tok/s &middot; 123GB GPU &middot; zero containers &middot; <a href="https://github.com/stampby/halo-ai">GitHub</a></p>
     <p style="font-size:0.75rem;color:#555;margin-top:4px;">designed and built by the architect</p>
 </div>
 </body>
@@ -1032,7 +1032,7 @@ echo ''
 echo -e "  ${BOLD}Next steps:${NC}"
 echo -e "     ${BOLD}/srv/ai/scripts/halo-change-password.sh${NC}"
 echo ''
-echo -e "  ${YELLOW}1.${NC} Reboot to activate GPU memory (115GB GTT):"
+echo -e "  ${YELLOW}1.${NC} Reboot to activate GPU memory (123GB GTT):"
 echo -e "     ${DIM}sudo reboot${NC}"
 echo ''
 START_UNITS=""

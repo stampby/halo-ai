@@ -111,7 +111,7 @@ When a fresh install opens `https://strixhalo` for the first time:
 **Step 2 — Meet Your Hardware**
 - Auto-detect: GPU, VRAM, CPU cores, RAM, disk
 - Show what was detected
-- "128GB unified memory. 115GB GPU-addressable. 40 CUs."
+- "128GB unified memory. 123GB GPU-addressable. 40 CUs."
 
 **Step 3 — Choose Your Model**
 - Show model catalog with speed/size/quality ratings
@@ -120,7 +120,7 @@ When a fresh install opens `https://strixhalo` for the first time:
 
 **Step 4 — First Conversation**
 - Embedded chat widget
-- "Ask me anything. I'm running at 87 tok/s on your hardware."
+- "Ask me anything. I'm running at 91 tok/s on your hardware."
 - User sees it work. That's the moment. *"Whoa."*
 
 **Step 5 — Meet the Family**
