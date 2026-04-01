@@ -205,8 +205,15 @@ class HaloBot(commands.Bot):
 
         return True
 
+    # Only respond on our own server — never on external servers
+    HOME_GUILD_ID = 1488323665836642348
+
     async def on_message(self, message: discord.Message):
         if message.author.bot:
+            return
+
+        # Guild lock — only respond on our server, ignore all others
+        if message.guild and message.guild.id != self.HOME_GUILD_ID:
             return
 
         # Route support questions from water-cooler to correct channel
