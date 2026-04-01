@@ -361,6 +361,12 @@ else
 fi
 
 # ── Python 3.12 + 3.13 ────────────────────────────
+# Pinned SHA256 checksums — verified against python.org
+declare -A PYTHON_SHA256=(
+    ["3.12.13"]="c08bc65a81971c1dd5783182826503369466c7e67374d1646519adf05207b684"
+    ["3.13.3"]="40f868bcbdeb8149a3149580bb9bfd407b3321cd48f0be631af955ac92c0e041"
+)
+
 step "Building Python 3.12 + 3.13 (~15 min each)"
 for VER in 3.12.13 3.13.3; do
     MAJOR=$(echo "$VER" | cut -d. -f1-2)
@@ -370,6 +376,25 @@ for VER in 3.12.13 3.13.3; do
     cd "$BUILD_DIR"
     wget -q "https://www.python.org/ftp/python/$VER/Python-$VER.tar.xz" || fail "Failed to download Python $VER"
     [ -f "Python-$VER.tar.xz" ] || fail "Python $VER archive missing after download"
+    # Verify SHA256 checksum
+    EXPECTED="${PYTHON_SHA256[$VER]}"
+    ACTUAL=$(sha256sum "Python-$VER.tar.xz" | awk '{print $1}')
+    if [ "$ACTUAL" != "$EXPECTED" ]; then
+        fail "Python $VER checksum FAILED — expected $EXPECTED got $ACTUAL"
+    fi
+    ok "Python $VER checksum verified"
+    # Verify GPG signature if gpg available
+    if command -v gpg >/dev/null; then
+        wget -q "https://www.python.org/ftp/python/$VER/Python-$VER.tar.xz.asc" 2>/dev/null
+        if [ -f "Python-$VER.tar.xz.asc" ]; then
+            gpg --keyserver hkps://keys.openpgp.org --recv-keys 7169605F62C751356D054A26A821E680E5FA6305 2>/dev/null
+            if gpg --verify "Python-$VER.tar.xz.asc" "Python-$VER.tar.xz" 2>/dev/null; then
+                ok "Python $VER GPG signature verified"
+            else
+                warn "Python $VER GPG signature could not be verified — continuing (checksum passed)"
+            fi
+        fi
+    fi
     tar xf "Python-$VER.tar.xz" && cd "Python-$VER"
     if [ "$DRY_RUN" -eq 1 ]; then
         ok "[DRY-RUN] Python $MAJOR would be compiled here"
@@ -411,9 +436,17 @@ if ! command -v cargo >/dev/null; then
 fi
 
 # ── Go (for Caddy) ─────────────────────────────────
+GO_SHA256="3333f6ea53afa971e9078895eaa4ac7204a8c6b5c68c10e6bc9a33e8e391bdd8"
 if ! command -v go >/dev/null; then
     progress "Installing Go..."
     cd /tmp && wget -q https://go.dev/dl/go1.24.3.linux-amd64.tar.gz || fail "Failed to download Go"
+    # Verify SHA256 checksum
+    ACTUAL=$(sha256sum go1.24.3.linux-amd64.tar.gz | awk '{print $1}')
+    if [ "$ACTUAL" != "$GO_SHA256" ]; then
+        fail "Go checksum FAILED — expected $GO_SHA256 got $ACTUAL"
+    fi
+    ok "Go checksum verified"
+    sudo rm -rf /usr/local/go
     sudo tar -C /usr/local -xzf go1.24.3.linux-amd64.tar.gz
     rm -f go1.24.3.linux-amd64.tar.gz
 fi
