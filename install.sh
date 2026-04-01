@@ -91,7 +91,8 @@ ok "Username: $HALO_USER"
 echo ''
 info "Caddy reverse proxy password (protects web access)"
 info "Default: Caddy — change this immediately after install!"
-prompt CADDY_PASSWORD "Caddy password" "Caddy"
+prompt_secret CADDY_PASSWORD "Caddy password (leave blank for 'Caddy' — CHANGE AFTER INSTALL)"
+CADDY_PASSWORD="${CADDY_PASSWORD:-Caddy}"
 ok "Caddy password set (will be hashed during install)"
 
 # 3. SearXNG secret key
@@ -299,7 +300,7 @@ export ROCBLAS_USE_HIPBLASLT=1
 
 progress "Compiling HIP backend..."
 cd /srv/ai/llama-cpp
-[ -d .git ] || git clone https://github.com/ggml-org/llama.cpp .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ggml-org/llama.cpp .; fi
 cmake -B build-hip -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DGGML_HIP_ROCWMMA_FATTN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
 cmake --build build-hip -j$(nproc)
 cmake -B build-vulkan -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
@@ -311,13 +312,13 @@ ok "llama.cpp built (HIP + Vulkan + OpenCL)"
 step "Building Lemonade + Whisper (~10 min)"
 info "Building Lemonade..."
 cd /srv/ai/lemonade
-[ -d .git ] || git clone https://github.com/lemonade-sdk/lemonade .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/lemonade-sdk/lemonade .; fi
 cmake --preset default && cmake --build --preset default
 ok "Lemonade built"
 
 info "Building whisper.cpp..."
 cd /srv/ai/whisper-cpp
-[ -d .git ] || git clone https://github.com/ggerganov/whisper.cpp .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ggerganov/whisper.cpp .; fi
 cmake -B build -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DCMAKE_BUILD_TYPE=Release -G Ninja .
 cmake --build build -j$(nproc)
 ok "whisper.cpp built"
@@ -326,7 +327,7 @@ step "Building Qdrant + Caddy (~25 min — Rust compile)"
 info "Building Qdrant..."
 cd /srv/ai/qdrant
 source ~/.cargo/env
-[ -d .git ] || git clone https://github.com/qdrant/qdrant .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/qdrant/qdrant .; fi
 cargo build --release
 ok "Qdrant built"
 
@@ -338,7 +339,7 @@ ok "Caddy built and linked to /usr/local/bin/caddy"
 step "Installing SearXNG + Open WebUI (~10 min)"
 info "Installing SearXNG..."
 cd /srv/ai/searxng
-[ -d .git ] || git clone https://github.com/searxng/searxng .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/searxng/searxng .; fi
 /opt/python312/bin/python3.12 -m venv .venv && source .venv/bin/activate
 pip install -q setuptools msgspec pyyaml typing_extensions Brotli lxml && pip install -q --no-build-isolation -e .
 deactivate
@@ -346,7 +347,7 @@ ok "SearXNG installed"
 
 info "Installing Open WebUI..."
 cd /srv/ai/open-webui
-[ -d .git ] || git clone https://github.com/open-webui/open-webui .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/open-webui/open-webui .; fi
 /opt/python312/bin/python3.12 -m venv .venv && source .venv/bin/activate
 sed -i 's/ddgs==9.11.2/ddgs>=9.11.3/' pyproject.toml 2>/dev/null
 sed -i 's/rapidocr-onnxruntime==1.4.4/rapidocr-onnxruntime>=1.2.3/' pyproject.toml 2>/dev/null
@@ -357,19 +358,19 @@ ok "Open WebUI installed"
 step "Installing Vane + n8n + ComfyUI + Kokoro (~15 min)"
 info "Installing Vane (Perplexica)..."
 cd /srv/ai/vane
-[ -d .git ] || git clone https://github.com/ItzCrazyKns/Vane .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ItzCrazyKns/Vane .; fi
 yarn install && yarn build
 ok "Vane built"
 
 info "Installing n8n..."
 cd /srv/ai/n8n
-[ -d .git ] || git clone https://github.com/n8n-io/n8n .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/n8n-io/n8n .; fi
 sudo npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
 ok "n8n built"
 
 info "Installing ComfyUI..."
 cd /srv/ai/comfyui
-[ -d .git ] || git clone https://github.com/comfyanonymous/ComfyUI .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/comfyanonymous/ComfyUI .; fi
 /opt/python313/bin/python3.13 -m venv .venv && source .venv/bin/activate
 pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2.4
 pip install -q -r requirements.txt
@@ -392,7 +393,7 @@ wget -q --show-progress 'https://huggingface.co/ggerganov/whisper.cpp/resolve/ma
 
 info "Installing Kokoro TTS..."
 cd /srv/ai/kokoro
-[ -d .git ] || git clone https://github.com/remsky/Kokoro-FastAPI .
+if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/remsky/Kokoro-FastAPI .; fi
 /opt/python313/bin/python3.13 -m venv .venv && source .venv/bin/activate
 pip install -q --no-deps -e .
 pip install -q torch --index-url https://download.pytorch.org/whl/rocm6.2.4
@@ -540,9 +541,6 @@ CADDYEOF
 chmod 640 /srv/ai/configs/Caddyfile
 ok "Caddy configured with subdomain routing"
 
-# Add Caddy XDG_DATA_HOME to systemd unit
-grep -q 'XDG_DATA_HOME' /srv/ai/systemd/halo-caddy.service || \
-    sed -i '/\[Service\]/a Environment=XDG_DATA_HOME=/srv/ai/.caddy' /srv/ai/systemd/halo-caddy.service
 mkdir -p /srv/ai/.caddy
 
 # Write SearXNG secret key
@@ -556,20 +554,8 @@ echo -n "$DASHBOARD_API_KEY" > /srv/ai/dashboard-api/data/dashboard-api-key.txt
 chmod 600 /srv/ai/dashboard-api/data/dashboard-api-key.txt
 ok "Dashboard API key configured"
 
-# Configure Open WebUI → llama-server connection
-info "Wiring services together..."
-grep -q 'OPENAI_API_BASE_URL' /srv/ai/systemd/halo-open-webui.service || \
-    sed -i '/\[Service\]/a Environment=OPENAI_API_BASE_URL=http://127.0.0.1:8081/v1\nEnvironment=OPENAI_API_KEY=not-needed\nEnvironment=ENABLE_OLLAMA_API=false' /srv/ai/systemd/halo-open-webui.service
-ok "Open WebUI → llama-server connected"
-
-# Configure llama-server with jinja + disable thinking mode
-sed -i 's|--model |--jinja --reasoning-budget 0 --model |' /srv/ai/systemd/halo-llama-server.service 2>/dev/null
-ok "llama-server configured (jinja + reasoning off)"
-
-# Configure n8n for HTTP (no secure cookie)
-grep -q 'N8N_SECURE_COOKIE' /srv/ai/systemd/halo-n8n.service || \
-    sed -i '/\[Service\]/a Environment=N8N_SECURE_COOKIE=false' /srv/ai/systemd/halo-n8n.service
-ok "n8n configured for HTTP"
+# NOTE: Service file modifications happen AFTER the copy to /etc/systemd/system/ (see below)
+info "Service wiring deferred until after systemd unit install..."
 
 # Configure Vane (Perplexica)
 info "Configuring Vane deep research..."
@@ -701,6 +687,27 @@ sudo cp /srv/ai/systemd/halo-*.service /srv/ai/systemd/halo-*.timer /etc/systemd
 
 # Replace <YOUR_USER> in the installed copies (not the source)
 sudo sed -i "s/<YOUR_USER>/$HALO_USER/g" /etc/systemd/system/halo-*.service /etc/systemd/system/halo-*.timer 2>/dev/null
+sudo systemctl daemon-reload
+
+# Now wire up service configs on the INSTALLED copies (idempotent — safe to re-run)
+info "Wiring services together..."
+
+# Caddy XDG_DATA_HOME
+grep -q 'XDG_DATA_HOME' /etc/systemd/system/halo-caddy.service 2>/dev/null || \
+    sudo sed -i '/\[Service\]/a Environment=XDG_DATA_HOME=/srv/ai/.caddy' /etc/systemd/system/halo-caddy.service 2>/dev/null
+# Open WebUI → llama-server
+grep -q 'OPENAI_API_BASE_URL' /etc/systemd/system/halo-open-webui.service 2>/dev/null || \
+    sudo sed -i '/\[Service\]/a Environment=OPENAI_API_BASE_URL=http://127.0.0.1:8081/v1\nEnvironment=OPENAI_API_KEY=not-needed\nEnvironment=ENABLE_OLLAMA_API=false' /etc/systemd/system/halo-open-webui.service 2>/dev/null
+ok "Open WebUI → llama-server connected"
+# llama-server jinja + reasoning off
+grep -q 'reasoning-budget' /etc/systemd/system/halo-llama-server.service 2>/dev/null || \
+    sudo sed -i 's|--model |--jinja --reasoning-budget 0 --model |' /etc/systemd/system/halo-llama-server.service 2>/dev/null
+ok "llama-server configured (jinja + reasoning off)"
+# n8n secure cookie
+grep -q 'N8N_SECURE_COOKIE' /etc/systemd/system/halo-n8n.service 2>/dev/null || \
+    sudo sed -i '/\[Service\]/a Environment=N8N_SECURE_COOKIE=false' /etc/systemd/system/halo-n8n.service 2>/dev/null
+ok "n8n configured for HTTP"
+
 sudo systemctl daemon-reload
 sudo systemctl enable halo-watchdog.timer halo-backup.timer
 
