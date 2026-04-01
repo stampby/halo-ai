@@ -212,8 +212,17 @@ class HaloBot(commands.Bot):
         if message.author.bot:
             return
 
-        # Guild lock — only respond on our server, ignore all others
+        # External servers — only respond to direct @mentions, nothing else
         if message.guild and message.guild.id != self.HOME_GUILD_ID:
+            if self.user.mentioned_in(message):
+                async with message.channel.typing():
+                    response = await self.think(message)
+                if response:
+                    sent = await message.reply(response[:1900], mention_author=False)
+                    try:
+                        await sent.edit(suppress=True)
+                    except Exception:
+                        pass
             return
 
         # Route support questions from water-cooler to correct channel
