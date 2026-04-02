@@ -426,10 +426,12 @@ for VER in 3.12.13 3.13.3; do
     fi
     ./configure --prefix="$PREFIX" --enable-optimizations -q
     make -j"$(nproc)" -s && sudo make altinstall -s || fail "Python $VER build failed"
-    # Cleanup — non-fatal
+    # Cleanup — non-fatal, cd out first
+    cd /tmp
     rm -rf "$BUILD_DIR" 2>/dev/null || true
     ok "Python $MAJOR compiled"
 done
+cd /home/"$HALO_USER" 2>/dev/null || cd /tmp
 
 # ── Node.js 24 ─────────────────────────────────────
 step "Building Node.js 24 (~20 min)"
@@ -448,9 +450,12 @@ if ! node --version 2>/dev/null | grep -q "v24"; then
     sudo corepack enable
     sudo npm install -g --force yarn 2>/dev/null || true
     sudo npm install -g --force pnpm 2>/dev/null || true
+    cd /tmp
     rm -rf "$NODE_DIR" 2>/dev/null || true
     ok "Node.js $(node --version) + yarn compiled"
 fi
+
+cd /home/"$HALO_USER" 2>/dev/null || cd /tmp
 
 # ── Rust ───────────────────────────────────────────
 step "Rust + Go toolchains (~5 min)"
@@ -767,50 +772,99 @@ cat > /srv/ai/configs/Caddyfile << CADDYEOF
 {
     admin off
     auto_https off
+    order file_server before reverse_proxy
 }
 
-http://$HALO_HOSTNAME {
-    basic_auth * {
-        caddy $CADDY_HASH
+:80 {
+    # Landing page — no auth
+    @landing {
+        path / /index.html /setup /profiles /setup-wizard.html /profiles.html /family.svg /band.svg
+        path /assets/*
     }
-    root * /srv/ai/configs
-    file_server
-    rewrite * /index.html
-}
+    handle @landing {
+        root * /srv/ai/configs
+        @isSetup path /setup
+        rewrite @isSetup /setup-wizard.html
+        @isProfiles path /profiles
+        rewrite @isProfiles /profiles.html
+        file_server
+    }
 
-http://chat.$HALO_HOSTNAME {
-    basic_auth * {
-        caddy $CADDY_HASH
+    # Open WebUI — has its own auth
+    handle /chat/* {
+        reverse_proxy 127.0.0.1:3000
     }
-    reverse_proxy 127.0.0.1:3000
-}
+    handle /api/* {
+        reverse_proxy 127.0.0.1:3000
+    }
+    handle /ollama/* {
+        reverse_proxy 127.0.0.1:3000
+    }
+    handle /_app/* {
+        reverse_proxy 127.0.0.1:3000
+    }
+    handle /auth/* {
+        reverse_proxy 127.0.0.1:3000
+    }
 
-http://research.$HALO_HOSTNAME {
-    basic_auth * {
-        caddy $CADDY_HASH
+    # Vane deep research
+    handle /research* {
+        reverse_proxy 127.0.0.1:3001
     }
-    reverse_proxy 127.0.0.1:3001
-}
 
-http://search.$HALO_HOSTNAME {
-    basic_auth * {
-        caddy $CADDY_HASH
+    # n8n workflows (N8N_PATH_PREFIX=/workflows in systemd)
+    handle /workflows* {
+        reverse_proxy 127.0.0.1:5678
     }
-    reverse_proxy 127.0.0.1:8888
-}
 
-http://n8n.$HALO_HOSTNAME {
-    basic_auth * {
-        caddy $CADDY_HASH
+    # ComfyUI — auth required
+    handle_path /comfyui/* {
+        basicauth {
+            caddy $CADDY_HASH
+        }
+        reverse_proxy 127.0.0.1:8188
     }
-    reverse_proxy 127.0.0.1:5678
-}
 
-http://comfyui.$HALO_HOSTNAME {
-    basic_auth * {
-        caddy $CADDY_HASH
+    # Man Cave — no auth
+    handle /cave {
+        redir /cave/ permanent
     }
-    reverse_proxy 127.0.0.1:8188
+    handle_path /cave/* {
+        reverse_proxy 127.0.0.1:3005
+    }
+
+    # Gaia Agent UI
+    handle /gaia* {
+        uri strip_prefix /gaia
+        reverse_proxy 127.0.0.1:4200
+    }
+
+    # Dashboard — auth required
+    handle_path /dashboard/* {
+        basicauth {
+            caddy $CADDY_HASH
+        }
+        reverse_proxy 127.0.0.1:3003
+    }
+    handle_path /dashboard-api/* {
+        basicauth {
+            caddy $CADDY_HASH
+        }
+        reverse_proxy 127.0.0.1:3002
+    }
+
+    # Lemonade API — auth required
+    handle_path /llm/* {
+        basicauth {
+            caddy $CADDY_HASH
+        }
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    # SearXNG
+    handle_path /search/* {
+        reverse_proxy 127.0.0.1:8888
+    }
 }
 CADDYEOF
 chmod 640 /srv/ai/configs/Caddyfile
