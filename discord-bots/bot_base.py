@@ -330,14 +330,20 @@ class HaloBot(commands.Bot):
                 temperature=self.temperature,
             )
             reply = response.choices[0].message.content.strip()
-            # Strip all URLs — no links, no embeds, no image previews
+            # Extract URLs before stripping — save for after signature
+            urls = re.findall(r'https?://\S+', reply)
+            # Strip all URLs from the main text
             reply = re.sub(r'https?://\S+', '', reply)
             reply = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', reply)  # [text](url) → text
             # Strip any code blocks the LLM added so we control the wrapping
             reply = re.sub(r'```\w*\n?', '', reply).strip()
-            # ALWAYS wrap in code block — no exceptions
+            # Format: code block + signature outside + links on single lines
             if reply:
-                reply = f"```\n{reply}\n```"
+                formatted = f"```\n{reply}\n```\n*stamped by the architect*"
+                if urls:
+                    for url in urls[:3]:  # max 3 links
+                        formatted += f"\n<{url}>"
+                reply = formatted
 
             self.history[channel_id].append({
                 "role": "assistant",
