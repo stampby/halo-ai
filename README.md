@@ -16,6 +16,9 @@
 
 [![CI](https://github.com/stampby/halo-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/stampby/halo-ai/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/stampby/halo-ai/actions/workflows/254939804/badge.svg)](https://github.com/stampby/halo-ai/actions/workflows/254939804)
+[![Stars](https://img.shields.io/github/stars/stampby/halo-ai?style=flat&logo=github&label=Stars)](https://github.com/stampby/halo-ai/stargazers)
+[![Contributors](https://img.shields.io/github/contributors/stampby/halo-ai?style=flat&logo=github&label=Contributors)](https://github.com/stampby/halo-ai/graphs/contributors)
+[![Forks](https://img.shields.io/github/forks/stampby/halo-ai?style=flat&logo=github&label=Forks)](https://github.com/stampby/halo-ai/forks)
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=archlinux&logoColor=white)](https://archlinux.org)
 [![ROCm](https://img.shields.io/badge/ROCm_7.13-ED1C24?style=flat&logo=amd&logoColor=white)](https://rocm.docs.amd.com)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
