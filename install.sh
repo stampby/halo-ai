@@ -490,10 +490,12 @@ audit_repo() {
     local dir="$1" name="$2"
     if [ -d "$dir/.git" ]; then
         local commit=$(git -C "$dir" rev-parse --short HEAD 2>/dev/null)
-        local dirty=$(git -C "$dir" status --porcelain 2>/dev/null | wc -l)
-        local unsigned=$(git -C "$dir" log -1 --format='%G?' 2>/dev/null)
+        local dirty
+        dirty=$(git -C "$dir" status --porcelain 2>/dev/null | wc -l || echo "0")
+        dirty="${dirty//[^0-9]/}"
+        [ -z "$dirty" ] && dirty=0
         info "$name: commit $commit, $([ "$dirty" -eq 0 ] && echo 'clean' || echo "${dirty} uncommitted changes")"
-        [ "$dirty" -gt 0 ] && warn "$name has uncommitted changes — review before trusting"
+        [ "$dirty" -gt 0 ] 2>/dev/null && warn "$name has uncommitted changes — review before trusting"
     fi
 }
 for repo_pair in "llama-cpp:llama.cpp" "lemonade:Lemonade" "whisper-cpp:whisper.cpp" "qdrant:Qdrant" "vane:Vane" "comfyui:ComfyUI" "kokoro:Kokoro"; do
@@ -595,11 +597,21 @@ cd /srv/ai/vane
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ItzCrazyKns/Vane .; fi
 # Pin axios to safe version before install
 npm pkg set overrides.axios="1.14.0" 2>/dev/null || true
+# Install deps then rebuild native modules (better-sqlite3 needs compilation)
 yarn install --ignore-scripts
-# Rebuild native modules that need compilation (better-sqlite3)
-npx --yes node-gyp rebuild -C node_modules/better-sqlite3 2>/dev/null || \
+if [ -d node_modules/better-sqlite3 ]; then
+    cd node_modules/better-sqlite3
+    npx --yes node-gyp rebuild 2>/dev/null || \
+        yarn build-release 2>/dev/null || \
+        npm rebuild better-sqlite3 2>/dev/null || \
+        warn "better-sqlite3 native build failed — Vane may not work"
+    cd /srv/ai/vane
+else
+    # If ignore-scripts prevented install, try without ignore-scripts for this one
     npm rebuild better-sqlite3 2>/dev/null || \
-    warn "better-sqlite3 native build failed — Vane may not work"
+        warn "better-sqlite3 not found — trying full install"
+    yarn install 2>/dev/null || true
+fi
 yarn build
 halo_npm_audit /srv/ai/vane
 ok "Vane built (axios pinned safe)"
