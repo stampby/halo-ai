@@ -22,7 +22,7 @@ DISCORD_TOKEN = os.environ.get('DISCORD_ECHO_TOKEN', '')
 LLM_URL = os.environ.get('LLM_BASE_URL', 'http://127.0.0.1:8081/v1')
 
 # Subreddits to watch
-WATCH_SUBS = ['LocalLLaMA', 'AMDLaptops', 'selfhosted', 'linuxhardware', 'gamedev', 'godot', 'strixhalo', 'llm', 'AI_Agents', 'Amd', 'localLLM', 'MCPservers', 'AIplayablefiction', 'LovingOpenSourceAI', 'startupmind']
+WATCH_SUBS = ['LocalLLaMA', 'AMDLaptops', 'selfhosted', 'linuxhardware', 'gamedev', 'godot', 'strixhalo', 'llm', 'AI_Agents', 'Amd', 'localLLM', 'MCPservers', 'AIplayablefiction', 'LovingOpenSourceAI', 'startupmind', 'LovingAIAgents']
 FOCUS_SUBS = ['radio', 'podcasting', 'voiceacting', 'audiobooks']
 
 KEYWORDS = [
