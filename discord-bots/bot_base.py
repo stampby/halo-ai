@@ -336,9 +336,10 @@ class HaloBot(commands.Bot):
             # Strip all URLs — no links, no embeds, no image previews
             reply = re.sub(r'https?://\S+', '', reply)
             reply = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', reply)  # [text](url) → text
-            reply = reply.strip()
-            # Wrap in code block for clean formatting
-            if reply and not reply.startswith('```'):
+            # Strip any code blocks the LLM added so we control the wrapping
+            reply = re.sub(r'```\w*\n?', '', reply).strip()
+            # ALWAYS wrap in code block — no exceptions
+            if reply:
                 reply = f"```\n{reply}\n```"
 
             self.history[channel_id].append({
