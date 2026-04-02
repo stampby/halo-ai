@@ -46,6 +46,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
     ln() { echo "  [DRY-RUN] ln $*"; }
     cp() { echo "  [DRY-RUN] cp $*"; }
     chmod() { echo "  [DRY-RUN] chmod $*"; }
+    mkdir() { echo "  [DRY-RUN] mkdir $*"; }
     # Skip build steps — dry-run only validates config and service wiring
     SKIP_BUILDS=1
     source() { echo "  [DRY-RUN] source $*"; }
