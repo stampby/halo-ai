@@ -237,17 +237,42 @@ class HaloBot(commands.Bot):
         content_lower = message.content.lower()
         directly_mentioned = self.user.mentioned_in(message)
 
-        # Direct mention always wins — no cooldown, no claim check
+        # Direct mention — create a thread for private conversation
         if directly_mentioned:
             HaloBot._claimed_messages[message.id] = self.name
-            async with message.channel.typing():
-                response = await self.think(message)
-            if response:
-                sent = await message.reply(response[:1900], mention_author=False)
+            # Create a thread if not already in one
+            if not isinstance(message.channel, discord.Thread):
                 try:
-                    await sent.edit(suppress=True)
+                    thread_name = f"{self.name} — {message.author.display_name}"
+                    thread = await message.create_thread(name=thread_name, auto_archive_duration=1440)
+                    async with thread.typing():
+                        response = await self.think(message)
+                    if response:
+                        sent = await thread.send(response[:1900])
+                        try:
+                            await sent.edit(suppress=True)
+                        except Exception:
+                            pass
                 except Exception:
-                    pass
+                    # Fallback to reply if thread creation fails
+                    async with message.channel.typing():
+                        response = await self.think(message)
+                    if response:
+                        sent = await message.reply(response[:1900], mention_author=False)
+                        try:
+                            await sent.edit(suppress=True)
+                        except Exception:
+                            pass
+            else:
+                # Already in a thread — respond directly
+                async with message.channel.typing():
+                    response = await self.think(message)
+                if response:
+                    sent = await message.channel.send(response[:1900])
+                    try:
+                        await sent.edit(suppress=True)
+                    except Exception:
+                        pass
             self._last_response[message.channel.id] = time.time()
             return
 
