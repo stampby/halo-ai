@@ -147,7 +147,11 @@ if [ "$(id -u)" -eq 0 ]; then
     fail "Running as root (uid 0). Switch to your normal user."
 fi
 
-command -v pacman >/dev/null || fail "Arch Linux required."
+if [ "$DRY_RUN" -eq 0 ]; then
+    command -v pacman >/dev/null || fail "Arch Linux required."
+else
+    command -v pacman >/dev/null || warn "This installer is designed for AMD Strix Halo. Proceeding anyway..."
+fi
 
 # Sudo check — make sure user has sudo access
 if ! sudo -v 2>/dev/null; then
