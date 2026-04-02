@@ -41,6 +41,7 @@ WATCH_SUBREDDITS = [
     "LovingOpenSourceAI",
     "startupmind",
     "LovingAIAgents",
+    "aigamedev",
 ]
 
 # Keywords that trigger Echo's attention
