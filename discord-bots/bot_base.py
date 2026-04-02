@@ -255,11 +255,30 @@ class HaloBot(commands.Bot):
         if message.id in HaloBot._claimed_messages:
             return
 
-        # SUPPORT CHANNELS — only Bounty and Mechanic respond (they handle bugs/hardware)
+        # SUPPORT CHANNELS — Bounty and Mechanic create threads and respond inside them
         # Other bots stay quiet unless directly @mentioned
         SUPPORT_CHANNELS = ["troubleshooting", "installation", "hardware"]
-        if message.channel.name in SUPPORT_CHANNELS and self.name not in ["bounty", "mechanic"]:
-            return
+        if message.channel.name in SUPPORT_CHANNELS:
+            if self.name not in ["bounty", "mechanic"]:
+                return
+            # Create a thread for this support request
+            if not isinstance(message.channel, discord.Thread):
+                try:
+                    thread_name = f"{message.content[:50].strip()} — {message.author.display_name}"
+                    thread = await message.create_thread(name=thread_name, auto_archive_duration=1440)
+                    HaloBot._claimed_messages[message.id] = self.name
+                    async with thread.typing():
+                        response = await self.think(message)
+                    if response:
+                        sent = await thread.send(response[:1900])
+                        try:
+                            await sent.edit(suppress=True)
+                        except Exception:
+                            pass
+                    self._last_response[message.channel.id] = time.time()
+                except Exception as e:
+                    logger.error(f"Thread creation failed: {e}")
+                return
 
         # Cooldown — don't spam the channel
         if self._on_cooldown(message.channel.id):
