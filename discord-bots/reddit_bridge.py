@@ -37,6 +37,7 @@ WATCH_SUBREDDITS = [
     "Amd",
     "localLLM",
     "MCPservers",
+    "AIplayablefiction",
 ]
 
 # Keywords that trigger Echo's attention
