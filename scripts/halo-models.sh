@@ -19,6 +19,7 @@ CATALOG["gemma3-27b"]="bartowski/gemma-3-27b-it-GGUF|gemma-3-27b-it-Q4_K_M.gguf|
 CATALOG["mistral-small"]="bartowski/Mistral-Small-3.1-24B-Instruct-2503-GGUF|Mistral-Small-3.1-24B-Instruct-2503-Q4_K_M.gguf|14G|~50 tok/s|Fast and capable"
 CATALOG["qwen3-235b"]="ubergarm/Qwen3-235B-A22B-GGUF|Qwen3-235B-A22B-UD-Q2_K_XL.gguf|95G|~8 tok/s|Frontier 235B MoE — peak intelligence"
 CATALOG["gpt-oss-120b"]="bartowski/GPT-OSS-120B-GGUF|GPT-OSS-120B-Q4_K_M.gguf|59G|~21 tok/s|Frontier dense — fits comfortably in 123GB"
+CATALOG["gemma4-26b"]="unsloth/gemma-4-26B-A4B-it-GGUF|gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf|16G|~90 tok/s|Google Gemma 4 MoE — 140+ languages, multimodal, Apache 2.0"
 
 list_catalog() {
     echo "Available models for Strix Halo (123GB GTT):"
