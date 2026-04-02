@@ -756,6 +756,12 @@ step "Applying configuration & enabling services"
 
 # Generate Caddy password hash and write Caddyfile with subdomain routing
 mkdir -p /srv/ai/configs
+if [ "$DRY_RUN" -eq 1 ]; then
+    ok "[DRY-RUN] Configuration step — skipping file writes"
+    step "Installing Meek security agent"
+    ok "[DRY-RUN] Meek — skipped"
+    # Jump to completion
+else
 CADDY_HASH=$(printf '%s' "$CADDY_PASSWORD" | caddy hash-password --stdin)
 cat > /srv/ai/configs/Caddyfile << CADDYEOF
 {
@@ -1039,6 +1045,8 @@ cat << 'DONE'
   ╚═══════════════════════════════════╝
 DONE
 echo -e "${NC}"
+fi  # end DRY_RUN config guard
+
 INSTALL_END=$(date +%s)
 INSTALL_MINS=$(( (INSTALL_END - INSTALL_START) / 60 ))
 echo -e "${GREEN}${BOLD}  Installation complete! (${INSTALL_MINS} minutes)${NC}"
