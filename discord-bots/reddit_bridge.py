@@ -39,6 +39,7 @@ WATCH_SUBREDDITS = [
     "MCPservers",
     "AIplayablefiction",
     "LovingOpenSourceAI",
+    "startupmind",
 ]
 
 # Keywords that trigger Echo's attention
