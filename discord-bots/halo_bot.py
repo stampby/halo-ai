@@ -98,13 +98,23 @@ class HalBot(HaloBot):
         """Register slash commands."""
         self.tree.add_command(app_commands.Command(
             name="status",
-            description="Full system status from Halo",
+            description="system status — inference, gpu, services",
             callback=self._status_cmd,
         ))
         self.tree.add_command(app_commands.Command(
             name="family",
-            description="See who's online in the family",
+            description="who is online in the family",
             callback=self._family_cmd,
+        ))
+        self.tree.add_command(app_commands.Command(
+            name="benchmark",
+            description="latest inference benchmarks",
+            callback=self._benchmark_cmd,
+        ))
+        self.tree.add_command(app_commands.Command(
+            name="help",
+            description="how to work with the agents",
+            callback=self._help_cmd,
         ))
 
     def _route_to_agent(self, content: str) -> str | None:
@@ -191,27 +201,78 @@ class HalBot(HaloBot):
                         f"Answered {message.author.display_name} directly")
 
     async def _status_cmd(self, interaction: discord.Interaction):
-        """Full system status — plain text."""
+        """System status in code block."""
         msg = (
-            "**System Status**\n"
-            "Inference: 91 tok/s — Qwen3-30B-A3B\n"
-            "Backend: Vulkan + Flash Attention\n"
-            "GPU: Radeon 8060S (gfx1151)\n"
-            "Memory: 128GB LPDDR5x-8000\n"
-            "Agents: 7 online\n"
-            "Cloud: Zero\n"
-            "*I am the one who knocks. — Halo*"
+            "```\n"
+            "system status\n"
+            "═════════════════════════════════════════\n"
+            "  inference    91 tok/s — qwen3-30b-a3b\n"
+            "  backend      vulkan + flash attention\n"
+            "  gpu          radeon 8060s (gfx1151)\n"
+            "  memory       128gb lpddr5x-8000\n"
+            "  agents       7 online\n"
+            "  cloud        zero\n"
+            "═════════════════════════════════════════\n"
+            "```\n"
+            "*stamped by the architect* 🔖"
         )
         await interaction.response.send_message(msg)
 
     async def _family_cmd(self, interaction: discord.Interaction):
-        """Show all online family members — plain text."""
+        """Who's online — code block."""
         online = []
         for member in interaction.guild.members:
             if member.bot and member.status != discord.Status.offline:
-                online.append(f"• **{member.display_name}**")
-        names = "\n".join(online) if online else "Checking..."
-        msg = f"**The Family**\n{names}\n*The family never sleeps.*"
+                online.append(f"  {member.display_name}")
+        names = "\n".join(online) if online else "  checking..."
+        msg = (
+            f"```\nthe family\n"
+            f"═════════════════════════════════════════\n"
+            f"{names}\n"
+            f"═════════════════════════════════════════\n"
+            f"```\n"
+            f"*stamped by the architect* 🔖"
+        )
+        await interaction.response.send_message(msg)
+
+    async def _benchmark_cmd(self, interaction: discord.Interaction):
+        """Latest benchmarks — code block."""
+        msg = (
+            "```\n"
+            "benchmarks\n"
+            "═════════════════════════════════════════\n"
+            "  qwen3-30b-a3b  q4_k_m   91 tok/s\n"
+            "  gpu temp       53c\n"
+            "  memory         61/124 gb used\n"
+            "  services       32 running\n"
+            "  uptime         2+ days\n"
+            "═════════════════════════════════════════\n"
+            "```\n"
+            "*stamped by the architect* 🔖"
+        )
+        await interaction.response.send_message(msg)
+
+    async def _help_cmd(self, interaction: discord.Interaction):
+        """How to work with agents — code block."""
+        msg = (
+            "```\n"
+            "how to work with the agents\n"
+            "═════════════════════════════════════════\n"
+            "  @bounty     bugs, code, install errors\n"
+            "  @mechanic   hardware, gpu, drivers\n"
+            "  @meek       security, firewall, ssh\n"
+            "  @amp        audio, voice, tts, music\n"
+            "  @echo       general, community\n"
+            "  @muse       games, entertainment\n"
+            "  @halo       routes to the right agent\n"
+            "\n"
+            "  post in #troubleshooting for support\n"
+            "  bounty creates a thread for your issue\n"
+            "  paste the full error — we can not guess\n"
+            "═════════════════════════════════════════\n"
+            "```\n"
+            "*stamped by the architect* 🔖"
+        )
         await interaction.response.send_message(msg)
 
     async def on_ready(self):
