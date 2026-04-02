@@ -2,7 +2,9 @@
 """Bounty — code troubleshooter, bug hunter, the one who escaped alone."""
 
 import asyncio
+import json
 import random
+import subprocess
 from datetime import datetime, timezone
 
 import discord
@@ -40,19 +42,105 @@ class BountyBot(HaloBot):
         "Did that land? If you're still fighting it, tag me.",
     ]
 
+    # Keywords that indicate a real bug, not just a question
+    BUG_INDICATORS = [
+        "error", "failed", "crash", "segfault", "traceback", "exception",
+        "not working", "broken", "exit code", "fatal", "panic",
+        "install.sh", "line ", "command not found", "permission denied",
+        "EEXIST", "ENOENT", "cannot find", "no such file",
+    ]
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Track users we've helped: {(channel_id, user_id): message reference}
         self._pending_followups: dict[tuple[int, int], discord.Message] = {}
 
+    def _looks_like_bug(self, content: str) -> bool:
+        """Check if message looks like a real bug report, not just a question."""
+        content_lower = content.lower()
+        # Must have at least 2 bug indicators or a code block with an error
+        indicator_count = sum(1 for kw in self.BUG_INDICATORS if kw in content_lower)
+        has_code_block = "```" in content
+        return indicator_count >= 2 or (has_code_block and indicator_count >= 1)
+
+    async def _create_github_issue(self, title: str, body: str, author: str) -> str:
+        """Create a GitHub issue for a confirmed bug. Returns issue URL."""
+        try:
+            result = subprocess.run(
+                ["gh", "issue", "create",
+                 "--repo", "stampby/halo-ai",
+                 "--title", f"[Bug] {title}",
+                 "--body", f"Reported by {author} in Discord #troubleshooting\n\n{body}\n\n---\n*Auto-filed by Bounty*",
+                 "--label", "bug"],
+                capture_output=True, text=True, timeout=30
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+        except Exception:
+            pass
+        return ""
+
     async def on_message(self, message: discord.Message):
-        """Override to schedule follow-ups after helping someone."""
+        """Override to detect bugs, create issues, and schedule follow-ups."""
         if message.author.bot:
             return
 
-        content_lower = message.content.lower()
-        directly_mentioned = self.user.mentioned_in(message)
+        # Guild lock
+        if message.guild and message.guild.id != HaloBot.HOME_GUILD_ID:
+            return
 
+        content_lower = message.content.lower()
+        directly_mentioned = self.user and f"<@{self.user.id}>" in message.content
+
+        # Bug detection in #troubleshooting — auto-triage
+        if message.channel.name == "troubleshooting" and self._looks_like_bug(message.content):
+            HaloBot._claimed_messages[message.id] = self.name
+
+            # Create thread for this bug
+            thread = None
+            if not isinstance(message.channel, discord.Thread):
+                try:
+                    thread_title = message.content[:50].strip().replace("```", "")
+                    thread = await message.create_thread(
+                        name=f"Bug — {thread_title}",
+                        auto_archive_duration=1440
+                    )
+                except Exception:
+                    thread = message.channel
+
+            target = thread or message.channel
+
+            # Get Bounty's analysis
+            async with target.typing():
+                response = await self.think(message)
+
+            if response:
+                sent = await target.send(f"```\n{response[:1800]}\n```")
+                try:
+                    await sent.edit(suppress=True)
+                except Exception:
+                    pass
+
+            # Create GitHub issue automatically
+            issue_title = message.content[:80].replace("```", "").strip()
+            issue_body = message.content[:2000]
+            issue_url = await self._create_github_issue(
+                issue_title, issue_body, message.author.display_name
+            )
+
+            if issue_url:
+                await target.send(
+                    f"```\nGitHub issue created. Tracking this bug.\n```\n{issue_url}"
+                )
+
+            # Schedule follow-up
+            key = (message.channel.id, message.author.id)
+            self._pending_followups[key] = message
+            delay = random.randint(60 * 60, 90 * 60)
+            asyncio.create_task(self._followup_later(key, target, message.author, delay))
+            return
+
+        # Normal response flow — direct mention or topic match
         should_respond = directly_mentioned
         if not should_respond and self.topics:
             for topic in self.topics:
@@ -70,7 +158,6 @@ class BountyBot(HaloBot):
                            "perfect", "awesome", "nice", "cheers"]
             if any(w in content_lower for w in fixed_words):
                 del self._pending_followups[key]
-                # Don't return — still respond to the message normally
 
         async with message.channel.typing():
             response = await self.think(message)
@@ -83,7 +170,7 @@ class BountyBot(HaloBot):
             # Schedule follow-up 60-90 min later
             if sent:
                 self._pending_followups[key] = message
-                delay = random.randint(60 * 60, 90 * 60)  # 60-90 minutes
+                delay = random.randint(60 * 60, 90 * 60)
                 asyncio.create_task(self._followup_later(key, message.channel, message.author, delay))
 
     async def _followup_later(self, key: tuple[int, int], channel, user, delay: int):
