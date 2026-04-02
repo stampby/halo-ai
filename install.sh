@@ -592,7 +592,9 @@ if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone http
 npm pkg set overrides.axios="1.14.0" 2>/dev/null || true
 yarn install --ignore-scripts
 # Rebuild native modules that need compilation (better-sqlite3)
-cd node_modules/better-sqlite3 2>/dev/null && yarn build-release && cd /srv/ai/vane || true
+npx --yes node-gyp rebuild -C node_modules/better-sqlite3 2>/dev/null || \
+    npm rebuild better-sqlite3 2>/dev/null || \
+    warn "better-sqlite3 native build failed — Vane may not work"
 yarn build
 halo_npm_audit /srv/ai/vane
 ok "Vane built (axios pinned safe)"
@@ -753,6 +755,7 @@ fi  # end SKIP_BUILDS
 step "Applying configuration & enabling services"
 
 # Generate Caddy password hash and write Caddyfile with subdomain routing
+mkdir -p /srv/ai/configs
 CADDY_HASH=$(printf '%s' "$CADDY_PASSWORD" | caddy hash-password --stdin)
 cat > /srv/ai/configs/Caddyfile << CADDYEOF
 {
