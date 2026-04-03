@@ -1,0 +1,69 @@
+# halo-ai Caddyfile — boilerplate
+# To add a new service: copy a block, change name + port
+# stamped by the architect
+{
+    admin off
+    auto_https off
+}
+
+# ── Landing page ──────────────────────────────
+http://strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    root * /srv/ai/configs
+    file_server
+    try_files {path} /index.html
+}
+
+# ── Services ──────────────────────────────────
+# Copy this block for new services:
+#
+# http://NAME.strixhalo {
+#     basic_auth * {
+#         caddy HASH_HERE
+#     }
+#     reverse_proxy 127.0.0.1:PORT
+# }
+
+http://chat.strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    reverse_proxy 127.0.0.1:3000
+}
+
+http://research.strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    reverse_proxy 127.0.0.1:3001
+}
+
+http://search.strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    reverse_proxy 127.0.0.1:8888
+}
+
+http://n8n.strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    reverse_proxy 127.0.0.1:5678
+}
+
+http://comfyui.strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    reverse_proxy 127.0.0.1:8188
+}
+
+http://gaia.strixhalo {
+    basic_auth * {
+        caddy HASH_HERE
+    }
+    reverse_proxy 127.0.0.1:4200
+}
