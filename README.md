@@ -69,16 +69,16 @@ sudo reboot
 
 17 agents. each with a role, a personality, and a version number.
 
-| agent | role |
-|-------|------|
-| **halo** | command center — routes to the right agent |
-| **echo** | community — discord, reddit, social |
-| **bounty** | bug hunter — paste the error, get the fix |
-| **meek** | security — 17-check audit, trusts nothing |
-| **mechanic** | hardware — gpu, drivers, diagnostics |
-| **amp** | audio — voice, tts, music |
-| **sentinel** | code watcher — reviews repos, gates merges |
-| **muse** | entertainment — games, trivia |
+| agent | role | ver |
+|-------|------|-----|
+| **halo** | command center — relay mode, routes through family | v2.0 |
+| **echo** | community — discord, reddit, digest, social | v2.1 |
+| **bounty** | bug hunter — auto-threads, dry-run patrol | v2.0 |
+| **meek** | security — 17-check audit, supply chain scanning | v3.0 |
+| **mechanic** | hardware — gpu, drivers, diagnostics | v1.0 |
+| **amp** | audio — voice, tts, music | v1.0 |
+| **sentinel** | code watcher — source inspection, repo integrity | v2.0 |
+| **muse** | entertainment — games, trivia | v1.0 |
 
 [full family + backstories →](https://github.com/stampby/halo-ai/wiki/The-Family)
 
