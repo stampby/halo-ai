@@ -1,0 +1,46 @@
+name: bug report
+description: something broke — paste the error
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: what happened
+      description: describe the problem
+      placeholder: the install script failed at step 9...
+    validations:
+      required: true
+  - type: textarea
+    id: error-output
+    attributes:
+      label: error output
+      description: paste the full error
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: area
+      options:
+        - install script
+        - runtime / services
+        - hardware / gpu
+        - security
+        - discord bots
+        - man cave
+        - other
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: hardware
+      description: cpu, gpu, ram
+      placeholder: ryzen ai max+ 395, 128gb
+  - type: checkboxes
+    id: dry-run
+    attributes:
+      label: did you dry-run first
+      options:
+        - label: i ran ./install.sh --dry-run before reporting

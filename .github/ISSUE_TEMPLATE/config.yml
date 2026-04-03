@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: discord
+    url: https://discord.gg/dSyV646eBs
+    about: ask questions in our discord — the agents are waiting
+  - name: wiki
+    url: https://github.com/stampby/halo-ai/wiki
+    about: check the wiki first — most answers are there
