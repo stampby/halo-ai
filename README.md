@@ -23,12 +23,13 @@
 [![ROCm](https://img.shields.io/badge/ROCm_7.13-ED1C24?style=flat&logo=amd&logoColor=white)](https://rocm.docs.amd.com)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-halo--ai-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/dSyV646eBs)
+[![Wiki](https://img.shields.io/badge/Wiki-documentation-00d4ff?style=flat&logo=github&logoColor=white)](https://github.com/stampby/halo-ai/wiki)
 
 </div>
 
 ---
 
-> **New here?** Start with the [tutorials](#tutorials) — full video walkthroughs from install to autonomous operation.
+> **New here?** Check the [wiki](https://github.com/stampby/halo-ai/wiki) for full documentation, or start with the [tutorials](#tutorials).
 
 ---
 
