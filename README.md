@@ -46,7 +46,7 @@ cd halo-ai
 sudo reboot
 ```
 
-18 components compiled from source. ~2.5 hours. do not run as root. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
+18 components compiled from source. ~2.5 hours. do not run as root. default login: `caddy / caddy`. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
 
 ## what you get
 
