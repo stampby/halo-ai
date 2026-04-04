@@ -27,6 +27,8 @@ pkgbase = halo-ai
 	optdepends = wireguard-tools: VPN remote access
 	optdepends = qrencode: QR codes for VPN client configs
 	optdepends = asciinema: terminal recording
+	backup = srv/ai/configs/Caddyfile
+	backup = srv/ai/configs/searxng/settings.yml
 	source = halo-ai-1.0.0.tar.gz::https://github.com/stampby/halo-ai/archive/refs/heads/main.tar.gz
 	sha256sums = SKIP
 
