@@ -1,6 +1,12 @@
 # Halo AI Services Reference
 
-Detailed documentation for every service in the halo-ai stack. All services bind to `127.0.0.1` and are managed via systemd. *"I'm not locked in here with you. You're locked in here with me." — every service on localhost.*
+Detailed documentation for every service in the halo-ai stack. All services bind to `127.0.0.1` and are managed via systemd.
+
+Services are organized by install tier:
+- **CORE** (always installed): llama-server, vLLM, Open WebUI, Caddy
+- **OPTIONAL** (toggle during install or add later via NOC panel): everything else
+
+Every service is a LEGO block -- independent, removable, replaceable.
 
 ---
 
@@ -48,6 +54,73 @@ curl -s http://127.0.0.1:8081/v1/chat/completions \
 ### Dependencies
 
 - None (base service). Lemonade depends on this.
+
+---
+
+## vLLM
+
+Production LLM serving engine. Multi-user, continuous batching, OpenAI-compatible API. Runs in a Podman container with ROCm GPU access. CORE service.
+
+| Property | Value |
+|----------|-------|
+| **Port** | 8083 |
+| **Container** | `docker.io/rocm/vllm:rocm7.12.0_gfx1151_ubuntu24.04_py3.12_pytorch_2.9.1_vllm_0.16.0` |
+| **Systemd unit** | `container-vllm-server.service` (user service) |
+| **Default model** | `Qwen/Qwen2.5-Coder-7B-Instruct` |
+| **Runs as** | Podman rootless container |
+| **Install tier** | CORE |
+
+### Commands
+
+```bash
+systemctl --user start container-vllm-server
+systemctl --user stop container-vllm-server
+systemctl --user restart container-vllm-server
+podman logs -f vllm-server
+```
+
+### Health Check
+
+```bash
+curl -s http://127.0.0.1:8083/v1/models
+# Returns model list
+
+curl -s http://127.0.0.1:8083/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"Qwen/Qwen2.5-Coder-7B-Instruct","messages":[{"role":"user","content":"hello"}],"max_tokens":5}'
+```
+
+### Key Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `HSA_OVERRIDE_GFX_VERSION=11.5.1` | Required for gfx1151 GPU |
+| `TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1` | Flash Attention kernels |
+| `HIP_FORCE_DEV_KERNARG=1` | APU memory optimization |
+| `VLLM_ROCM_USE_AITER=0` | Disable MI300X-only features |
+
+### Common Issues
+
+- **Hangs on startup**: Add `--enforce-eager` to skip HIP graph capture (known gfx1151 issue).
+- **Out of memory**: Set `--gpu-memory-utilization 0.80` to leave headroom.
+- **Port conflict**: Default 8083. Check nothing else is on that port with `ss -tlnp | grep 8083`.
+- **Slow first start**: TunableOp auto-tuning can take 5-10 minutes on first run. Subsequent starts are fast.
+
+### llama.cpp vs vLLM
+
+Both are CORE. Use the right tool:
+
+| Use case | Engine |
+|----------|--------|
+| Single user, GGUF models, quick testing | llama.cpp (port 8081) |
+| Multi-user, production serving, batching | vLLM (port 8083) |
+| Fallback if vLLM has issues | llama.cpp |
+
+### Dependencies
+
+- Podman (rootless)
+- ROCm GPU drivers
+- `/dev/kfd` and `/dev/dri` device access
 
 ---
 
