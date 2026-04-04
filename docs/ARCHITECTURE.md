@@ -2,44 +2,9 @@
 
 ## Overview
 
-Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). The core is compiled from source on Arch Linux. vLLM runs in a Podman container for production multi-user serving. The entire platform runs on a single chip with 128GB of unified memory, delivering 91 tok/s on Qwen3-30B-A3B. *"Welcome to the real world."*
+Halo AI is a bare-metal AI stack for the AMD Ryzen AI MAX+ 395 (Strix Halo). Every component is compiled from source on Arch Linux -- no Docker, no containers, no package managers for AI services. The entire platform runs on a single chip with 128GB of unified memory, delivering 236 tok/s on Qwen3-30B-A3B. *"Welcome to the real world."*
 
 The stack provides LLM inference, chat UI, deep research, speech-to-text, text-to-speech, image generation, RAG pipelines, workflow automation, private search, and autonomous monitoring -- all integrated, all on localhost.
-
-## Install Philosophy
-
-LEGO blocks. Every service is independent. Easy in, easy out.
-
-- **Core** (always installed): ROCm, Python, llama.cpp, vLLM, Open WebUI, Caddy, firewall
-- **Optional** (toggle menu): whisper, lemonade, comfyui, n8n, searxng, qdrant, kokoro, dashboard, meek
-- **Advanced infrastructure** (multi-machine, off by default): SSH mesh, GlusterFS, shared folders
-
-Not everyone has a datacenter. Core runs on a single machine. Advanced infrastructure is for multi-machine setups. Install optional features later from the NOC panel.
-
-## Network Topology (Reference)
-
-The architect's multi-machine setup. Yours can be simpler.
-
-```
-                    +---------------------+
-                    |     ryzen (main)     |
-                    |   workstation / dev  |
-                    +----------+----------+
-                               | SSH
-              +----------------+----------------+
-              |                |                |
-   +----------+------+  +-----+------+  +------+----------+
-   |   strix-halo    |  |   sligar   |  |   pi5 (router)  |
-   |   GPU server    |  |   backup   |  |   DNS / network |
-   |   10.0.0.131    |  |            |  |   10.0.0.1      |
-   +----------+------+  +-----+------+  +-----------------+
-              |                |
-              +--- GlusterFS --+    (optional distributed storage)
-```
-
-**Single machine**: install core. Done.
-**Two machines**: add SSH mesh + shared folder for remote GPU access.
-**Three+ machines**: full ring bus + GlusterFS for failover.
 
 ## Hardware
 
@@ -58,22 +23,21 @@ The 123GB GPU memory is what makes this platform viable. Models up to 70B parame
 ## Service Map
 
 ```
-Port    Service             Role                                          Install Tier
-----    -------             ----                                          ------------
-443     Caddy               Reverse proxy, TLS termination, basic auth    CORE
-8080    Lemonade            Unified AI API gateway (OpenAI compatible)    optional
-8081    llama-server        LLM inference engine (Vulkan or HIP backend)  CORE
-8082    whisper-server      Speech-to-text (whisper.cpp)                  optional
-8083    vLLM                Production LLM server (Podman, multi-user)    CORE
-8084    Kokoro              Text-to-speech (Kokoro-FastAPI)               optional
-8188    ComfyUI             Image generation (Stable Diffusion)           optional
-3000    Open WebUI          Chat interface with RAG, multi-model          CORE
-3001    Vane                Deep research with cited sources              optional
-3002    Dashboard API       GPU metrics, service health monitoring        optional
-3003    Dashboard UI        Web frontend for dashboard metrics            optional
-5678    n8n                 Workflow automation (400+ integrations)        optional
-6333    Qdrant              Vector database for RAG embeddings            optional
-8888    SearXNG             Privacy-respecting meta-search engine         optional
+Port    Service             Role
+----    -------             ----
+443     Caddy               Reverse proxy, TLS termination, basic auth
+8080    Lemonade            Unified AI API gateway (OpenAI/Ollama/Anthropic compatible)
+8081    llama-server        LLM inference engine (Vulkan or HIP backend)
+8082    whisper-server      Speech-to-text (whisper.cpp)
+8083    Kokoro              Text-to-speech (Kokoro-FastAPI)
+8188    ComfyUI             Image generation (Stable Diffusion, node-based)
+3000    Open WebUI          Chat interface with RAG, multi-model support
+3001    Vane                Deep research with cited sources (Perplexica fork)
+3002    Dashboard API       GPU metrics, service health monitoring (DreamServer fork)
+3003    Dashboard UI        Web frontend for dashboard metrics
+5678    n8n                 Workflow automation (400+ integrations)
+6333    Qdrant              Vector database for RAG embeddings
+8888    SearXNG             Privacy-respecting meta-search engine
 ```
 
 All services bind to `127.0.0.1`. None are directly reachable from the network. *"You have no power here."*
@@ -426,7 +390,7 @@ llama.cpp is compiled three times, producing three separate binaries in `/srv/ai
 
 - **Binary**: `/srv/ai/llama-cpp/build-vulkan/bin/llama-server`
 - **Build flags**: `-DGGML_VULKAN=ON`
-- **Best for**: Token generation speed (fastest tok/s, ~91 tok/s on Qwen3-30B-A3B)
+- **Best for**: Token generation speed (fastest tok/s, ~236 tok/s on Qwen3-30B-A3B)
 - **Why**: Mesa RADV driver is highly optimized on Arch Linux. Lower overhead for small batch inference.
 - **Notes**: Does not require ROCm. Works with standard Mesa Vulkan drivers. The default ExecStart in the shipped systemd unit actually points to the Vulkan binary despite the unit being named "HIP/ROCm" in its description.
 

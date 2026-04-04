@@ -8,60 +8,13 @@ This guide covers common issues with the halo-ai bare-metal AI stack for AMD Str
 
 ## Table of Contents
 
-- [Install Issues](#install-issues)
 - [Service Won't Start](#service-wont-start)
 - [GPU Not Detected](#gpu-not-detected)
-- [vLLM Issues](#vllm-issues)
 - [Caddy / Web Access Issues](#caddy--web-access-issues)
 - [LLM Not Responding](#llm-not-responding)
 - [Network Issues](#network-issues)
 - [Backup Issues](#backup-issues)
 - [Common Commands Reference](#common-commands-reference)
-
----
-
-## Install Issues
-
-### Modular install -- pick what you need
-
-The installer is modular. Core gets you running, everything else is optional.
-
-```bash
-# Always run dry-run first
-./install.sh --dry-run
-
-# Full install -- you pick services from a menu
-./install.sh
-```
-
-**Core** (always installed): ROCm, Python, llama.cpp, vLLM, Open WebUI, Caddy, firewall.
-**Optional**: toggle in the install menu. Can also be added later from the NOC panel.
-**Advanced infrastructure** (SSH mesh, GlusterFS): off by default. Only needed for multi-machine setups.
-
-### Install fails partway through
-
-The installer is re-run safe. It skips components that are already installed. Just run it again:
-
-```bash
-./install.sh
-```
-
-If a specific component fails, check the error message. Common causes:
-- **Network timeout**: large downloads (models, ROCm) can fail on slow connections. Re-run.
-- **Disk space**: the full stack needs ~50GB. Check with `df -h /srv/ai`.
-- **Permission denied**: do NOT run as root. Run as your normal user with sudo access.
-
-### vLLM container won't pull
-
-vLLM runs in a Podman container. If the pull fails:
-
-```bash
-# Check Podman is installed
-podman --version
-
-# Manual pull
-podman pull docker.io/rocm/vllm:rocm7.12.0_gfx1151_ubuntu24.04_py3.12_pytorch_2.9.1_vllm_0.16.0
-```
 
 ---
 
@@ -223,61 +176,9 @@ sudo kill $(sudo ss -tlnp | grep :<PORT> | awk '{print $NF}' | grep -oP '\d+')
 
 ---
 
-## vLLM Issues
-
-### vLLM hangs on startup
-
-gfx1151 has a known issue with HIP graph capture. Add `--enforce-eager`:
-
-```bash
-# Check if it's stuck on graph compilation
-podman logs vllm-server 2>&1 | tail -5
-# If last line mentions "Compiling a graph" for >5 minutes, it's stuck
-
-# Fix: the systemd service should already have --enforce-eager
-# If not, add it to the container command
-```
-
-### vLLM out of memory
-
-The Strix Halo GPU shares system RAM. Set utilization to 80%:
-
-```bash
-# Already set in the service, but if you see OOM:
---gpu-memory-utilization 0.80
-```
-
-Only one large model can be GPU-loaded at a time. If llama-server is also running with a model on GPU, stop it first:
-
-```bash
-systemctl --user stop llm-server    # stop llama.cpp
-systemctl --user restart container-vllm-server  # restart vLLM
-```
-
-### vLLM container won't start
-
-```bash
-# Check container status
-podman ps -a --filter name=vllm-server
-
-# Check logs
-podman logs vllm-server
-
-# Verify GPU access inside container
-podman run --rm --device /dev/kfd --device /dev/dri docker.io/rocm/vllm:rocm7.12.0_gfx1151_ubuntu24.04_py3.12_pytorch_2.9.1_vllm_0.16.0 rocminfo | head -20
-```
-
-### vLLM vs llama-server -- which to use
-
-Both are CORE. They serve different purposes:
-- **llama-server** (port 8081): single user, GGUF models, fast startup, fallback
-- **vLLM** (port 8083): multi-user production, continuous batching, HuggingFace models
-
-Open WebUI can point at either one. Change `OPENAI_API_BASE_URL` in the service config.
-
----
-
 ## GPU Not Detected
+
+*"Look how they massacured my boy." — you, when rocminfo returns nothing.*
 
 ### ROCm verification
 
@@ -614,7 +515,7 @@ Expected performance on Strix Halo:
 
 | Model | Expected Speed |
 |-------|---------------|
-| Qwen3-30B-A3B (MoE, Q4_K_M) | ~91 tok/s |
+| Qwen3-30B-A3B (MoE, Q4_K_M) | ~236 tok/s |
 | Llama 3 70B | ~18 tok/s |
 | Llama 3 70B Q8 | ~10 tok/s |
 

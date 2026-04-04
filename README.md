@@ -10,7 +10,7 @@
 
 ### the bare-metal ai stack for amd strix halo
 
-**91 tok/s · 42 services · 128gb unified · compiled from source · zero cloud**
+**236 tok/s · 31 services · 128gb unified · compiled from source · zero cloud**
 
 *stamped by the architect*
 
@@ -28,7 +28,7 @@
 
 ---
 
-> **[wiki](https://github.com/stampby/halo-ai/wiki)** — full documentation · **[discord](https://discord.gg/dSyV646eBs)** — community + support · **[youtube](https://www.youtube.com/@halo-ai.studio)** — agent podcasts + demos · **[tutorials](https://www.youtube.com/@DirtyOldMan-1971)** — video walkthroughs
+> **[wiki](https://github.com/stampby/halo-ai/wiki)** — full documentation · **[discord](https://discord.gg/dSyV646eBs)** — community + support · **[tutorials](https://www.youtube.com/@DirtyOldMan-1971)** — video walkthroughs
 
 ---
 
@@ -46,46 +46,13 @@ cd halo-ai
 sudo reboot
 ```
 
-**LEGO blocks** — the installer gives you a core that just works, then a menu to toggle optional services. every piece is independent. easy in, easy out. you can also install features later from the NOC panel.
-
-**core** (always installed): ROCm, Python, llama.cpp, vLLM, Open WebUI, Caddy, firewall
-**optional services**: whisper, lemonade, comfyui, n8n, searxng, qdrant, kokoro, dashboard, meek
-**advanced infrastructure**: SSH mesh, GlusterFS, shared folders (multi-machine only)
-
-not everyone has a datacenter. the core runs on a single machine. advanced infrastructure is for multi-machine setups — install it when you need it. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
-
-## network topology
-
-the architect's reference setup (yours can be simpler):
-
-```
-                    ┌─────────────────────┐
-                    │     ryzen (main)     │
-                    │   workstation / dev  │
-                    └──────────┬──────────┘
-                               │ SSH
-              ┌────────────────┼────────────────┐
-              │                │                │
-   ┌──────────┴──────┐  ┌─────┴──────┐  ┌──────┴──────────┐
-   │   strix-halo    │  │   sligar   │  │   pi5 (router)  │
-   │   GPU server    │  │   backup   │  │   DNS / network │
-   │   10.0.0.131    │  │            │  │   10.0.0.1      │
-   └─────────────────┘  └────────────┘  └─────────────────┘
-         │                    │
-         └─── GlusterFS ─────┘    (optional distributed storage)
-```
-
-**single machine**: just install the core. done. no mesh, no gluster, no shared folders.
-**two machines**: add SSH mesh + shared folder for remote GPU access.
-**three+ machines**: full ring bus + GlusterFS for distributed storage and failover.
-
-all infrastructure options are available from the install menu or the NOC panel after install.
+18 components compiled from source. ~2.5 hours. do not run as root. default login: `caddy / caddy`. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
 
 ## what you get
 
 | | |
 |---|---|
-| **inference** | llama.cpp hip + vulkan, 91 tok/s on qwen3-30b |
+| **inference** | llama.cpp hip + vulkan, 236 tok/s bonsai 1.7b, 83 tok/s qwen3-30b |
 | **chat** | open webui with rag, documents, multi-model |
 | **research** | vane — cited sources, private search |
 | **voice** | whisper.cpp stt + kokoro tts (54 voices) |
@@ -118,11 +85,14 @@ all infrastructure options are available from the install menu or the NOC panel 
 
 ## benchmarks
 
-| model | quant | decode | prompt |
-|-------|-------|--------|--------|
-| qwen3-30b-a3b | q4_k_m | **91 tok/s** | 154 tok/s |
-| llama 3.1 8b | q4_k_m | 185 tok/s | 2100 tok/s |
-| llama 3.1 70b | q4_k_m | 18 tok/s | 210 tok/s |
+| model | quant | size | decode | prompt |
+|-------|-------|------|--------|--------|
+| bonsai 1.7b | q1_0 (1-bit) | 231 mb | **236 tok/s** | 3267 tok/s |
+| bonsai 4b | q1_0 (1-bit) | 540 mb | **127 tok/s** | 1658 tok/s |
+| bonsai 8b | q1_0 (1-bit) | 1.1 gb | **94 tok/s** | 765 tok/s |
+| qwen3-30b-a3b | q4_k_m | 17.3 gb | **83 tok/s** | 1096 tok/s |
+| llama 3.1 8b | q4_k_m | 4.5 gb | 185 tok/s | 2100 tok/s |
+| llama 3.1 70b | q4_k_m | 40 gb | 18 tok/s | 210 tok/s |
 
 128gb unified = run 30b models at full speed with room to spare. [competitive comparison →](https://github.com/stampby/halo-ai/wiki/Benchmarks)
 
@@ -140,17 +110,6 @@ all infrastructure options are available from the install menu or the NOC panel 
 ## privacy
 
 **zero telemetry. zero tracking. zero data collection.** nothing phones home. your data stays on your machine.
-
-## platform support
-
-| platform | status |
-|----------|--------|
-| Linux (Arch, CachyOS) | supported |
-| AUR | coming soon |
-| Flatpak | coming soon |
-| other distros | untested — PRs welcome |
-
-all releases follow RC-first protocol: release candidate ships first, community tests and reports, then stable is tagged once validated.
 
 ## credits
 
