@@ -28,7 +28,7 @@
 
 ---
 
-> **[wiki](https://github.com/stampby/halo-ai/wiki)** — full documentation · **[discord](https://discord.gg/dSyV646eBs)** — community + support · **[tutorials](https://www.youtube.com/@DirtyOldMan-1971)** — video walkthroughs
+> **[wiki](https://github.com/stampby/halo-ai/wiki)** — full documentation · **[discord](https://discord.gg/dSyV646eBs)** — community + support · **[youtube](https://www.youtube.com/@halo-ai.studio)** — agent podcasts + demos · **[tutorials](https://www.youtube.com/@DirtyOldMan-1971)** — video walkthroughs
 
 ---
 
