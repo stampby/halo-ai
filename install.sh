@@ -93,6 +93,7 @@ cat << 'BANNER'
 BANNER
 echo -e "${NC}"
 echo -e "${DIM}  Bare-metal AI stack for AMD Strix Halo${NC}"
+echo -e "${DIM}  LEGO blocks — every service independent, easy in easy out${NC}"
 echo -e "${DIM}  designed and built by the architect${NC}"
 echo -e "${DIM}  github.com/stampby/halo-ai${NC}"
 echo ''
@@ -242,52 +243,95 @@ ok "Hostname: $HALO_HOSTNAME"
 # /etc/hosts entries are added later with all subdomains (line ~700)
 ok "Hostname: $HALO_HOSTNAME (will be added to /etc/hosts with subdomains later)"
 
-# 6. Service selection
+# 6. Service selection — LEGO BLOCKS philosophy
+# Core gets you up and running. Everything else is one-click optional.
 echo ''
-info "Select which services to enable via systemd."
+echo -e "${CYAN}${BOLD}  ┌──────────────────────────────────────────────────────────┐${NC}"
+echo -e "${CYAN}${BOLD}  │  LEGO BLOCKS — every service is independent              │${NC}"
+echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+echo -e "${CYAN}${BOLD}  │  CORE (always installed):                                │${NC}"
+echo -e "${CYAN}${BOLD}  │    ROCm, Python, llama.cpp, Open WebUI, Caddy, firewall  │${NC}"
+echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
+echo -e "${CYAN}${BOLD}  │  Everything below is OPTIONAL — toggle what you need.    │${NC}"
+echo -e "${CYAN}${BOLD}  │  You can install any of these later from the NOC panel.  │${NC}"
+echo -e "${CYAN}${BOLD}  └──────────────────────────────────────────────────────────┘${NC}"
+echo ''
 info "Toggle with the number key, press Enter when done."
 echo ''
 
-ALL_SERVICES=(llama-server whisper lemonade open-webui n8n comfyui searxng qdrant dashboard caddy meek)
+# ── Optional AI Services ──
+ALL_SERVICES=(whisper lemonade n8n comfyui searxng qdrant kokoro dashboard meek)
 SERVICE_LABELS=(
-    "llama-server  — LLM inference (HIP + Vulkan)"
     "whisper       — Speech-to-text"
     "lemonade      — Unified AI API gateway"
-    "open-webui    — Chat UI with RAG"
     "n8n           — Workflow automation"
     "comfyui       — Image generation"
     "searxng       — Private search engine"
     "qdrant        — Vector database for RAG"
+    "kokoro        — Text-to-speech (Kokoro TTS)"
     "dashboard     — GPU metrics + service health"
-    "caddy         — Reverse proxy with TLS"
     "meek          — Security monitoring agent (recommended)"
 )
-# All enabled by default
+
+# ── Advanced Infrastructure (multi-machine / datacenter) ──
+# These are NOT required for a single-machine install.
+# The architect's network topology:
+#   ryzen (main workstation) <──SSH──> strix-halo (GPU server) <──SSH──> sligar (backup)
+#   All connected via GlusterFS shared storage + SSHFS
+#   Most users will NOT need these.
+INFRA_SERVICES=(vllm ssh-mesh glusterfs shared-folder)
+INFRA_LABELS=(
+    "vllm          — Production LLM server (Podman container, multi-user)"
+    "ssh-mesh      — Multi-machine SSH ring bus (requires 2+ machines)"
+    "glusterfs     — Distributed storage across machines (requires 2+ machines)"
+    "shared-folder — SSHFS shared /shared/ folder (requires 2+ machines)"
+)
+
+# AI services: all enabled by default (single machine, works out of the box)
 ENABLED=()
 for i in "${!ALL_SERVICES[@]}"; do
     ENABLED[$i]=1
 done
 
+# Infrastructure: all DISABLED by default (datacenter features, opt-in only)
+INFRA_ENABLED=()
+for i in "${!INFRA_SERVICES[@]}"; do
+    INFRA_ENABLED[$i]=0
+done
+
 render_menu() {
+    echo -e "  ${BOLD}Optional AI Services:${NC}"
     for i in "${!ALL_SERVICES[@]}"; do
         local mark="x"
         [ "${ENABLED[$i]}" -eq 0 ] && mark=" "
         printf "  %s) [%s] %s\n" "$((i+1))" "$mark" "${SERVICE_LABELS[$i]}"
     done
+    local offset=${#ALL_SERVICES[@]}
     echo ''
-    echo "  a) Select all    n) Select none    Enter) Confirm"
+    echo -e "  ${BOLD}Advanced Infrastructure (multi-machine):${NC}"
+    echo -e "  ${DIM}  Not needed for single-machine installs. The architect runs 3 machines${NC}"
+    echo -e "  ${DIM}  in a mesh — your setup may differ. Install these later from the NOC panel.${NC}"
+    for i in "${!INFRA_SERVICES[@]}"; do
+        local mark="x"
+        [ "${INFRA_ENABLED[$i]}" -eq 0 ] && mark=" "
+        printf "  %s) [%s] %s\n" "$((i+1+offset))" "$mark" "${INFRA_LABELS[$i]}"
+    done
+    echo ''
+    echo "  a) Select all services    n) Select none    Enter) Confirm"
 }
+
+TOTAL_ITEMS=$(( ${#ALL_SERVICES[@]} + ${#INFRA_SERVICES[@]} ))
 
 if [ "$DRY_RUN" -eq 1 ]; then
     render_menu
-    info "[DRY-RUN] All services selected (default)"
+    info "[DRY-RUN] All AI services selected, infrastructure disabled (default)"
     choice=""
 else
     choice="loop"
 fi
 while [ "$choice" != "" ]; do
     render_menu
-    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Toggle service (1-${#ALL_SERVICES[@]}, a, n, or Enter to confirm): " choice
+    read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") Toggle (1-${TOTAL_ITEMS}, a, n, or Enter to confirm): " choice
     case "$choice" in
         "")
             break
@@ -298,12 +342,16 @@ while [ "$choice" != "" ]; do
             ;;
         n|N)
             for i in "${!ALL_SERVICES[@]}"; do ENABLED[$i]=0; done
+            for i in "${!INFRA_SERVICES[@]}"; do INFRA_ENABLED[$i]=0; done
             echo ''
             ;;
-        [1-9]|1[01])
+        [0-9]|[0-9][0-9])
             idx=$((choice - 1))
             if [ "$idx" -ge 0 ] && [ "$idx" -lt "${#ALL_SERVICES[@]}" ]; then
                 ENABLED[$idx]=$(( 1 - ENABLED[$idx] ))
+            elif [ "$idx" -ge "${#ALL_SERVICES[@]}" ] && [ "$idx" -lt "$TOTAL_ITEMS" ]; then
+                infra_idx=$((idx - ${#ALL_SERVICES[@]}))
+                INFRA_ENABLED[$infra_idx]=$(( 1 - INFRA_ENABLED[$infra_idx] ))
             fi
             echo ''
             ;;
@@ -314,11 +362,23 @@ while [ "$choice" != "" ]; do
     esac
 done
 
-SELECTED_SERVICES=()
+# Core services — always installed, always enabled
+CORE_SERVICES=(llama-server open-webui caddy)
+
+SELECTED_SERVICES=("${CORE_SERVICES[@]}")
 for i in "${!ALL_SERVICES[@]}"; do
     [ "${ENABLED[$i]}" -eq 1 ] && SELECTED_SERVICES+=("${ALL_SERVICES[$i]}")
 done
-ok "Services to enable: ${SELECTED_SERVICES[*]}"
+
+SELECTED_INFRA=()
+for i in "${!INFRA_SERVICES[@]}"; do
+    [ "${INFRA_ENABLED[$i]}" -eq 1 ] && SELECTED_INFRA+=("${INFRA_SERVICES[$i]}")
+done
+
+echo ''
+ok "Core (always installed): ${CORE_SERVICES[*]}"
+ok "Optional services: $(printf '%s ' "${ALL_SERVICES[@]}" | sed 's/ $//' || echo 'none')"
+[ ${#SELECTED_INFRA[@]} -gt 0 ] && ok "Infrastructure: ${SELECTED_INFRA[*]}" || ok "Infrastructure: none (single-machine mode)"
 
 # ── Base packages ──────────────────────────────────
 step "Installing build dependencies"

@@ -46,7 +46,40 @@ cd halo-ai
 sudo reboot
 ```
 
-18 components compiled from source. ~2.5 hours. do not run as root. default login: `caddy / caddy`. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
+**LEGO blocks** — the installer gives you a core that just works, then a menu to toggle optional services. every piece is independent. easy in, easy out. you can also install features later from the NOC panel.
+
+**core** (always installed): ROCm, Python, llama.cpp, Open WebUI, Caddy, firewall
+**optional services**: whisper, lemonade, comfyui, n8n, searxng, qdrant, kokoro, dashboard, meek
+**advanced infrastructure**: vLLM, SSH mesh, GlusterFS, shared folders (multi-machine only)
+
+not everyone has a datacenter. the core runs on a single machine. advanced infrastructure is for multi-machine setups — install it when you need it. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
+
+## network topology
+
+the architect's reference setup (yours can be simpler):
+
+```
+                    ┌─────────────────────┐
+                    │     ryzen (main)     │
+                    │   workstation / dev  │
+                    └──────────┬──────────┘
+                               │ SSH
+              ┌────────────────┼────────────────┐
+              │                │                │
+   ┌──────────┴──────┐  ┌─────┴──────┐  ┌──────┴──────────┐
+   │   strix-halo    │  │   sligar   │  │   pi5 (router)  │
+   │   GPU server    │  │   backup   │  │   DNS / network │
+   │   10.0.0.131    │  │            │  │   10.0.0.1      │
+   └─────────────────┘  └────────────┘  └─────────────────┘
+         │                    │
+         └─── GlusterFS ─────┘    (optional distributed storage)
+```
+
+**single machine**: just install the core. done. no mesh, no gluster, no shared folders.
+**two machines**: add SSH mesh + shared folder for remote GPU access.
+**three+ machines**: full ring bus + GlusterFS for distributed storage and failover.
+
+all infrastructure options are available from the install menu or the NOC panel after install.
 
 ## what you get
 
@@ -107,6 +140,17 @@ sudo reboot
 ## privacy
 
 **zero telemetry. zero tracking. zero data collection.** nothing phones home. your data stays on your machine.
+
+## platform support
+
+| platform | status |
+|----------|--------|
+| Linux (Arch, CachyOS) | supported |
+| AUR | coming soon |
+| Flatpak | coming soon |
+| other distros | untested — PRs welcome |
+
+all releases follow RC-first protocol: release candidate ships first, community tests and reports, then stable is tagged once validated.
 
 ## credits
 
