@@ -48,9 +48,9 @@ sudo reboot
 
 **LEGO blocks** — the installer gives you a core that just works, then a menu to toggle optional services. every piece is independent. easy in, easy out. you can also install features later from the NOC panel.
 
-**core** (always installed): ROCm, Python, llama.cpp, Open WebUI, Caddy, firewall
+**core** (always installed): ROCm, Python, llama.cpp, vLLM, Open WebUI, Caddy, firewall
 **optional services**: whisper, lemonade, comfyui, n8n, searxng, qdrant, kokoro, dashboard, meek
-**advanced infrastructure**: vLLM, SSH mesh, GlusterFS, shared folders (multi-machine only)
+**advanced infrastructure**: SSH mesh, GlusterFS, shared folders (multi-machine only)
 
 not everyone has a datacenter. the core runs on a single machine. advanced infrastructure is for multi-machine setups — install it when you need it. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
 

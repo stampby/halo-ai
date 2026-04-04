@@ -250,7 +250,7 @@ echo -e "${CYAN}${BOLD}  ┌─────────────────�
 echo -e "${CYAN}${BOLD}  │  LEGO BLOCKS — every service is independent              │${NC}"
 echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
 echo -e "${CYAN}${BOLD}  │  CORE (always installed):                                │${NC}"
-echo -e "${CYAN}${BOLD}  │    ROCm, Python, llama.cpp, Open WebUI, Caddy, firewall  │${NC}"
+echo -e "${CYAN}${BOLD}  │    ROCm, Python, llama.cpp, vLLM, Open WebUI, Caddy      │${NC}"
 echo -e "${CYAN}${BOLD}  │                                                          │${NC}"
 echo -e "${CYAN}${BOLD}  │  Everything below is OPTIONAL — toggle what you need.    │${NC}"
 echo -e "${CYAN}${BOLD}  │  You can install any of these later from the NOC panel.  │${NC}"
@@ -279,9 +279,8 @@ SERVICE_LABELS=(
 #   ryzen (main workstation) <──SSH──> strix-halo (GPU server) <──SSH──> sligar (backup)
 #   All connected via GlusterFS shared storage + SSHFS
 #   Most users will NOT need these.
-INFRA_SERVICES=(vllm ssh-mesh glusterfs shared-folder)
+INFRA_SERVICES=(ssh-mesh glusterfs shared-folder)
 INFRA_LABELS=(
-    "vllm          — Production LLM server (Podman container, multi-user)"
     "ssh-mesh      — Multi-machine SSH ring bus (requires 2+ machines)"
     "glusterfs     — Distributed storage across machines (requires 2+ machines)"
     "shared-folder — SSHFS shared /shared/ folder (requires 2+ machines)"
@@ -363,7 +362,7 @@ while [ "$choice" != "" ]; do
 done
 
 # Core services — always installed, always enabled
-CORE_SERVICES=(llama-server open-webui caddy)
+CORE_SERVICES=(llama-server vllm open-webui caddy)
 
 SELECTED_SERVICES=("${CORE_SERVICES[@]}")
 for i in "${!ALL_SERVICES[@]}"; do
