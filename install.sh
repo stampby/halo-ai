@@ -208,12 +208,12 @@ ok "Username: $HALO_USER"
 # 2. Caddy password
 echo ''
 info "Caddy reverse proxy password (protects ALL web services)"
-info "Default: caddy / Caddy — safe on your home LAN behind nftables."
+info "Default: caddy / caddy — safe on your home LAN behind nftables."
 info "Leave blank to keep the default, or type a new password."
 prompt_secret CADDY_PASSWORD "Caddy password (blank = default 'Caddy')"
 if [ -z "$CADDY_PASSWORD" ]; then
-    CADDY_PASSWORD="Caddy"
-    ok "Using default password: Caddy (username: caddy)"
+    CADDY_PASSWORD="caddy"
+    ok "Using default password: caddy (username: caddy)"
 fi
 ok "Caddy password set (will be hashed during install)"
 
