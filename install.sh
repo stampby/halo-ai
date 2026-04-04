@@ -166,8 +166,35 @@ if [ -d /srv/ai/llama-cpp/.git ] || [ -x /opt/python312/bin/python3.12 ]; then
     warn "Previous install detected — re-run mode (safe to continue)"
 fi
 
-lscpu | grep -q "Strix" || warn "This installer is designed for AMD Strix Halo. Proceeding anyway..."
-/opt/rocm/bin/rocminfo 2>/dev/null | grep -q "gfx1151" && ok "ROCm already installed" || NEED_ROCM=1
+# ── GPU auto-detection ────────────────────────────
+# Detect AMD GPU target automatically — no hardcoded assumptions.
+# Works on any AMD GPU supported by ROCm (gfx1100, gfx1101, gfx1150, gfx1151, etc.)
+GPU_TARGET=""
+if command -v /opt/rocm/bin/rocminfo >/dev/null 2>&1; then
+    GPU_TARGET=$(/opt/rocm/bin/rocminfo 2>/dev/null | grep -oP 'gfx\d+' | head -1)
+fi
+if [ -z "$GPU_TARGET" ]; then
+    # Fallback: try to detect from lspci
+    if lspci 2>/dev/null | grep -qi "strix halo"; then
+        GPU_TARGET="gfx1151"
+    elif lspci 2>/dev/null | grep -qi "strix point"; then
+        GPU_TARGET="gfx1150"
+    elif lspci 2>/dev/null | grep -qi "navi 3"; then
+        GPU_TARGET="gfx1100"
+    fi
+fi
+if [ -z "$GPU_TARGET" ]; then
+    warn "Could not auto-detect AMD GPU target."
+    prompt GPU_TARGET "AMD GPU target (e.g. gfx1151, gfx1100)" "gfx1151"
+else
+    ok "Detected GPU: $GPU_TARGET"
+fi
+
+# Validate GPU target format
+[[ "$GPU_TARGET" =~ ^gfx[0-9]+$ ]] || fail "Invalid GPU target: '$GPU_TARGET'"
+
+lscpu | grep -q "Strix" || warn "This installer is designed for AMD Strix Halo. Other AMD GPUs may work — detected: $GPU_TARGET"
+/opt/rocm/bin/rocminfo 2>/dev/null | grep -q "$GPU_TARGET" && ok "ROCm already installed ($GPU_TARGET)" || NEED_ROCM=1
 
 # ── Interactive configuration ─────────────────────
 step "Interactive Setup"
@@ -427,8 +454,8 @@ else
 step "ROCm GPU runtime (~10 min download, ~2 min extract)"
 if [ "${NEED_ROCM:-}" = "1" ]; then
     command -v wget >/dev/null || sudo pacman -S --noconfirm --needed wget
-    info "Downloading ROCm 7.13 for gfx1151..."
-    ROCM_URL="${ROCM_URL:-https://rocm.nightlies.amd.com/tarball/therock-dist-linux-gfx1151-7.13.0a20260323.tar.gz}"
+    info "Downloading ROCm 7.13 for $GPU_TARGET..."
+    ROCM_URL="${ROCM_URL:-https://rocm.nightlies.amd.com/tarball/therock-dist-linux-${GPU_TARGET}-7.13.0a20260323.tar.gz}"
     if cd /srv/ai/rocm 2>/dev/null && \
        wget --show-progress "$ROCM_URL" -O therock.tar.gz; then
         mkdir -p install && tar -xf therock.tar.gz -C install
@@ -439,7 +466,7 @@ export PATH=/opt/rocm/bin:${PATH:-}
 export LD_LIBRARY_PATH=/opt/rocm/lib:${LD_LIBRARY_PATH:-}' | sudo tee /etc/profile.d/rocm.sh >/dev/null
         source /etc/profile.d/rocm.sh
         ok "ROCm installed. Verifying GPU..."
-        rocminfo | grep -q gfx1151 && ok "gfx1151 detected" || warn "GPU not detected — may need reboot"
+        rocminfo | grep -q "$GPU_TARGET" && ok "$GPU_TARGET detected" || warn "GPU not detected — may need reboot"
     else
         warn "ROCm download failed or directory missing — skipping"
         warn "Install ROCm manually later. See docs/TROUBLESHOOTING.md"
@@ -577,7 +604,7 @@ export ROCBLAS_USE_HIPBLASLT=1
 progress "Compiling HIP backend..."
 cd /srv/ai/llama-cpp
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ggml-org/llama.cpp .; fi
-cmake -B build-hip -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DGGML_HIP_ROCWMMA_FATTN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
+cmake -B build-hip -DGGML_HIP=ON -DAMDGPU_TARGETS="$GPU_TARGET" -DGGML_HIP_ROCWMMA_FATTN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
 cmake --build build-hip -j$(nproc)
 cmake -B build-vulkan -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev .
 cmake --build build-vulkan -j$(nproc)
@@ -595,7 +622,7 @@ ok "Lemonade built"
 info "Building whisper.cpp..."
 cd /srv/ai/whisper-cpp
 if [ -d .git ]; then git pull --ff-only 2>/dev/null || true; else git clone https://github.com/ggerganov/whisper.cpp .; fi
-cmake -B build -DGGML_HIP=ON -DAMDGPU_TARGETS=gfx1151 -DCMAKE_BUILD_TYPE=Release -G Ninja .
+cmake -B build -DGGML_HIP=ON -DAMDGPU_TARGETS="$GPU_TARGET" -DCMAKE_BUILD_TYPE=Release -G Ninja .
 cmake --build build -j$(nproc)
 ok "whisper.cpp built"
 
