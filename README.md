@@ -34,7 +34,7 @@
 
 ## what is this
 
-a complete ai platform on a single chip. llm chat, deep research, voice, image gen, workflows, and 17 autonomous agents — all compiled from source on amd strix halo with 128gb unified memory. no containers. no cloud. boot to ready in 19 seconds.
+a complete ai platform on a single chip. llm chat, deep research, voice, image gen, workflows, and 17 autonomous agents — all compiled from source on amd strix halo with 128gb unified memory. no containers. no cloud. boot to ready in 19 seconds. *"i know kung fu."*
 
 ## install
 
@@ -46,7 +46,7 @@ cd halo-ai
 sudo reboot
 ```
 
-18 components compiled from source. ~2.5 hours. do not run as root. default login: `caddy / caddy`. [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
+18 components compiled from source. ~2.5 hours. do not run as root. default login: `caddy / caddy`. *"choose wisely."* [full guide →](https://github.com/stampby/halo-ai/wiki/Install-Guide)
 
 ## what you get
 
@@ -68,7 +68,7 @@ sudo reboot
 
 ## the family
 
-17 agents. each with a role, a personality, and a version number.
+17 agents. each with a role, a personality, and a version number. *"there can be only one."* — except there's 17.
 
 | agent | role | ver |
 |-------|------|-----|
@@ -94,12 +94,12 @@ sudo reboot
 | llama 3.1 8b | q4_k_m | 4.5 gb | 185 tok/s | 2100 tok/s |
 | llama 3.1 70b | q4_k_m | 40 gb | 18 tok/s | 210 tok/s |
 
-128gb unified = run 30b models at full speed with room to spare. [competitive comparison →](https://github.com/stampby/halo-ai/wiki/Benchmarks)
+128gb unified = no vram wall. run 30b models at full speed with room to spare. *"my precious."* [competitive comparison →](https://github.com/stampby/halo-ai/wiki/Benchmarks)
 
 ## security
 
 - all downloads sha256 + gpg verified
-- all services on 127.0.0.1 behind caddy auth
+- all services on 127.0.0.1 behind caddy auth — *"you shall not pass"*
 - ssh key-only, root disabled, fail2ban
 - meek audits the stack daily — 17 checks
 - axios supply chain attack mitigated — [advisory](https://github.com/stampby/halo-ai/security/advisories/GHSA-3gp9-qwch-x5wv)
@@ -109,7 +109,7 @@ sudo reboot
 
 ## privacy
 
-**zero telemetry. zero tracking. zero data collection.** nothing phones home. your data stays on your machine.
+**zero telemetry. zero tracking. zero data collection.** nothing phones home. your data stays on your machine. *"there is no cloud. there is only zuul."*
 
 ## credits
 
@@ -117,6 +117,6 @@ built on [DreamServer](https://github.com/Light-Heart-Labs/DreamServer). powered
 
 ---
 
-*stamped by the architect*
+*"i am inevitable."* — *stamped by the architect*
 
 Apache 2.0
