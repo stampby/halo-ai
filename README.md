@@ -15,7 +15,7 @@
 *stamped by the architect*
 
 [![CI](https://github.com/stampby/halo-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/stampby/halo-ai/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/stampby/halo-ai/actions/workflows/254939804/badge.svg)](https://github.com/stampby/halo-ai/actions/workflows/254939804)
+[![CodeQL](https://github.com/stampby/halo-ai/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/stampby/halo-ai/actions/workflows/github-code-scanning/codeql)
 [![Stars](https://img.shields.io/github/stars/stampby/halo-ai?style=flat&logo=github&label=Stars)](https://github.com/stampby/halo-ai/stargazers)
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=archlinux&logoColor=white)](https://archlinux.org)
 [![ROCm](https://img.shields.io/badge/ROCm_7.13-ED1C24?style=flat&logo=amd&logoColor=white)](https://rocm.docs.amd.com)
