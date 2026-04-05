@@ -23,6 +23,7 @@
 [![Discord](https://img.shields.io/badge/Discord-halo--ai-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/dSyV646eBs)
 [![Wiki](https://img.shields.io/badge/Wiki-documentation-00d4ff?style=flat&logo=github&logoColor=white)](https://github.com/stampby/halo-ai/wiki)
 [![Medium](https://img.shields.io/badge/Medium-articles-000000?style=flat&logo=medium&logoColor=white)](https://medium.com/@stampby)
+[![YouTube](https://img.shields.io/badge/YouTube-halo--ai-FF0000?style=flat&logo=youtube&logoColor=white)](https://www.youtube.com/@halo-ai.studio)
 
 </div>
 
