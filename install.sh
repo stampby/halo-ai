@@ -184,8 +184,15 @@ if [ -z "$GPU_TARGET" ]; then
     fi
 fi
 if [ -z "$GPU_TARGET" ]; then
-    warn "Could not auto-detect AMD GPU target."
-    prompt GPU_TARGET "AMD GPU target (e.g. gfx1151, gfx1100)" "gfx1151"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        GPU_TARGET="gfx1151"
+        info "[DRY-RUN] GPU target → gfx1151"
+    else
+        warn "Could not auto-detect AMD GPU target."
+        # prompt defined below — inline the read here since function isn't loaded yet
+        read -rp "$(echo -e "${BLUE}[halo-ai]${NC}") AMD GPU target (e.g. gfx1151, gfx1100) [gfx1151]: " _gpu_input
+        GPU_TARGET="${_gpu_input:-gfx1151}"
+    fi
 else
     ok "Detected GPU: $GPU_TARGET"
 fi
